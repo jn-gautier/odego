@@ -1024,6 +1024,8 @@ class Odf_file():
              #
              if (eleve.pia )!="":
                  table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un PIA" )
+             if (eleve.ctg )!="":
+                 table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un contrat de travail global" )
              #
              if (eleve.liste_echec_travail )!="":
                  table=self.creer_ligne_2cell(table,"Prévoir contrat",eleve.liste_echec_travail )
