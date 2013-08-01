@@ -1022,6 +1022,9 @@ class Odf_file():
              if (eleve.liste_echec_contrat )!="":
                  table=self.creer_ligne_2cell(table,"Echec sur contrat",eleve.liste_echec_contrat )
              #
+             if (eleve.pia )!="":
+                 table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un PIA" )
+             #
              if (eleve.liste_echec_travail )!="":
                  table=self.creer_ligne_2cell(table,"Prévoir contrat",eleve.liste_echec_travail )
              #
