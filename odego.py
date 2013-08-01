@@ -1174,7 +1174,6 @@ if __name__=="__main__":
 
 # completement dissocier l'analyse et la production du document, cad dans la prod du document, faire des tests du type if critere_cours_verrou_echec=0/1/2 et faire une fonction d'analyse générale if nb_cours_verrou_echec>nb_cours_verrou_echec_max alors 2
 #ajouter la possibilité d'importer les points depuis un fichier xsl ou xslx
-# vérifier qu'il n'existe pas déjà des documents là où enregistre et ajouter un numéro si nécessaire
 # dans le tableau recap, supprimer les colonnes pour lesquelles il n'y a pas de points
 # mettre une ligne sur deux en gris clair
 # 
@@ -1183,4 +1182,3 @@ if __name__=="__main__":
 # sur le côté mettre le panneau avec le chaoix classe, année, ...
 # au dessus, les butons OK, quitter, nouveau, a propos
 
-# tenir compte des ctg et des PIA et des DDN
