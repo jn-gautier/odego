@@ -1172,13 +1172,5 @@ if __name__=="__main__":
      app.exec_()
      
 
-# completement dissocier l'analyse et la production du document, cad dans la prod du document, faire des tests du type if critere_cours_verrou_echec=0/1/2 et faire une fonction d'analyse générale if nb_cours_verrou_echec>nb_cours_verrou_echec_max alors 2
-#ajouter la possibilité d'importer les points depuis un fichier xsl ou xslx
-# dans le tableau recap, supprimer les colonnes pour lesquelles il n'y a pas de points
-# mettre une ligne sur deux en gris clair
-# 
 
-# changer le gui : faire un système ave une grille à remplir type tableur avec la possibilité de la remplir à partir d'un fichier ods
-# sur le côté mettre le panneau avec le chaoix classe, année, ...
-# au dessus, les butons OK, quitter, nouveau, a propos
 
