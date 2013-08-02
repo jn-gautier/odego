@@ -163,11 +163,11 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_noel(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=True,echec_inf35=False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -187,11 +187,11 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_mars(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=False,echec_inf35=False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -211,11 +211,11 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_juin(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=True,echec_inf35=False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -235,11 +235,11 @@ class Gui(QDialog):
      #
      def traitement_345_gt_noel(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=True,echec_inf35=True)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -259,11 +259,11 @@ class Gui(QDialog):
      #
      def traitement_345_gt_mars(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=False,echec_inf35=False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -283,11 +283,11 @@ class Gui(QDialog):
      #
      def traitement_345_gt_juin(self):
          try:
-             classe.stats_elv()
+             classe.stats_elv(moy_pond=True,echec_inf35=True)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
@@ -386,7 +386,7 @@ class Classe(object):
                  self.grille_horaire[cours.abr]=cours
              print "Création d'une classe de", self.niv_sec
          except Exception, e:
-             QMessageBox.fatal(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
+             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
              print'Erreur dans la lecture du fichier de description des cours'
              print 'Erreur : %s' % e
              print sys.exc_traceback.tb_lineno 
@@ -400,7 +400,7 @@ class Classe(object):
              for node_critere in tree_niveau:
                  setattr(self.criteres, node_critere.tag,int(node_critere.text))
          except Exception, e:
-             QMessageBox.fatal(gui,u'Echec',u"Erreur dans la lecture du fichier de description des critères.")
+             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des critères.")
              print'Erreur dans la lecture du fichier de description des critères.'
              print 'Erreur : %s' % e
              #print sys.exc_traceback.tb_lineno 
@@ -428,7 +428,7 @@ class Classe(object):
              if ligne_cours==False:
                  raise ExceptionPasCours
          except ExceptionPasCours :
-             QMessageBox.fatal(gui,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
+             QMessageBox.critical(gui,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
              print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
          for row in table.get_rows():
              prem_cell=row.get_cell(0).get_value()
@@ -485,13 +485,15 @@ class Classe(object):
          print 'Liste des cours : ' , self.liste_cours
      #
      #
-     def stats_elv(self):
+     def stats_elv(self,moy_pond,echec_inf35):
          for eleve in self.carnet_cotes.itervalues():
-             eleve.moyenne_ponderee()
+             if moy_pond==True:
+                 eleve.moyenne_ponderee()
+             if echec_inf35==True:
+                 eleve.echec_inf35()
              eleve.nombre_heures_horaire()
              eleve.total_heures_echec()
              eleve.cours_verrou_echec()
-             eleve.echec_inf35()
              eleve.nb_cours_echec()
              eleve.echec_contrat()
              eleve.certif_med()
@@ -523,9 +525,9 @@ class Classe(object):
 class Eleve(Classe):
      #
      def __init__(self):
-         self.PIA=False
-         self.CTG=False
-         self.DDN=False
+         self.pia=False
+         self.ctg=False
+         self.ddn=False
          self.eval_certif=False
          self.vol_horaire_cc=0
          self.vol_horaire_ccnc=0
@@ -1026,9 +1028,8 @@ class Odf_file():
              nom_table=unicode(nom_eleve.replace("'",''),'utf-8')
              table=odf_create_table(nom_table,style='style_table')
              remarque=' ('+str(eleve.vol_horaire_ccnc )+'p./sem)'
-             if eleve.situation_globale==1 or 4:
+             if (eleve.situation_globale==1) or (eleve.situation_globale==4):
                  remarque+=' '+eleve.age_str
-             
              table=self.creer_ligne_entete(table,nom_eleve+remarque)
              #
              if eleve.eval_certif ==True:
@@ -1062,9 +1063,9 @@ class Odf_file():
              if (eleve.liste_echec_contrat )!="":
                  table=self.creer_ligne_2cell(table,"Echec sur contrat",eleve.liste_echec_contrat )
              #
-             if (eleve.pia )!="":
+             if (eleve.pia )!=False:
                  table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un PIA" )
-             if (eleve.ctg )!="":
+             if (eleve.ctg )!=False:
                  table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un contrat de travail global" )
              #
              if (eleve.liste_echec_travail )!="":
