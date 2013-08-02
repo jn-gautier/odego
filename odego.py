@@ -126,9 +126,7 @@ class Gui(QDialog):
              try:
                  classe.__init__(self.niveau,self.section,self.fichier_a_traiter)
                  classe.prod_carnet_cotes()
-                 classe.stats_elv()
-                 classe.prod_situation_globale()
-                 classe.prod_liste_eleves()
+                 
                  if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Noël'):
                      self.traitement_1deg_gt_noel()
                  if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Mars'):
@@ -136,11 +134,11 @@ class Gui(QDialog):
                  if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Juin'):
                      self.traitement_1deg_gt_juin()
                  if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Noël'):
-                     self.traitement_2deg_gt_noel()
+                     self.traitement_345_gt_noel()
                  if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Mars'):
-                     self.traitement_2deg_gt_mars()
+                     self.traitement_345_gt_mars()
                  if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Juin'):
-                     self.traitement_2deg_gt_juin()
+                     self.traitement_345_gt_juin()
              except Exception, e:
                  QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
                  <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
@@ -165,6 +163,13 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_noel(self):
          try:
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
+         except Exception, e:
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             print 'Erreur : %s' % e
+         try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
                  analyse.analyse_eleve()
@@ -181,6 +186,13 @@ class Gui(QDialog):
              print 'Erreur : %s' % e
      #
      def traitement_1deg_gt_mars(self):
+         try:
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
+         except Exception, e:
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -199,22 +211,12 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_juin(self):
          try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
-                 tableau.tableau_recap()
-                 del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
          except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-     #
-     def traitement_2deg_gt_noel(self):
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -231,7 +233,14 @@ class Gui(QDialog):
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
      #
-     def traitement_2deg_gt_mars(self):
+     def traitement_345_gt_noel(self):
+         try:
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
+         except Exception, e:
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -248,7 +257,38 @@ class Gui(QDialog):
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
      #
-     def traitement_2deg_gt_juin(self):
+     def traitement_345_gt_mars(self):
+         try:
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
+         except Exception, e:
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             print 'Erreur : %s' % e
+         try:
+             if self.creer_analyse_eleve==True:
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse.analyse_eleve()
+                 del analyse
+                 #
+             if self.creer_tableau_recap==True:
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau.tableau_recap()
+                 del tableau
+             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
+                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
+         except Exception, e:
+             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
+             print 'Erreur : %s' % e
+     #
+     def traitement_345_gt_juin(self):
+         try:
+             classe.stats_elv()
+             classe.prod_situation_globale()
+             classe.prod_liste_eleves()
+         except Exception, e:
+             QMessageBox.fatal(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             print 'Erreur : %s' % e
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
