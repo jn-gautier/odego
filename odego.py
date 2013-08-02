@@ -163,12 +163,13 @@ class Gui(QDialog):
      #
      def traitement_1deg_gt_noel(self):
          try:
-             classe.stats_elv(moy_pond=True,echec_inf35=False)
+             classe.stats_elv(True,False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -184,15 +185,17 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
      #
      def traitement_1deg_gt_mars(self):
          try:
-             classe.stats_elv(moy_pond=False,echec_inf35=False)
+             classe.stats_elv(False,False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -208,15 +211,17 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
      #
      def traitement_1deg_gt_juin(self):
          try:
-             classe.stats_elv(moy_pond=True,echec_inf35=False)
+             classe.stats_elv(True,False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -232,15 +237,17 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
      #
      def traitement_345_gt_noel(self):
          try:
-             classe.stats_elv(moy_pond=True,echec_inf35=True)
+             classe.stats_elv(True,True)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -256,15 +263,17 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
      #
      def traitement_345_gt_mars(self):
          try:
-             classe.stats_elv(moy_pond=False,echec_inf35=False)
+             classe.stats_elv(False,False)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -280,15 +289,17 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
      #
      def traitement_345_gt_juin(self):
          try:
-             classe.stats_elv(moy_pond=True,echec_inf35=True)
+             classe.stats_elv(True,True)
              classe.prod_situation_globale()
              classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
          try:
              if self.creer_analyse_eleve==True:
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
@@ -304,6 +315,7 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
+             print 'Ligne ', sys.exc_traceback.tb_lineno
 #
 #
 class ExceptionPasCours(Exception): pass
@@ -485,11 +497,11 @@ class Classe(object):
          print 'Liste des cours : ' , self.liste_cours
      #
      #
-     def stats_elv(self,moy_pond,echec_inf35):
+     def stats_elv(self,do_moy_pond=True,do_echec_inf35=True):
          for eleve in self.carnet_cotes.itervalues():
-             if moy_pond==True:
+             if do_moy_pond==True:
                  eleve.moyenne_ponderee()
-             if echec_inf35==True:
+             if do_echec_inf35==True:
                  eleve.echec_inf35()
              eleve.nombre_heures_horaire()
              eleve.total_heures_echec()
@@ -531,14 +543,24 @@ class Eleve(Classe):
          self.eval_certif=False
          self.vol_horaire_cc=0
          self.vol_horaire_ccnc=0
+         
          self.moy_pond_cc=0
          self.moy_pond_ccnc=0
          self.heures_echec_cc=0
          self.heures_echec_nc=0
+         self.heures_echec_tot='0'
+         self.nb_cours_verrou_echec=0
+         self.liste_cours_verrou_echec=''
          self.nb_cours_cc_echec=0
          self.nb_cours_nc_echec=0
+         self.liste_echec_contrat=''
+         self.liste_certif_med=''
+         self.liste_oubli_cours=''
+         self.liste_echec_travail=''
          self.credits_inf_50=0
          self.situation_globale=0
+         self.nb_cours_inf35=0
+         self.liste_cours_inf35=''
      #
      #
      def nombre_heures_horaire(self):
@@ -679,13 +701,13 @@ class Eleve(Classe):
      #
      #
      def classement_cours(self):
+         self.classement_cours={}
          liste_35_50=[]
          liste_50_60=[] 
          liste_60_70=[]
          liste_70_80=[]
          liste_inf35=[] 
          liste_sup80=[]
-         self.classement_cours={}
          for cours in self.grille_horaire.itervalues():
              if cours.points!=False:
                  if (cours.points<35):
@@ -740,6 +762,7 @@ class Cours(Eleve):
          self.contrat=False
          self.echec_force=False
          self.echec_travail=False
+         
      #
      #
      def analyse_points(self,points):
