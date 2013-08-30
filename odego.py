@@ -27,12 +27,12 @@ class Gui(QMainWindow):
          self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
          self.tableau_valide=False
          
-         new_from_fileAction = QAction(QIcon('dessin.svg'),u"&Importer les points à partir d'un fichier", self)
+         new_from_fileAction = QAction(QIcon('./icons/import_file.svg'),u"&Importer les points à partir d'un fichier", self)
          new_from_fileAction.setShortcut('Ctrl+I')
          new_from_fileAction.setStatusTip(u"Importer les points directement à partir d'un fichier")
          new_from_fileAction.triggered.connect(self.select_file)
          
-         new_from_clipboardAction = QAction(QIcon('editpaste.png'),u"Importer les points à partir du &presse papier", self)
+         new_from_clipboardAction = QAction(QIcon('./icons/editpaste.png'),u"Importer les points à partir du &presse papier", self)
          new_from_clipboardAction.setShortcut('Ctrl+V')
          new_from_clipboardAction.setStatusTip(u"Importer les points à partir de données copiées depuis un fichier")
          new_from_clipboardAction.triggered.connect(self.test)
@@ -78,7 +78,9 @@ class Gui(QMainWindow):
          self.statusBar()
          
          #self.setGeometry(300, 300, 300, 200)
-         self.setWindowTitle('Odego')    
+         self.setWindowTitle('Odego')
+         self.center()
+         self.setWindowIcon(QIcon('./icons/odego.svg')) 
          
          niveau=['','1', '2', '3', '4', '5', '6']
          classes=['','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
@@ -124,7 +126,9 @@ class Gui(QMainWindow):
          logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
          logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
          logDockWidget.setWidget(widget)
+         logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
+         #
          self.radio1=QCheckBox(u"Tableau récapitulatif")
          self.radio2=QCheckBox(u"Analyse detaillée")
          self.radio3=QCheckBox("Classement")
@@ -146,6 +150,7 @@ class Gui(QMainWindow):
          logDockWidget.setTitleBarWidget(QLabel( '<p style="font-size:10pt;font-weight:bold">Analyses</p>' ))
          logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
          logDockWidget.setWidget(widget)
+         logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          
          
@@ -158,6 +163,7 @@ class Gui(QMainWindow):
          logDockWidget.setFeatures(QDockWidget.NoDockWidgetFeatures)
          logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
          logDockWidget.setWidget(self.boutton_ok)
+         logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          
          self.setWindowTitle(u'Odego : un guide pour les délibérations')
@@ -168,6 +174,14 @@ class Gui(QMainWindow):
              self.combo_delib.setCurrentIndex(1)
          if now.month in [6,7,8,9]:
              self.combo_delib.setCurrentIndex(2)
+     #
+     def center(self):
+         qr = self.frameGeometry()
+         
+         cp = QDesktopWidget().availableGeometry().center()
+         
+         qr.moveCenter(cp)
+         self.move(qr.topLeft())
      #
      def test(self):
          print 'hello'
@@ -187,6 +201,10 @@ class Gui(QMainWindow):
              self.import_xls()
          elif self.ext=='xslx':
              pass
+         elif self.ext=='txt':
+             self.import_txt()
+         elif self.ext=='csv':
+             self.import_txt()
          else:
              QMessageBox.warning(self,'Erreur',u"Veuillez renseigner un fichier avec l'extension 'ods', 'xls' ou 'xslx'.")
      #
@@ -203,13 +221,13 @@ class Gui(QMainWindow):
          try:
              ligne_cours=False
              for row in table.get_rows():
-                 prem_cell=row.get_cell(0).get_value()
+                 prem_cell=row.get_value(0)
                  if prem_cell!=None:
                      if (prem_cell.lower()=='cours'):
                          ligne_cours=True
-                         for cell in row.get_cells():
-                             if cell.get_value()!=None: #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
-                                 classe.liste_cours.append(cell.get_value())
+                         for cell in row.get_values():
+                             if cell!=None: #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                                 classe.liste_cours.append(cell)
                          del classe.liste_cours[0]
              if ligne_cours==False:
                  raise ExceptionPasCours
@@ -218,21 +236,21 @@ class Gui(QMainWindow):
              print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
          try:    
              for row in table.get_rows():
-                 prem_cell=row.get_cell(0).get_value()
+                 prem_cell=row.get_value(0)
                  if (prem_cell==None) or ( (prem_cell[0]=='&') & (prem_cell[1]=='&') or (prem_cell.lower()=='cours')):
                      pass
                  else:
                      eleve=Eleve()
-                     if type(row.get_cell(0).get_value()) is not unicode:
-                         eleve.nom=unicode(row.get_cell(0).get_value(),'utf-8')
+                     if type(row.get_value(0)) is not unicode:
+                         eleve.nom=unicode(row.get_value(0),'utf-8')
                          # le nom de l'élève est supposé se trouver dans la première cellule
                      else:
-                         eleve.nom=row.get_cell(0).get_value()
-                     ligne_points=row.get_cells()
+                         eleve.nom=row.get_value(0)
+                     ligne_points=row.get_values()
                      del ligne_points[0] # on supprime le nom de l'élève
-                     for cours,cell in zip(classe.liste_cours,ligne_points):
+                     for cours,points_eleve in zip(classe.liste_cours,ligne_points):
                          #on parcours simultanement la liste des cours et celle des points
-                         points_eleve=cell.get_value()
+                         
                          #
                          if (cours.lower()=='pia') & (points_eleve!=None):
                              eleve.pia=True
@@ -282,7 +300,7 @@ class Gui(QMainWindow):
                      if (prem_cell.lower()=='cours'):
                          ligne_cours=True
                          for cell in ligne_points:
-                             if cell!=(None or ''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                             if cell!=(''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
                                  classe.liste_cours.append(cell)
                          del classe.liste_cours[0]
              if ligne_cours==False:
@@ -309,18 +327,101 @@ class Gui(QMainWindow):
                          if points_eleve=='':
                              points_eleve=None
                          #
-                         if (cours.lower()=='pia') & (points_eleve!=None or ''):
+                         if (cours.lower()=='pia') & (points_eleve!=''):
                              eleve.pia=True
                          #
-                         elif (cours.lower()=='ctg') & (points_eleve!=None or ''):
+                         elif (cours.lower()=='ctg') & (points_eleve!=''):
                              eleve.ctg=True
                          #
-                         elif (cours.lower()=='ddn') & (points_eleve!=None or ''):
+                         elif (cours.lower()=='ddn') & (points_eleve!=''):
                              eleve.ddn=points_eleve
                          #
                          else:
-                             if points_eleve==(None or ''):
+                             if points_eleve==(''):
                                  points_eleve=False
+                             eleve.grille_horaire[cours.lower()]=Cours()
+                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours.lower()].points!=False:
+                                 eleve.eval_certif=True
+                         print eleve.nom , cours.lower(), points_eleve
+                     classe.carnet_cotes[eleve.nom]=eleve
+         except Exception, e:
+             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
+             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             QMessageBox.critical(self,'Echec',message)
+             print 'Erreur : %s' % e
+             print 'Message : ', traceback.format_exc()
+             #traceback.print_exc()
+         if 'DDN' in classe.liste_cours:
+             classe.liste_cours.remove('DDN')
+         if 'CTG' in classe.liste_cours:
+             classe.liste_cours.remove('CTG')
+         if 'PIA' in classe.liste_cours:
+             classe.liste_cours.remove('PIA')
+         #print 'Liste des cours : ' , classe.liste_cours
+         classe.prod_liste_eleves()
+         self.tableau_valide=True
+         
+         if self.tableau_valide==True:
+             self.update_tableau_points_view()
+     #
+     def import_txt(self):
+         QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou csv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
+         myfile= open(self.file_name, "r")
+         
+         try:
+             ligne_cours=False
+             for ligne in myfile:
+                 #print ligne.rstrip('\n\r').split('\t')
+                 #ligne=ligne.rstrip('\n\r')
+                 ligne_points=ligne.rstrip('\n\r').split('\t')
+                 #print ligne_points
+                 prem_cell=ligne_points[0]
+                 if prem_cell!=(None or ''):
+                     if (prem_cell.lower()=='cours'):
+                         ligne_cours=True
+                         for cell in ligne_points:
+                             if cell!=(None or ''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                                 classe.liste_cours.append(cell)
+                         del classe.liste_cours[0]
+             if ligne_cours==False:
+                 raise ExceptionPasCours
+         except ExceptionPasCours :
+             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
+             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
+         print ligne_cours#
+         
+         try:
+             myfile= open(self.file_name, "r")
+             for ligne in myfile:
+                 
+                 ligne_points=ligne.rstrip('\n\r').split('\t')
+                 prem_cell=ligne_points[0]
+                 if (prem_cell=='') or ( (prem_cell[0]=='&') & (prem_cell[1]=='&')) or (prem_cell.lower()=='cours'):
+                     pass
+                 else:
+                     eleve=Eleve()
+                     #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
+                     eleve.nom=ligne_points[0]
+                     if type(eleve.nom) is not unicode:
+                         eleve.nom=unicode(eleve.nom,'utf-8')
+                     del ligne_points[0]
+                     for cours,cell in zip(classe.liste_cours,ligne_points):
+                         points_eleve=cell
+                         if points_eleve=='':
+                             points_eleve=False
+                         #
+                         if (cours.lower()=='pia') & (points_eleve!=False):
+                             eleve.pia=True
+                         #
+                         elif (cours.lower()=='ctg') & (points_eleve!=False):
+                             eleve.ctg=True
+                         #
+                         elif (cours.lower()=='ddn') & (points_eleve!=False):
+                             pass#eleve.ddn=points_eleve
+                         #
+                         else:
                              eleve.grille_horaire[cours.lower()]=Cours()
                              eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
                              if eleve.grille_horaire[cours.lower()].points!=False:
@@ -373,6 +474,15 @@ class Gui(QMainWindow):
          labels=QStringList(labels)
          self.table.setVerticalHeaderLabels(labels)
          self.setCentralWidget(self.table)
+         
+         new_bottom=int(0.75*(QDesktopWidget().availableGeometry().bottom()) )
+         new_right=int(0.75*(QDesktopWidget().availableGeometry().right()))
+         
+         new_height=int(0.1*(QDesktopWidget().availableGeometry().bottom()) )
+         new_left=int(0.1*(QDesktopWidget().availableGeometry().right()))
+         
+         self.setGeometry(new_height,new_left,new_right,new_bottom)
+         self.showMaximized()
      
      def verif_avant_analyse(self):
          verif_param=True
@@ -1021,6 +1131,7 @@ class Eleve(Classe):
      def fct_sciences6 (self):
          if (self.grille_horaire['sc6'].evaluation==True) & (self.grille_horaire['sc6'].eval_certif==True):
              #si le cours de sc6 est évalué de manière certificative
+             pass
              
     
 #

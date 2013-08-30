@@ -12,8 +12,7 @@
 #dvp la gestion des rhetos et celle du cours de sciences en 5° et 6°
 
 """
-centrer la fenêtre au démarrage
-la maximiser lors de l'update du tableau
+
 implémenter l'import xslx
 implémenter l'import txt
 implémenter l'import clipboard
