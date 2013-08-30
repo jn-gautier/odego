@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*- 
 
-#from xml.dom.minidom import parse
+from xml.dom.minidom import parse
 import locale
 from os.path import *
 from lpod.document import odf_get_document, odf_new_document
@@ -12,29 +12,85 @@ from lpod.paragraph import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys
-from datetime import date
-from datetime import datetime
-from functools import cmp_to_key
-import copy
+import traceback
+from datetime import date , datetime
+#import datetime
+import types
+from functools import cmp_to_key 
 import xml.etree.ElementTree as ET
 
-
-class Gui(QDialog):
-     def __init__(self, parent=None):
-         super(Gui, self).__init__(parent)
-         #
-         niveau=['1', '2', '3', '4', '5', '6']
+class Gui(QMainWindow):
+    
+     def __init__(self):
+         super(Gui, self).__init__()
+         #self.initUI()
+         self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
+         self.tableau_valide=False
+         
+         new_from_fileAction = QAction(QIcon('dessin.svg'),u"&Importer les points à partir d'un fichier", self)
+         new_from_fileAction.setShortcut('Ctrl+I')
+         new_from_fileAction.setStatusTip(u"Importer les points directement à partir d'un fichier")
+         new_from_fileAction.triggered.connect(self.select_file)
+         
+         new_from_clipboardAction = QAction(QIcon('editpaste.png'),u"Importer les points à partir du &presse papier", self)
+         new_from_clipboardAction.setShortcut('Ctrl+V')
+         new_from_clipboardAction.setStatusTip(u"Importer les points à partir de données copiées depuis un fichier")
+         new_from_clipboardAction.triggered.connect(self.test)
+         
+         StartAction = QAction(QIcon('./icons/ok_apply.svg'),u"Démarrer l'analyse", self)
+         StartAction.setShortcut('Ctrl+D')
+         StartAction.setStatusTip(u"Démarrer")
+         StartAction.triggered.connect(self.verif_avant_analyse)
+         
+         QuitAction = QAction(QIcon('./icons/quit.svg'),"Quitter", self)
+         QuitAction.setShortcut('Ctrl+Q')
+         QuitAction.setStatusTip(u"Quitter")
+         QuitAction.triggered.connect(self.appExit)
+         
+         HelpAction = QAction(u"Obtenir de l'aide", self)
+         HelpAction.setStatusTip(u"Obtenir de l'aide concernant l'utilisation de ce logiciel")
+         HelpAction.triggered.connect(self.test)
+         
+         AboutAction = QAction(u"A propos", self)
+         AboutAction.setStatusTip(u"A propos de ce logiciel")
+         AboutAction.triggered.connect(self.test)
+         
+         menubar = self.menuBar()
+         
+         fileMenu = menubar.addMenu(u'&Application')
+         fileMenu.addAction(StartAction)
+         fileMenu.addAction(QuitAction)
+         
+         fileMenu = menubar.addMenu(u'&Importer')
+         fileMenu.addAction(new_from_fileAction)
+         fileMenu.addAction(new_from_clipboardAction)
+         
+         fileMenu = menubar.addMenu('&Aide')
+         fileMenu.addAction(HelpAction)
+         fileMenu.addAction(AboutAction)
+         
+         self.toolbar = self.addToolBar('Toolbar')
+         self.toolbar.addAction(new_from_fileAction)
+         self.toolbar.addAction(new_from_clipboardAction)
+         self.toolbar.addAction(QuitAction)
+         #self.toolbar.addAction(StartAction)
+         
+         self.statusBar()
+         
+         #self.setGeometry(300, 300, 300, 200)
+         self.setWindowTitle('Odego')    
+         
+         niveau=['','1', '2', '3', '4', '5', '6']
          classes=['','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
-         sections=['GT','TQ']
+         sections=['','GT','TQ']
          delibe=[u'Noël',u'Mars',u'Juin']
          now=date.today()
          
-         annee=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
+         annees=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
          #
-         layout=QHBoxLayout()
          grid=QGridLayout()
-         self.fname=False
-         self.fichier_valide=False
+         #self.fname=False
+         #self.fichier_valide=False
          self.combo_niveau=QComboBox()
          self.combo_niveau.addItems(niveau)
          self.combo_classes=QComboBox()
@@ -43,141 +99,367 @@ class Gui(QDialog):
          self.combo_section.addItems(sections)
          self.combo_delib=QComboBox()
          self.combo_delib.addItems(delibe)
-         self.combo_annee=QComboBox()
-         self.combo_annee.addItems(annee)
-         self.boutton_quit=QDialogButtonBox(QDialogButtonBox.Close)
-         self.boutton_ok=QDialogButtonBox(QDialogButtonBox.Ok)
-         self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
-         self.open_file=QPushButton("Ouvrir...")
+         self.combo_annees=QComboBox()
+         self.combo_annees.addItems(annees)
+         #
+         grid.addWidget(QLabel( u"Niveau :" ),1,0)
+         grid.addWidget(QLabel( u"Classe :" ),2,0)
+         grid.addWidget(QLabel( u"Section :" ),3,0)
+         grid.addWidget(QLabel( u"Période :" ),4,0)
+         #
+         grid.addWidget(self.combo_niveau,1,1)
+         grid.addWidget(self.combo_classes,2,1)
+         grid.addWidget(self.combo_section,3,1)
+         grid.addWidget(self.combo_delib,4,1)
+         grid.addWidget(self.combo_annees,4,2)
+         grid.setRowStretch(5,1)
+         grid.setColumnStretch(3,1)
+         #
+         widget=QWidget()
+         widget.setLayout(grid)
+         #
+         logDockWidget=QDockWidget(self)
+         logDockWidget.setTitleBarWidget(QLabel( '<p style="font-size:10pt;font-weight:bold">Informations</p>' ))
+         logDockWidget.setFeatures(QDockWidget.DockWidgetMovable)
+         logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
+         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         logDockWidget.setWidget(widget)
+         self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          self.radio1=QCheckBox(u"Tableau récapitulatif")
          self.radio2=QCheckBox(u"Analyse detaillée")
          self.radio3=QCheckBox("Classement")
-         self.groupbox=QGroupBox("Analyses")
-         self.groupbox.setFlat(True)
-         line=QFrame()
-         line.setFrameStyle(QFrame.VLine)
-         #self.boutton_ok.setStatusTip('Open new File')
          #
-         grid.addWidget(QLabel( u"Niveau :" ),0,0)
-         grid.addWidget(QLabel( u"Classe :" ),1,0)
-         grid.addWidget(QLabel( u"Section :" ),2,0)
-         grid.addWidget(QLabel( u"Delibé :" ),3,0)
-         grid.addWidget(QLabel( u"Fichier :" ),4,0)
-         grid.addWidget(self.boutton_ok,6,0)
-         #
-         grid.addWidget(self.combo_niveau,0,1)
-         grid.addWidget(self.combo_classes,1,1)
-         grid.addWidget(self.combo_section,2,1)
-         grid.addWidget(self.combo_delib,3,1)
-         grid.addWidget(self.combo_annee,3,2)
-         grid.addWidget(self.file_to_open,4,1)
-         #v_layout2.addLayout(h_layout8)
-         grid.addWidget(self.open_file,5,1)
-         grid.addWidget(self.boutton_quit,6,1)
-         
-         layout.addLayout(grid)
-         
          v_layout=QVBoxLayout()
          v_layout.addWidget(self.radio1)
          v_layout.addWidget(self.radio2)
          v_layout.addWidget(self.radio3)
          v_layout.addStretch(1)
-         self.groupbox.setLayout(v_layout)
-         # 
-         #h_layout.addLayout(v_layout1)
-         #h_layout.addLayout(v_layout2)
-         layout.addWidget(line)
-         layout.addWidget(self.groupbox)
-         #
-         self.setLayout(layout)
+         
+         widget=QWidget()
+         widget.setLayout(v_layout)
+         
+         #self.groupbox.setLayout(v_layout)
+         
+         logDockWidget=QDockWidget(self)
+         logDockWidget.setFeatures(QDockWidget.DockWidgetMovable)
+         logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
+         logDockWidget.setTitleBarWidget(QLabel( '<p style="font-size:10pt;font-weight:bold">Analyses</p>' ))
+         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         logDockWidget.setWidget(widget)
+         self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
+         
+         
+         
+         self.boutton_ok=QPushButton(QIcon('./icons/ok_apply.svg'),u'Démarrer')
+         self.boutton_ok.setMinimumHeight(40)
+         self.connect(self.boutton_ok, SIGNAL("clicked()"),self.verif_avant_analyse)
+         
+         logDockWidget=QDockWidget(self)
+         logDockWidget.setFeatures(QDockWidget.NoDockWidgetFeatures)
+         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         logDockWidget.setWidget(self.boutton_ok)
+         self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
+         
          self.setWindowTitle(u'Odego : un guide pour les délibérations')
-         self.combo_annee.setCurrentIndex(2)
+         self.combo_annees.setCurrentIndex(2)
          if now.month in [10,11,12,1]:
              self.combo_delib.setCurrentIndex(0)
          if now.month in [2,3,4,5]:
              self.combo_delib.setCurrentIndex(1)
          if now.month in [6,7,8,9]:
              self.combo_delib.setCurrentIndex(2)
-         self.connect(self.boutton_quit.button(QDialogButtonBox.Close), SIGNAL("clicked()"),self.appExit)
-         self.connect(self.boutton_ok.button(QDialogButtonBox.Ok), SIGNAL("clicked()"),self.pre_traitmt)
-         self.connect(self.open_file, SIGNAL("clicked()"),self.select_file)
+     #
+     def test(self):
+         print 'hello'
      #
      def appExit(self):
          print "Au revoir!"
          app.quit()
      #
-     def pre_traitmt(self):
-         self.verif_fichier()
-         if self.fichier_valide==True:
-             self.fichier_a_traiter=self.fname
-             self.creer_tableau_recap=self.radio1.isChecked()
-             self.creer_analyse_eleve=self.radio2.isChecked()
-             self.creer_classement=self.radio3.isChecked()
-             self.niveau=unicode(self.combo_niveau.currentText(),'utf-8')
-             self.section=unicode(self.combo_section.currentText(),'utf-8')
-             self.classe=unicode(self.combo_classes.currentText(),'utf-8')
-             self.annee=unicode(self.combo_annee.currentText(),'utf-8')
-             self.delibe=unicode(self.combo_delib.currentText(),'utf-8')
-             self.path=(split(str(self.fname)))[0]
-             self.file_sauv=self.delibe+"_"+self.annee+"_"+self.niveau+self.section+self.classe
-             self.titre='Conseil de classe '+self.niveau+self.section+self.classe+" - "+self.delibe+' '+self.annee
-             #
-             #global classe
-             try:
-                 classe.__init__(self.niveau,self.section,self.fichier_a_traiter)
-                 classe.prod_carnet_cotes()
-                 
-                 if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Noël'):
-                     self.traitement_1deg_gt_noel()
-                 if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Mars'):
-                     self.traitement_1deg_gt_mars()
-                 if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Juin'):
-                     self.traitement_1deg_gt_juin()
-                 if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Noël'):
-                     self.traitement_345_gt_noel()
-                 if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Mars'):
-                     self.traitement_345_gt_mars()
-                 if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Juin'):
-                     self.traitement_345_gt_juin()
-             except Exception, e:
-                 QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
-                 <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
-                 <li>Vérifiez que le fichier sélectionné contienne bien le <b>nom des cours</b>.</li>\
-                 <li>Vérifiez que vous avez sélectionné la bonne <b>classe </b>et la bonne <b>section </b>dans le menu d'acceuil.</li></ul>\
-                 </div>")
-                 print 'Erreur : %s' % e
-                 print 'Ligne ', sys.exc_traceback.tb_lineno 
-             
-     #
      def select_file(self):
-         self.fname = QFileDialog.getOpenFileName(self,'Tableau au format ods avec les points de la classe.','/home/gautier/dossier_ivf/odego/')
-         self.file_to_open.setText(self.fname)
-     #
-     def verif_fichier(self):
-         ext=self.fname.split('.')
-         ext=ext[len(ext)-1]
-         if (self.fname!=False) & (ext=='ods'):
-             self.fichier_valide=True
+         self.file_name = QFileDialog.getOpenFileName(self,'Tableau avec les points de la classe.','/home/gautier/dossier_ivf/odego-projet/')
+         self.get_file_ext()
+         classe.__init__()
+         # je réinitialise la classe au cas ou l'utilisateur tente d'importer un fichier de points alors que cela a déjà été fait
+         if self.ext=='ods':
+             self.import_ods()
+         elif self.ext=='xls':
+             self.import_xls()
+         elif self.ext=='xslx':
+             pass
          else:
-             QMessageBox.warning(self,u'Fichier invalide',u'Veuillez renseigner un fichier ods valide.',)
+             QMessageBox.warning(self,'Erreur',u"Veuillez renseigner un fichier avec l'extension 'ods', 'xls' ou 'xslx'.")
+     #
+     def get_file_ext(self):
+         ext=self.file_name.split('.')
+         self.ext=ext[len(ext)-1]
+     #
+     def import_ods(self):
+         doc = odf_get_document(str(self.file_name))
+         body=doc.get_body()
+         table=body.get_tables()[0]
+         table.rstrip()
+         #
+         try:
+             ligne_cours=False
+             for row in table.get_rows():
+                 prem_cell=row.get_cell(0).get_value()
+                 if prem_cell!=None:
+                     if (prem_cell.lower()=='cours'):
+                         ligne_cours=True
+                         for cell in row.get_cells():
+                             if cell.get_value()!=None: #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                                 classe.liste_cours.append(cell.get_value())
+                         del classe.liste_cours[0]
+             if ligne_cours==False:
+                 raise ExceptionPasCours
+         except ExceptionPasCours :
+             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
+             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
+         try:    
+             for row in table.get_rows():
+                 prem_cell=row.get_cell(0).get_value()
+                 if (prem_cell==None) or ( (prem_cell[0]=='&') & (prem_cell[1]=='&') or (prem_cell.lower()=='cours')):
+                     pass
+                 else:
+                     eleve=Eleve()
+                     if type(row.get_cell(0).get_value()) is not unicode:
+                         eleve.nom=unicode(row.get_cell(0).get_value(),'utf-8')
+                         # le nom de l'élève est supposé se trouver dans la première cellule
+                     else:
+                         eleve.nom=row.get_cell(0).get_value()
+                     ligne_points=row.get_cells()
+                     del ligne_points[0] # on supprime le nom de l'élève
+                     for cours,cell in zip(classe.liste_cours,ligne_points):
+                         #on parcours simultanement la liste des cours et celle des points
+                         points_eleve=cell.get_value()
+                         #
+                         if (cours.lower()=='pia') & (points_eleve!=None):
+                             eleve.pia=True
+                         #
+                         elif (cours.lower()=='ctg') & (points_eleve!=None):
+                             eleve.ctg=True
+                         #
+                         elif (cours.lower()=='ddn') & (points_eleve!=None):
+                             eleve.ddn=points_eleve
+                         #
+                         else:
+                             eleve.grille_horaire[cours.lower()]=Cours()
+                             if points_eleve==None : points_eleve=False
+                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours.lower()].points!=False : eleve.eval_certif=True
+                         print eleve.nom , cours.lower(), points_eleve
+                     classe.carnet_cotes[eleve.nom]=eleve
+         except Exception, e:
+             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
+             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             QMessageBox.critical(self,'Echec',message)
+             print 'Erreur : %s' % e
+             print 'Message : ', traceback.format_exc()
+         if 'DDN' in classe.liste_cours:
+             classe.liste_cours.remove('DDN')
+         if 'CTG' in classe.liste_cours:
+             classe.liste_cours.remove('CTG')
+         if 'PIA' in classe.liste_cours:
+             classe.liste_cours.remove('PIA')
+         classe.prod_liste_eleves()
+         self.tableau_valide=True
+         
+         if self.tableau_valide==True:
+             self.update_tableau_points_view()
+     #
+     def import_xls(self):
+         import xlrd
+         workbook = xlrd.open_workbook(str(self.file_name))
+         worksheet = workbook.sheet_by_index(0)
+         try:
+             ligne_cours=False
+             for rownum in range(worksheet.nrows):
+                 ligne_points=worksheet.row_values(rownum)
+                 prem_cell=ligne_points[0]
+                 if prem_cell!=(None or ''):
+                     if (prem_cell.lower()=='cours'):
+                         ligne_cours=True
+                         for cell in ligne_points:
+                             if cell!=(None or ''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                                 classe.liste_cours.append(cell)
+                         del classe.liste_cours[0]
+             if ligne_cours==False:
+                 raise ExceptionPasCours
+         except ExceptionPasCours :
+             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
+             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
+         #
+         try:
+             for rownum in range(worksheet.nrows):
+                 ligne_points=worksheet.row_values(rownum)
+                 prem_cell=ligne_points[0]
+                 if (prem_cell=='') or ( (prem_cell[0]=='&') & (prem_cell[1]=='&')) or (prem_cell.lower()=='cours'):
+                     pass
+                 else:
+                     eleve=Eleve()
+                     #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
+                     eleve.nom=ligne_points[0]
+                     if type(eleve.nom) is not unicode:
+                         eleve.nom=unicode(eleve.nom,'utf-8')
+                     del ligne_points[0]
+                     for cours,cell in zip(classe.liste_cours,ligne_points):
+                         points_eleve=cell
+                         if points_eleve=='':
+                             points_eleve=None
+                         #
+                         if (cours.lower()=='pia') & (points_eleve!=None or ''):
+                             eleve.pia=True
+                         #
+                         elif (cours.lower()=='ctg') & (points_eleve!=None or ''):
+                             eleve.ctg=True
+                         #
+                         elif (cours.lower()=='ddn') & (points_eleve!=None or ''):
+                             eleve.ddn=points_eleve
+                         #
+                         else:
+                             if points_eleve==(None or ''):
+                                 points_eleve=False
+                             eleve.grille_horaire[cours.lower()]=Cours()
+                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours.lower()].points!=False:
+                                 eleve.eval_certif=True
+                         print eleve.nom , cours.lower(), points_eleve
+                     classe.carnet_cotes[eleve.nom]=eleve
+         except Exception, e:
+             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
+             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             QMessageBox.critical(self,'Echec',message)
+             print 'Erreur : %s' % e
+             print 'Message : ', traceback.format_exc()
+             #traceback.print_exc()
+         if 'DDN' in classe.liste_cours:
+             classe.liste_cours.remove('DDN')
+         if 'CTG' in classe.liste_cours:
+             classe.liste_cours.remove('CTG')
+         if 'PIA' in classe.liste_cours:
+             classe.liste_cours.remove('PIA')
+         #print 'Liste des cours : ' , classe.liste_cours
+         classe.prod_liste_eleves()
+         self.tableau_valide=True
+         
+         if self.tableau_valide==True:
+             self.update_tableau_points_view()
+     #
+     def update_tableau_points_view(self):
+         self.table=QTableWidget()
+         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+         premier_elv=True
+         for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
+                 self.table.insertRow(self.table.rowCount())
+                 j=0
+                 for nom_cours in classe.liste_cours:
+                     if premier_elv==True:
+                         self.table.insertColumn(self.table.columnCount())
+                     nom_cours=nom_cours.lower()
+                     if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
+                         item=QString(unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
+                     else :
+                         item=QString('')
+                     newitem = QTableWidgetItem(item)
+                     self.table.setItem(self.table.rowCount()-1,j, newitem)
+                     j+=1
+                 premier_elv=False
+         labels=QStringList(classe.liste_cours)
+         self.table.setHorizontalHeaderLabels(labels)
+         labels=sorted(classe.liste_eleves,key=cmp_to_key(compfr))
+         labels=QStringList(labels)
+         self.table.setVerticalHeaderLabels(labels)
+         self.setCentralWidget(self.table)
+     
+     def verif_avant_analyse(self):
+         verif_param=True
+         alert=u"<div><p> Veuillez renseigner :</p> <ul>"
+         if self.combo_niveau.currentText()=='':
+             verif_param=False
+             alert+=u'<li>Le <b> niveau </b> de la classe.</li>'
+         
+         if self.combo_section.currentText()=='':
+             verif_param=False
+             alert+=u'<li>La <b> section </b> de la classe.</li>'
+         if self.combo_classes.currentText()=='':
+             verif_param=False
+             alert+=u'<li>Le <b> nom </b> de la classe.</li>'
+         
+         if verif_param==False:
+             alert+=u'</ul> </div>'
+             QMessageBox.warning(self,'Informations manquantes',alert)
+         
+         if (self.radio1.isChecked()==False) & (self.radio2.isChecked()==False) & (self.radio3.isChecked()==False):
+             message=u"<div><p>Aucune analyse n'a été demandée pour cette classe.</p>"
+             message+=u"<p>N'oubliez pas de cocher les analyses souhaitées <b>avant de pousser sur démarrage</b>.</p> </div>"
+             QMessageBox.information(self,u"Aucune analyse demandée",message)
+         
+         if self.tableau_valide==False:
+             alert=u"<div><p>Aucun point n'a encore été importé.</p>"
+             alert+=u"<p> Veuillez importer des points <b>avant de pousser sur démarrage</b>.</p> </div>"
+             QMessageBox.warning(self,'Points manquants',alert)
+         if (self.tableau_valide==True) & (verif_param==True):
+             self.pre_traitement()
+         
+     #
+     def pre_traitement(self):
+         print u"Pré-traitement des données"
+         #self.fichier_a_traiter=self.fname
+         self.creer_tableau_recap=self.radio1.isChecked()
+         self.creer_analyse_eleve=self.radio2.isChecked()
+         self.creer_classement=self.radio3.isChecked()
+         self.niveau=unicode(self.combo_niveau.currentText(),'utf-8')
+         self.section=unicode(self.combo_section.currentText(),'utf-8')
+         self.classe=unicode(self.combo_classes.currentText(),'utf-8')
+         self.annee=unicode(self.combo_annees.currentText(),'utf-8')
+         self.delibe=unicode(self.combo_delib.currentText(),'utf-8')
+         self.path=(split(str(self.file_name)))[0]
+         self.file2save=self.delibe+"_"+self.annee+"_"+self.niveau+self.section+self.classe
+         self.titre='Conseil de classe '+self.niveau+self.section+self.classe+" - "+self.delibe+' '+self.annee
+         #
+         try:
+             classe.set_param(self.niveau,self.section)
+             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Noël'):
+                 self.traitement_1deg_gt_noel()
+             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Mars'):
+                 self.traitement_1deg_gt_mars()
+             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Juin'):
+                 self.traitement_1deg_gt_juin()
+             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Noël'):
+                 self.traitement_345_gt_noel()
+             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Mars'):
+                 self.traitement_345_gt_mars()
+             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Juin'):
+                 self.traitement_345_gt_juin()
+         except Exception, e:
+             QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
+             <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
+             <li>Vérifiez que le fichier sélectionné contienne bien le <b>nom des cours</b>.</li>\
+             <li>Vérifiez que vous avez sélectionné la bonne <b>classe </b>et la bonne <b>section </b>dans le menu d'acceuil.</li></ul>\
+             </div>")
+             print 'Erreur : %s' % e
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_1deg_gt_noel(self):
          try:
              classe.stats_elv(True,False)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -185,25 +467,25 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_1deg_gt_mars(self):
          try:
              classe.stats_elv(False,False)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -211,25 +493,25 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_1deg_gt_juin(self):
          try:
              classe.stats_elv(True,False)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -237,25 +519,25 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_345_gt_noel(self):
          try:
              classe.stats_elv(True,True)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -263,25 +545,25 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_345_gt_mars(self):
          try:
              classe.stats_elv(False,False)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -289,25 +571,25 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
      #
      def traitement_345_gt_juin(self):
          try:
              classe.stats_elv(True,True)
              classe.prod_situation_globale()
-             classe.prod_liste_eleves()
+             #classe.prod_liste_eleves()
          except Exception, e:
              QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
+             print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file_sauv)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
              if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
@@ -315,9 +597,10 @@ class Gui(QDialog):
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
-             print 'Ligne ', sys.exc_traceback.tb_lineno
-#
-#
+             print 'Message : ', traceback.format_exc() 
+     #
+     #
+     
 class ExceptionPasCours(Exception): pass
 #
 #
@@ -345,35 +628,23 @@ class Compfr(object):
          v2 = v2.replace(u"'",'')
          # on retourne le résultat de la comparaison
          return locale.strcoll(v1, v2)
-
-
-def nettoie_point(point):
-     chaine = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9','.',',']
-     point = [val for val in point if val in chaine]
-     point=''.join(point)
-     if point=='':
-         point=False
-     if point!=False:
-         point=float(point)
-         if point!=int(point):
-             point=round(point,1)
-         else :
-             point=int(point)
-     return point
-
-
+#
+#
 class Classe(object):
      #
-     def __init__(self,niveau="",section="",fichier_a_traiter=""):
-         self.niveau=niveau
-         self.section=section
+     def __init__(self):
+         self.niveau=''
+         self.section=''
          self.niv_sec=self.niveau+self.section
          self.carnet_cotes={}
          self.liste_cours=[]
          self.grille_horaire={}
-         self.fichier_a_traiter=fichier_a_traiter
-         
-         #
+         self.fichier_a_traiter=''
+     #    
+     def set_param(self,niveau="",section=""):
+         self.niveau=niveau
+         self.section=section
+         self.niv_sec=self.niveau+self.section
          liste_carac_bool=['ccnc','verrou','pseudo','option']
          liste_carac_int=['heures']
          liste_carac_str=['abr','intitule']
@@ -395,13 +666,24 @@ class Classe(object):
                      if type(valeure) is not unicode:
                          valeure=unicode(valeure,'utf-8')
                      setattr(cours, carac, valeure)
-                 self.grille_horaire[cours.abr]=cours
+                 # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
+                 for eleve in self.carnet_cotes.itervalues():
+                     if cours.abr in eleve.grille_horaire.keys():
+                         for carac in liste_carac_bool:
+                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                         for carac in liste_carac_int:
+                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                         for carac in liste_carac_str:
+                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                     else:
+                         eleve.grille_horaire[cours.abr]=cours
+                 #self.grille_horaire[cours.abr]=cours
              print "Création d'une classe de", self.niv_sec
          except Exception, e:
              QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
              print'Erreur dans la lecture du fichier de description des cours'
              print 'Erreur : %s' % e
-             print sys.exc_traceback.tb_lineno 
+             #print traceback.format_exc() .tb_lineno 
          #
          try:
              tree = ET.parse('./criteres.xml')
@@ -415,86 +697,68 @@ class Classe(object):
              QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des critères.")
              print'Erreur dans la lecture du fichier de description des critères.'
              print 'Erreur : %s' % e
-             #print sys.exc_traceback.tb_lineno 
+             print traceback.format_exc()
      #
      #
-     def prod_carnet_cotes(self):
-     #
-         doc = odf_get_document(str(self.fichier_a_traiter))
+     #def prod_carnet_cotes(self):
+     ##
+         ##doc = odf_get_document(str(self.fichier_a_traiter))
          
-         body=doc.get_body()
-         table=body.get_tables()[0]
-         table.rstrip()
-         #
-         try:
-             ligne_cours=False
-             for row in table.get_rows():
-                 prem_cell=row.get_cell(0).get_value()
-                 if prem_cell!=None:
-                     if (prem_cell.lower()=='cours'):
-                         ligne_cours=True
-                         for cell in row.get_cells():
-                             if cell.get_value()!=None: #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
-                                 self.liste_cours.append(cell.get_value())
-                         del self.liste_cours[0]
-             if ligne_cours==False:
-                 raise ExceptionPasCours
-         except ExceptionPasCours :
-             QMessageBox.critical(gui,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
-             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
-         for row in table.get_rows():
-             prem_cell=row.get_cell(0).get_value()
-             if (prem_cell==None) or ( (prem_cell[0]=='&') & (prem_cell[1]=='&') or (prem_cell.lower()=='cours')):
-                 pass
-             else:
-                 eleve=Eleve()
-                 eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
-                 eleve.nom=row.get_cell(0).get_value().encode('utf-8')
-                 ligne_points=row.get_cells()
-                 del ligne_points[0]
-                 for cours,cell in zip(self.liste_cours,ligne_points):
-                     points_eleve=cell.get_value()
-                     #
-                     if (cours.lower()=='pia') & (points_eleve!=None):
-                         eleve.pia=True
-                         self.liste_cours.remove('PIA')
-                     #
-                     elif (cours.lower()=='ctg') & (points_eleve!=None):
-                         eleve.ctg=True
-                         self.liste_cours.remove('CTG')
-                     #
-                     elif (cours.lower()=='ddn') & (points_eleve!=None):
-                         print 'DDN' , points_eleve
-                         eleve.ddn=points_eleve
-                     #
-                     else:
-                         try:
-                             if points_eleve==None:
-                                 points_eleve=False
-                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours.lower()].points!=False:
-                                 eleve.eval_certif=True
-                         except Exception, e:
-                             QMessageBox.warning(gui,'Erreur',u"<p>Une erreur a été rencontrée dans l'encodage d'une évaluation.</p> <p>Cette évaluation sera ignorée.</p>")
-                             print ("Une erreur a été rencontrée dans l'encodage d'une évaluation.")
-                             print ("Cette évaluation sera ignorée.")
-                             print 'Erreur : %s' % e
-                             print sys.exc_traceback.tb_lineno 
-                     print eleve.nom , cours.lower(), points_eleve
-                 self.carnet_cotes[eleve.nom]=eleve
-                 #print eleve, ligne_points
-                 del eleve
-                 del ligne_points
-         del doc
-         del body
-         del table
-         if 'DDN' in self.liste_cours:
-             self.liste_cours.remove('DDN')
-         if 'CTG' in self.liste_cours:
-             self.liste_cours.remove('CTG')
-         if 'PIA' in self.liste_cours:
-             self.liste_cours.remove('PIA')
-         print 'Liste des cours : ' , self.liste_cours
+         ##body=doc.get_body()
+         ##table=body.get_tables()[0]
+         ##table.rstrip()
+         ##
+         #try:
+             ##creer la liste des cours et la placer des self.liste_cours
+            
+             #eleve=Eleve()
+             #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
+             #eleve.nom=row.get_cell(0).get_value().encode('utf-8')
+             #ligne_points=row.get_cells()
+             #del ligne_points[0]
+             #for cours,cell in zip(self.liste_cours,ligne_points):
+                 #points_eleve=cell.get_value()
+                 ##
+                 #if (cours.lower()=='pia') & (points_eleve!=None):
+                     #eleve.pia=True
+                     #self.liste_cours.remove('PIA')
+                 ##
+                 #elif (cours.lower()=='ctg') & (points_eleve!=None):
+                     #eleve.ctg=True
+                     #self.liste_cours.remove('CTG')
+                 ##
+                 #elif (cours.lower()=='ddn') & (points_eleve!=None):
+                     #print 'DDN' , points_eleve
+                     #eleve.ddn=points_eleve
+                 ##
+                 #else:
+                     #try:
+                         #if points_eleve==None:
+                             #points_eleve=False
+                         #eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
+                         #if eleve.grille_horaire[cours.lower()].points!=False:
+                             #eleve.eval_certif=True
+                     #except Exception, e:
+                         #QMessageBox.warning(gui,'Erreur',u"<p>Une erreur a été rencontrée dans l'encodage d'une évaluation.</p> <p>Cette évaluation sera ignorée.</p>")
+                         #print ("Une erreur a été rencontrée dans l'encodage d'une évaluation.")
+                         #print ("Cette évaluation sera ignorée.")
+                         #print 'Erreur : %s' % e
+                         #print traceback.format_exc() .tb_lineno 
+                 #print eleve.nom , cours.lower(), points_eleve
+             #self.carnet_cotes[eleve.nom]=eleve
+             ##print eleve, ligne_points
+             #del eleve
+             #del ligne_points
+         #del doc
+         #del body
+         #del table
+         #if 'DDN' in self.liste_cours:
+             #self.liste_cours.remove('DDN')
+         #if 'CTG' in self.liste_cours:
+             #self.liste_cours.remove('CTG')
+         #if 'PIA' in self.liste_cours:
+             #self.liste_cours.remove('PIA')
+         #print 'Liste des cours : ' , self.liste_cours
      #
      #
      def stats_elv(self,do_moy_pond=True,do_echec_inf35=True):
@@ -512,8 +776,9 @@ class Classe(object):
              eleve.oubli_cours()
              eleve.calc_credits_inf_50()
              eleve.echec_travail()
-             eleve.classement_cours()
-             eleve.age()
+             eleve.fct_classement_cours()
+             if eleve.ddn != False :
+                 eleve.fct_age()
      #
      #
      def prod_situation_globale(self):
@@ -532,10 +797,11 @@ class Classe(object):
      #
      def prod_liste_eleves(self):
          self.liste_eleves=self.carnet_cotes.keys()
-
-
+#
+#
 class Eleve(Classe):
-     #
+     """Un élève est un membre d'une classe, il possède un nom, une grille horaire avec des points et un ensemble de
+     statistiques relatives à ces points."""
      def __init__(self):
          self.pia=False
          self.ctg=False
@@ -543,7 +809,7 @@ class Eleve(Classe):
          self.eval_certif=False
          self.vol_horaire_cc=0
          self.vol_horaire_ccnc=0
-         
+         self.grille_horaire={}
          self.moy_pond_cc=0
          self.moy_pond_ccnc=0
          self.heures_echec_cc=0
@@ -561,6 +827,8 @@ class Eleve(Classe):
          self.situation_globale=0
          self.nb_cours_inf35=0
          self.liste_cours_inf35=''
+         self.age=False
+         self.age_str=False
      #
      #
      def nombre_heures_horaire(self):
@@ -591,9 +859,9 @@ class Eleve(Classe):
              if (cours.points!=False) & (cours.pseudo==False):
                  self.moy_pond_ccnc+=cours.heures*cours.points
                  total_heures_ccnc+=cours.heures
+         #print self.moy_pond_cc, total_heures_cc
          self.moy_pond_cc=round((self.moy_pond_cc/total_heures_cc),1)
          self.moy_pond_ccnc=round((self.moy_pond_ccnc/total_heures_ccnc),1)
-         del total_heures_cc, total_heures_ccnc
      #
      #
      def total_heures_echec(self): 
@@ -624,7 +892,6 @@ class Eleve(Classe):
                  liste_cours_verrou.append(cours.intitule)
          self.liste_cours_verrou_echec=", ".join(liste_cours_verrou)
          self.nb_cours_verrou_echec=len(liste_cours_verrou)
-         del liste_cours_verrou
      #
      #
      def echec_inf35(self):
@@ -638,7 +905,6 @@ class Eleve(Classe):
                      liste_cours_inf35.append(cours.intitule)
          self.liste_cours_inf35=", ".join(liste_cours_inf35)
          self.nb_cours_inf35=len(liste_cours_inf35)
-         del liste_cours_inf35
      #
      #
      def nb_cours_echec(self):
@@ -658,7 +924,6 @@ class Eleve(Classe):
              if (cours.contrat==True) & (cours.evaluation==1):
                  liste_echec_contrat.append(cours.intitule)
          self.liste_echec_contrat=", ".join(liste_echec_contrat)
-         del liste_echec_contrat
      #
      #
      def certif_med(self):
@@ -667,7 +932,6 @@ class Eleve(Classe):
              if cours.certif_med==True:
                  liste_certif_med.append(cours.intitule)
          self.liste_certif_med=", ".join(liste_certif_med)
-         del liste_certif_med
      #
      #
      def oubli_cours(self):
@@ -676,7 +940,6 @@ class Eleve(Classe):
              if (cours.evaluation==0) & (cours.option==False) & (cours.certif_med==False):
                  liste_oubli_cours.append(cours.intitule)
          self.liste_oubli_cours=", ".join(liste_oubli_cours)
-         del liste_oubli_cours
      #
      #
      def calc_credits_inf_50(self):
@@ -688,7 +951,6 @@ class Eleve(Classe):
                      ecart=50-(int(cours.points))
                      ecart_pondere=ecart*(cours.heures)
                      self.credits_inf_50+=ecart_pondere
-         del ecart, ecart_pondere
      #
      #
      def echec_travail(self):
@@ -697,10 +959,9 @@ class Eleve(Classe):
              if (cours.evaluation==1) & (cours.echec_travail==True) : 
                  liste_echec_travail.append(cours.intitule)
          self.liste_echec_travail=", ".join(liste_echec_travail)
-         del liste_echec_travail
      #
      #
-     def classement_cours(self):
+     def fct_classement_cours(self):
          self.classement_cours={}
          liste_35_50=[]
          liste_50_60=[] 
@@ -741,15 +1002,27 @@ class Eleve(Classe):
          self.classement_cours['70=>80[']=" ; ".join(liste_70_80)
          self.classement_cours['80=>100]']=" ; ".join(liste_sup80)
      #
-     def age(self):
-         try :
-             self.ddn=datetime.strptime(self.ddn, '%d/%m/%Y').date()
-         except TypeError :
+     def fct_age(self):
+         
+         if isinstance(self.ddn, datetime):
              self.ddn=self.ddn.date()
+             #self.ddn=datetime.strptime(self.ddn, '%d/%m/%Y').date()
+             
+         elif isinstance(self.ddn, date):
+                 self.ddn=self.ddn.date()
+         else:
+             pass
+         
          age=date.today()-self.ddn
          mois=age.days/30
          self.age_str=str(mois/12)+' ans '+str(mois % 12)+' mois'
          self.age=float(mois)/12
+     #    
+     def fct_sciences6 (self):
+         if (self.grille_horaire['sc6'].evaluation==True) & (self.grille_horaire['sc6'].eval_certif==True):
+             #si le cours de sc6 est évalué de manière certificative
+             
+    
 #
 #
 class Cours(Eleve):
@@ -762,8 +1035,13 @@ class Cours(Eleve):
          self.contrat=False
          self.echec_force=False
          self.echec_travail=False
-         
-     #
+         self.pseudo=False
+         self.ccnc=False
+         self.heures=0
+         self.intitule=''
+         self.abr=''
+         self.verrou=False
+         self.option=False
      #
      def analyse_points(self,points):
          if "#" in points:
@@ -792,7 +1070,7 @@ class Cours(Eleve):
              self.evaluation=1
          else:
              points=points.replace(',','.')
-             points=nettoie_point(points)# rappel: la fonction nettoie_point converti également les points en float
+             points=NettoiePoints(points).points# rappel: la fonction nettoie_point converti également les points en float
              self.points=points
              if points<50:
                  self.evaluation=1
@@ -802,15 +1080,8 @@ class Cours(Eleve):
                  self.evaluation=3
              else:
                  pass
-
-class Criteres(Classe):
-     #
-     def __init__(self):
-         self.heures_echec_max=0
-         self.cours_verrou_echec_max=0
-         self.echec_sur_exclusion_max=0
-     #
-     #
+#
+#
 class Odf_file():
      """Cet objet permet de gérer tout ce qui concerne la production des documents odf : analyse détaillée, tableau récapitulatif et classement des élèves."""
      def __init__(self, doc_type="",titre="",path="",file_name=""):
@@ -1048,10 +1319,10 @@ class Odf_file():
          self.body.append(odf_create_paragraph(self.titre,style='tit_doc'))
          for nom_eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
              eleve=classe.carnet_cotes[nom_eleve]
-             nom_table=unicode(nom_eleve.replace("'",''),'utf-8')
+             nom_table=nom_eleve.replace("'",'')
              table=odf_create_table(nom_table,style='style_table')
              remarque=' ('+str(eleve.vol_horaire_ccnc )+'p./sem)'
-             if (eleve.situation_globale==1) or (eleve.situation_globale==4):
+             if ((eleve.situation_globale==1) or (eleve.situation_globale==4)) & (eleve.age_str!=False):
                  remarque+=' '+eleve.age_str
              table=self.creer_ligne_entete(table,nom_eleve+remarque)
              #
@@ -1134,7 +1405,7 @@ class Odf_file():
              #
              for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
                  ligne=odf_create_row(style='style_ligne')
-                 ligne.append(odf_create_cell(unicode(eleve,'utf-8'),style='noms'))
+                 ligne.append(odf_create_cell(eleve,style='noms'))
                  for nom_cours in classe.liste_cours:
                      nom_cours=nom_cours.lower()
                      #points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
@@ -1186,9 +1457,8 @@ class Odf_file():
                  table.append(ligne)
              self.body.append(table)
              self.document.save(self.path+"/"+self.file_name+'_tableau.ods', pretty=True)
-
-
-#def classement(body, dico_remarques_classe):
+     #
+     #def classement(body, dico_remarques_classe):
          #classement_moy_pond=[]
          #for eleve,remarques in dico_remarques_classe.items():
            #nom_moy_pond=[]
@@ -1222,19 +1492,48 @@ class Odf_file():
          ##
          #return(body)
 
-
-
-
-
+#
+#
+class Criteres(Classe):
+     #
+     def __init__(self):
+         self.heures_echec_max=0
+         self.cours_verrou_echec_max=0
+         self.echec_sur_exclusion_max=0
+#
+class NettoiePoints(object):
+     def __init__(self,points=''):
+         self.points=points
+         
+         chaine = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9','.',',']
+         self.points = [val for val in self.points if val in chaine]
+         self.points=''.join(self.points)
+         if self.points=='':
+             self.points=False
+         if self.points!=False:
+             self.points=float(self.points)
+             if self.points!=int(self.points):
+                 self.points=round(self.points,1)
+             else :
+                 self.points=int(self.points)
+#
+#
+class OldGui(QDialog):
+     def __init__(self, parent=None):
+         super(Gui, self).__init__(parent)
+         clipboard = QApplication.clipboard()
+         text=clipboard.text()
+         text=text.split('\n')
+         for ligne in text:
+             print ligne.toUtf8()
+#
+#
 if __name__=="__main__":
      compfr=Compfr()
-     classe=Classe.__new__(Classe)#la classe est créée avec new pour pouvoir être initialisée 
-     # dans la class Gui et réutilisée dans la class Odf_file sans passer par une variable globale
+     classe=Classe()
      app = QApplication(sys.argv)
      gui=Gui()
      gui.show()
      app.exec_()
      
-
-
-
+     

@@ -9,6 +9,12 @@
 # dans le tableau recap, supprimer les colonnes pour lesquelles il n'y a pas de points
 # mettre une ligne sur deux en gris clair
 
-# changer le gui : faire un système ave une grille à remplir type tableur avec la possibilité de la remplir à partir d'un fichier ods
-# sur le côté mettre le panneau avec le chaoix classe, année, ...
-# au dessus, les butons OK, quitter, nouveau, a propos 
+#dvp la gestion des rhetos et celle du cours de sciences en 5° et 6°
+
+"""
+centrer la fenêtre au démarrage
+la maximiser lors de l'update du tableau
+implémenter l'import xslx
+implémenter l'import txt
+implémenter l'import clipboard
+"""
