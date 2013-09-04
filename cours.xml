@@ -4,7 +4,7 @@
      <niveau name="1GT">
          <cours>
              <intitule>français</intitule>
-             <abr>fran</abr>
+             <abr>FRAN</abr>
              <heures>6</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -13,7 +13,7 @@
          </cours>
          <cours>
              <intitule>EDM</intitule>
-             <abr>edm</abr>
+             <abr>EDM</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -22,7 +22,7 @@
          </cours>
          <cours>
              <intitule>mathématique</intitule>
-             <abr>math</abr>
+             <abr>MATH</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -31,7 +31,7 @@
          </cours>
          <cours>
              <intitule>religion</intitule>
-             <abr>rel</abr>
+             <abr>REL</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -40,7 +40,7 @@
          </cours>
          <cours>
              <intitule>sciences</intitule>
-             <abr>sc</abr>
+             <abr>SC</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -49,7 +49,7 @@
          </cours>
          <cours>
              <intitule>latin</intitule>
-             <abr>lat</abr>
+             <abr>LAT</abr>
              <heures>4</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -58,7 +58,7 @@
          </cours>
          <cours>
              <intitule>éducation physique</intitule>
-             <abr>ed_phys</abr>
+             <abr>ED_PHYS</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -67,7 +67,7 @@
          </cours>
          <cours>
              <intitule>néerlandais</intitule>
-             <abr>ndls</abr>
+             <abr>NDLS</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -76,7 +76,7 @@
          </cours>
          <cours>
              <intitule>techno</intitule>
-             <abr>techno</abr>
+             <abr>TECHNO</abr>
              <heures>1</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -84,19 +84,19 @@
              <option>0</option>
          </cours>
          <cours>
-                 <intitule>musique</intitule>
-                 <abr>mus</abr>
-                 <heures>1</heures>
-                 <ccnc>0</ccnc>
-                 <verrou>0</verrou>
-                 <pseudo>0</pseudo>
-                 <option>0</option>
+             <intitule>musique</intitule>
+             <abr>MUS</abr>
+             <heures>1</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
          </cours>
      </niveau>
      <niveau name="2GT">
          <cours>
              <intitule>français</intitule>
-             <abr>fran</abr>
+             <abr>FRAN</abr>
              <heures>6</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -105,7 +105,7 @@
          </cours>
          <cours>
              <intitule>EDM</intitule>
-             <abr>edm</abr>
+             <abr>EDM</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -114,7 +114,7 @@
          </cours>
          <cours>
              <intitule>mathématique</intitule>
-             <abr>math</abr>
+             <abr>MATH</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -123,7 +123,7 @@
          </cours>
          <cours>
              <intitule>religion</intitule>
-             <abr>rel</abr>
+             <abr>REL</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -132,7 +132,7 @@
          </cours>
          <cours>
              <intitule>sciences</intitule>
-             <abr>sc</abr>
+             <abr>SC</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -141,7 +141,7 @@
          </cours>
          <cours>
              <intitule>latin</intitule>
-             <abr>lat</abr>
+             <abr>LAT</abr>
              <heures>4</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -150,7 +150,7 @@
          </cours>
          <cours>
              <intitule>éducation physique</intitule>
-             <abr>ed_phys</abr>
+             <abr>ED_PHYS</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -159,7 +159,7 @@
          </cours>
          <cours>
              <intitule>néerlandais</intitule>
-             <abr>ndls</abr>
+             <abr>NDLS</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -168,7 +168,7 @@
          </cours>
          <cours>
              <intitule>techno</intitule>
-             <abr>techno</abr>
+             <abr>TECHNO</abr>
              <heures>1</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -177,7 +177,7 @@
          </cours>
          <cours>
                  <intitule>musique</intitule>
-                 <abr>mus</abr>
+                 <abr>MUS</abr>
                  <heures>1</heures>
                  <ccnc>0</ccnc>
                  <verrou>0</verrou>
@@ -188,7 +188,7 @@
      <niveau name="3GT">
          <cours>
              <intitule>français</intitule>
-             <abr>fran</abr>
+             <abr>FRAN</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -197,7 +197,7 @@
          </cours>
          <cours>
              <intitule>histoire</intitule>
-             <abr>hist</abr>
+             <abr>HIST</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -206,7 +206,7 @@
          </cours>
          <cours>
              <intitule>géographie</intitule>
-             <abr>geo</abr>
+             <abr>GEO</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -215,7 +215,7 @@
          </cours>
          <cours>
              <intitule>mathématique</intitule>
-             <abr>math</abr>
+             <abr>MATH</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -224,7 +224,7 @@
          </cours>
          <cours>
              <intitule>religion</intitule>
-             <abr>rel</abr>
+             <abr>REL</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -233,7 +233,7 @@
          </cours>
          <cours>
              <intitule>renfor. français</intitule>
-             <abr>rf</abr>
+             <abr>RF</abr>
              <heures>2</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -242,7 +242,7 @@
          </cours>
          <cours>
              <intitule>sciences_3</intitule>
-             <abr>sc_3</abr>
+             <abr>SC_3</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -251,7 +251,7 @@
          </cours>
          <cours>
              <intitule>sciences_5</intitule>
-             <abr>sc_5</abr>
+             <abr>SC_5</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -260,7 +260,7 @@
          </cours>
          <cours>
              <intitule>latin</intitule>
-             <abr>lat</abr>
+             <abr>LAT</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -269,7 +269,7 @@
          </cours>
          <cours>
              <intitule>grec</intitule>
-             <abr>grec</abr>
+             <abr>GREC</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -278,7 +278,7 @@
          </cours>
          <cours>
              <intitule>sciences éco.</intitule>
-             <abr>sc_eco</abr>
+             <abr>SC_ECO</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -287,7 +287,7 @@
          </cours>
          <cours>
              <intitule>anglais_4</intitule>
-             <abr>angl4</abr>
+             <abr>ANGL4</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -296,7 +296,7 @@
          </cours>
          <cours>
              <intitule>anglais_2</intitule>
-             <abr>angl2</abr>
+             <abr>ANGL2</abr>
              <heures>2</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -305,7 +305,7 @@
          </cours>
          <cours>
              <intitule>éducation physique</intitule>
-             <abr>ed_phys</abr>
+             <abr>ED_PHYS</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -314,7 +314,7 @@
          </cours>
          <cours>
              <intitule>néerlandais</intitule>
-             <abr>ndls</abr>
+             <abr>NDLS</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -323,7 +323,7 @@
          </cours>
          <cours>
              <intitule>physique</intitule>
-             <abr>phys</abr>
+             <abr>PHYS</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -332,7 +332,7 @@
          </cours>
          <cours>
              <intitule>chimie</intitule>
-             <abr>chim</abr>
+             <abr>CHIM</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -341,7 +341,7 @@
          </cours>
          <cours>
              <intitule>biologie</intitule>
-             <abr>bio</abr>
+             <abr>BIO</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -352,7 +352,7 @@
      <niveau name="4GT">
          <cours>
              <intitule>français</intitule>
-             <abr>fran</abr>
+             <abr>FRAN</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -361,7 +361,7 @@
          </cours>
          <cours>
              <intitule>histoire</intitule>
-             <abr>hist</abr>
+             <abr>HIST</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -370,7 +370,7 @@
          </cours>
          <cours>
              <intitule>géographie</intitule>
-             <abr>geo</abr>
+             <abr>GEO</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -379,7 +379,7 @@
          </cours>
          <cours>
              <intitule>mathématique</intitule>
-             <abr>math</abr>
+             <abr>MATH</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -388,7 +388,7 @@
          </cours>
          <cours>
              <intitule>religion</intitule>
-             <abr>rel</abr>
+             <abr>REL</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -397,7 +397,7 @@
          </cours>
          <cours>
              <intitule>renfor. français</intitule>
-             <abr>rf</abr>
+             <abr>RF</abr>
              <heures>2</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -406,7 +406,7 @@
          </cours>
          <cours>
              <intitule>sciences_3</intitule>
-             <abr>sc_3</abr>
+             <abr>SC_3</abr>
              <heures>3</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -415,7 +415,7 @@
          </cours>
          <cours>
              <intitule>sciences_5</intitule>
-             <abr>sc_5</abr>
+             <abr>SC_5</abr>
              <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -424,7 +424,7 @@
          </cours>
          <cours>
              <intitule>latin</intitule>
-             <abr>lat</abr>
+             <abr>LAT</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -433,7 +433,7 @@
          </cours>
          <cours>
              <intitule>grec</intitule>
-             <abr>grec</abr>
+             <abr>GREC</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -442,7 +442,7 @@
          </cours>
          <cours>
              <intitule>sciences éco.</intitule>
-             <abr>sc_eco</abr>
+             <abr>SC_ECO</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -451,7 +451,7 @@
          </cours>
          <cours>
              <intitule>anglais_4</intitule>
-             <abr>angl4</abr>
+             <abr>ANGL4</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -460,7 +460,7 @@
          </cours>
          <cours>
              <intitule>anglais_2</intitule>
-             <abr>angl2</abr>
+             <abr>ANGL2</abr>
              <heures>2</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -469,7 +469,7 @@
          </cours>
          <cours>
              <intitule>éducation physique</intitule>
-             <abr>ed_phys</abr>
+             <abr>ED_PHYS</abr>
              <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
@@ -478,7 +478,7 @@
          </cours>
          <cours>
              <intitule>néerlandais</intitule>
-             <abr>ndls</abr>
+             <abr>NDLS</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
@@ -487,7 +487,7 @@
          </cours>
          <cours>
              <intitule>physique</intitule>
-             <abr>phys</abr>
+             <abr>PHYS</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -496,7 +496,7 @@
          </cours>
          <cours>
              <intitule>chimie</intitule>
-             <abr>chim</abr>
+             <abr>CHIM</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
@@ -505,8 +505,19 @@
          </cours>
          <cours>
              <intitule>biologie</intitule>
-             <abr>bio</abr>
+             <abr>BIO</abr>
              <heures>0</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>1</pseudo>
+             <option>1</option>
+         </cours>
+     </niveau>
+     <niveau name="5GT">
+         <cours>
+             <intitule>sciences_6</intitule>
+             <abr>SC_6</abr>
+             <heures>6</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
              <pseudo>1</pseudo>

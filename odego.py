@@ -141,9 +141,7 @@ class Gui(QMainWindow):
          
          widget=QWidget()
          widget.setLayout(v_layout)
-         
-         #self.groupbox.setLayout(v_layout)
-         
+         #
          logDockWidget=QDockWidget(self)
          logDockWidget.setFeatures(QDockWidget.DockWidgetMovable)
          logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
@@ -152,9 +150,7 @@ class Gui(QMainWindow):
          logDockWidget.setWidget(widget)
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
-         
-         
-         
+         #
          self.boutton_ok=QPushButton(QIcon('./icons/ok_apply.svg'),u'Démarrer')
          self.boutton_ok.setMinimumHeight(40)
          self.connect(self.boutton_ok, SIGNAL("clicked()"),self.verif_avant_analyse)
@@ -177,9 +173,7 @@ class Gui(QMainWindow):
      #
      def center(self):
          qr = self.frameGeometry()
-         
          cp = QDesktopWidget().availableGeometry().center()
-         
          qr.moveCenter(cp)
          self.move(qr.topLeft())
      #
@@ -261,12 +255,13 @@ class Gui(QMainWindow):
                          elif (cours.lower()=='ddn') & (points_eleve!=None):
                              eleve.ddn=points_eleve
                          #
-                         else:
-                             eleve.grille_horaire[cours.lower()]=Cours()
-                             if points_eleve==None : points_eleve=False
-                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours.lower()].points!=False : eleve.eval_certif=True
-                         print eleve.nom , cours.lower(), points_eleve
+                         elif points_eleve!=None:
+                             eleve.grille_horaire[cours]=Cours()
+                             #if points_eleve==None : points_eleve=False
+                             eleve.grille_horaire[cours].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours].points!=False : eleve.eval_certif=True
+                         else : pass
+                         print eleve.nom , cours, points_eleve
                      classe.carnet_cotes[eleve.nom]=eleve
          except Exception, e:
              message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
@@ -281,7 +276,10 @@ class Gui(QMainWindow):
              classe.liste_cours.remove('CTG')
          if 'PIA' in classe.liste_cours:
              classe.liste_cours.remove('PIA')
+         
          classe.prod_liste_eleves()
+         classe.update_liste_cours()
+         #print classe.liste_cours
          self.tableau_valide=True
          
          if self.tableau_valide==True:
@@ -336,14 +334,15 @@ class Gui(QMainWindow):
                          elif (cours.lower()=='ddn') & (points_eleve!=''):
                              eleve.ddn=points_eleve
                          #
-                         else:
-                             if points_eleve==(''):
-                                 points_eleve=False
-                             eleve.grille_horaire[cours.lower()]=Cours()
-                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours.lower()].points!=False:
+                         elif points_eleve!='':
+                             #if points_eleve==(''):
+                                 #points_eleve=False
+                             eleve.grille_horaire[cours]=Cours()
+                             eleve.grille_horaire[cours].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours].points!=False:
                                  eleve.eval_certif=True
-                         print eleve.nom , cours.lower(), points_eleve
+                         else: pass
+                         print eleve.nom , cours, points_eleve
                      classe.carnet_cotes[eleve.nom]=eleve
          except Exception, e:
              message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
@@ -361,6 +360,8 @@ class Gui(QMainWindow):
              classe.liste_cours.remove('PIA')
          #print 'Liste des cours : ' , classe.liste_cours
          classe.prod_liste_eleves()
+         classe.update_liste_cours()
+         print classe.liste_cours
          self.tableau_valide=True
          
          if self.tableau_valide==True:
@@ -390,8 +391,7 @@ class Gui(QMainWindow):
          except ExceptionPasCours :
              QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
              print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
-         print ligne_cours#
-         
+         #
          try:
              myfile= open(self.file_name, "r")
              for ligne in myfile:
@@ -421,12 +421,13 @@ class Gui(QMainWindow):
                          elif (cours.lower()=='ddn') & (points_eleve!=False):
                              pass#eleve.ddn=points_eleve
                          #
-                         else:
-                             eleve.grille_horaire[cours.lower()]=Cours()
-                             eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours.lower()].points!=False:
+                         elif points_eleve!='':
+                             eleve.grille_horaire[cours]=Cours()
+                             eleve.grille_horaire[cours].analyse_points(str(points_eleve))
+                             if eleve.grille_horaire[cours].points!=False:
                                  eleve.eval_certif=True
-                         print eleve.nom , cours.lower(), points_eleve
+                         else : pass
+                         print eleve.nom , cours, points_eleve
                      classe.carnet_cotes[eleve.nom]=eleve
          except Exception, e:
              message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
@@ -444,6 +445,8 @@ class Gui(QMainWindow):
              classe.liste_cours.remove('PIA')
          #print 'Liste des cours : ' , classe.liste_cours
          classe.prod_liste_eleves()
+         classe.update_liste_cours()
+         print classe.liste_cours
          self.tableau_valide=True
          
          if self.tableau_valide==True:
@@ -459,8 +462,8 @@ class Gui(QMainWindow):
                  for nom_cours in classe.liste_cours:
                      if premier_elv==True:
                          self.table.insertColumn(self.table.columnCount())
-                     nom_cours=nom_cours.lower()
-                     if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
+                     #nom_cours=nom_cours.lower()
+                     if nom_cours in classe.carnet_cotes[eleve].grille_horaire.keys():
                          item=QString(unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
                      else :
                          item=QString('')
@@ -778,7 +781,8 @@ class Classe(object):
                      setattr(cours, carac, valeure)
                  # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
                  for eleve in self.carnet_cotes.itervalues():
-                     if cours.abr in eleve.grille_horaire.keys():
+                     list_cours_elv=[nom_cours.lower() for nom_cours in eleve.grille_horaire.keys()]
+                     if cours.abr.lower() in list_cours_elv:
                          for carac in liste_carac_bool:
                              setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
                          for carac in liste_carac_int:
@@ -793,7 +797,7 @@ class Classe(object):
              QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
              print'Erreur dans la lecture du fichier de description des cours'
              print 'Erreur : %s' % e
-             #print traceback.format_exc() .tb_lineno 
+             print traceback.format_exc()
          #
          try:
              tree = ET.parse('./criteres.xml')
@@ -809,70 +813,10 @@ class Classe(object):
              print 'Erreur : %s' % e
              print traceback.format_exc()
      #
-     #
-     #def prod_carnet_cotes(self):
-     ##
-         ##doc = odf_get_document(str(self.fichier_a_traiter))
-         
-         ##body=doc.get_body()
-         ##table=body.get_tables()[0]
-         ##table.rstrip()
-         ##
-         #try:
-             ##creer la liste des cours et la placer des self.liste_cours
-            
-             #eleve=Eleve()
-             #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
-             #eleve.nom=row.get_cell(0).get_value().encode('utf-8')
-             #ligne_points=row.get_cells()
-             #del ligne_points[0]
-             #for cours,cell in zip(self.liste_cours,ligne_points):
-                 #points_eleve=cell.get_value()
-                 ##
-                 #if (cours.lower()=='pia') & (points_eleve!=None):
-                     #eleve.pia=True
-                     #self.liste_cours.remove('PIA')
-                 ##
-                 #elif (cours.lower()=='ctg') & (points_eleve!=None):
-                     #eleve.ctg=True
-                     #self.liste_cours.remove('CTG')
-                 ##
-                 #elif (cours.lower()=='ddn') & (points_eleve!=None):
-                     #print 'DDN' , points_eleve
-                     #eleve.ddn=points_eleve
-                 ##
-                 #else:
-                     #try:
-                         #if points_eleve==None:
-                             #points_eleve=False
-                         #eleve.grille_horaire[cours.lower()].analyse_points(str(points_eleve))
-                         #if eleve.grille_horaire[cours.lower()].points!=False:
-                             #eleve.eval_certif=True
-                     #except Exception, e:
-                         #QMessageBox.warning(gui,'Erreur',u"<p>Une erreur a été rencontrée dans l'encodage d'une évaluation.</p> <p>Cette évaluation sera ignorée.</p>")
-                         #print ("Une erreur a été rencontrée dans l'encodage d'une évaluation.")
-                         #print ("Cette évaluation sera ignorée.")
-                         #print 'Erreur : %s' % e
-                         #print traceback.format_exc() .tb_lineno 
-                 #print eleve.nom , cours.lower(), points_eleve
-             #self.carnet_cotes[eleve.nom]=eleve
-             ##print eleve, ligne_points
-             #del eleve
-             #del ligne_points
-         #del doc
-         #del body
-         #del table
-         #if 'DDN' in self.liste_cours:
-             #self.liste_cours.remove('DDN')
-         #if 'CTG' in self.liste_cours:
-             #self.liste_cours.remove('CTG')
-         #if 'PIA' in self.liste_cours:
-             #self.liste_cours.remove('PIA')
-         #print 'Liste des cours : ' , self.liste_cours
-     #
-     #
      def stats_elv(self,do_moy_pond=True,do_echec_inf35=True):
          for eleve in self.carnet_cotes.itervalues():
+             if 'sc_6' in classe.liste_cours:
+                 eleve.fct_sciences6()
              if do_moy_pond==True:
                  eleve.moyenne_ponderee()
              if do_echec_inf35==True:
@@ -890,7 +834,6 @@ class Classe(object):
              if eleve.ddn != False :
                  eleve.fct_age()
      #
-     #
      def prod_situation_globale(self):
          for eleve in self.carnet_cotes.itervalues():
              if eleve.heures_echec_cc==0 :
@@ -907,6 +850,13 @@ class Classe(object):
      #
      def prod_liste_eleves(self):
          self.liste_eleves=self.carnet_cotes.keys()
+     #
+     def update_liste_cours(self):
+         self.liste_cours=[]
+         for eleve in self.carnet_cotes.itervalues():
+             for cours in eleve.grille_horaire.keys():
+                 if cours not in self.liste_cours:
+                     self.liste_cours.append(cours)
 #
 #
 class Eleve(Classe):
@@ -962,6 +912,7 @@ class Eleve(Classe):
          total_heures_cc=0
          total_heures_ccnc=0
          for cours in self.grille_horaire.itervalues():
+             print cours.abr
              if (cours.ccnc==True) & (cours.points!=False):
                  self.moy_pond_cc+=cours.heures*cours.points
                  total_heures_cc+=cours.heures
@@ -1082,29 +1033,29 @@ class Eleve(Classe):
          for cours in self.grille_horaire.itervalues():
              if cours.points!=False:
                  if (cours.points<35):
-                     liste_inf35.append(cours.abr+" : "+str(cours.points))
+                     liste_inf35.append(cours.abr.lower()+" : "+str(cours.points))
                  elif 35 <= cours.points < 50:
-                     liste_35_50.append(cours.abr+" : "+str(cours.points))
+                     liste_35_50.append(cours.abr.lower()+" : "+str(cours.points))
                  elif 50 <= cours.points < 60:
                      if cours.echec_force==True:
-                         liste_50_60.append(cours.abr+" : "+str(cours.points)+"!")
+                         liste_50_60.append(cours.abr.lower()+" : "+str(cours.points)+"!")
                      else:
-                         liste_50_60.append(cours.abr+" : "+str(cours.points))
+                         liste_50_60.append(cours.abr.lower()+" : "+str(cours.points))
                  elif 60 <= cours.points < 70 :
                      if cours.echec_force==True:
-                         liste_60_70.append(cours.abr+" : "+str(cours.points)+"!")
+                         liste_60_70.append(cours.abr.lower()+" : "+str(cours.points)+"!")
                      else:
-                         liste_60_70.append(cours.abr+" : "+str(cours.points))
+                         liste_60_70.append(cours.abr.lower()+" : "+str(cours.points))
                  elif 70 <= cours.points <80 :
                          if cours.echec_force==True:
-                             liste_70_80.append(cours.abr+" : "+str(cours.points)+"!")
+                             liste_70_80.append(cours.abr.lower()+" : "+str(cours.points)+"!")
                          else:
-                             liste_70_80.append(cours.abr+" : "+str(cours.points))
+                             liste_70_80.append(cours.abr.lower()+" : "+str(cours.points))
                  elif cours.points>=80 :
                      if cours.echec_force==True:
-                         liste_sup80.append(cours.abr+" : "+str(cours.points)+"!")
+                         liste_sup80.append(cours.abr.lower()+" : "+str(cours.points)+"!")
                      else:
-                         liste_sup80.append(cours.abr+" : "+str(cours.points))
+                         liste_sup80.append(cours.abr.lower()+" : "+str(cours.points))
          self.classement_cours['0=>35[']=" ; ".join(liste_inf35)
          self.classement_cours['35=>50[']=" ; ".join(liste_35_50)
          self.classement_cours['50=>60[']=" ; ".join(liste_50_60)
@@ -1129,10 +1080,30 @@ class Eleve(Classe):
          self.age=float(mois)/12
      #    
      def fct_sciences6 (self):
-         if (self.grille_horaire['sc6'].evaluation==True) & (self.grille_horaire['sc6'].eval_certif==True):
+         if self.grille_horaire['sc_6'].evaluation==4:
              #si le cours de sc6 est évalué de manière certificative
-             pass
+             nb_echecs=0
+             nb_echecs_inf45=0
+             self.grille_horaire['sc_6'].points=(self.grille_horaire['bio'].points+self.grille_horaire['chim'].points+self.grille_horaire['phys'].points)/3 # calcul de la moyenne pour sc6 
              
+             if self.grille_horaire['bio'].points<50 : nb_echecs+=1
+             if self.grille_horaire['chim'].points<50 : nb_echecs+=1
+             if self.grille_horaire['phys'].points<50 : nb_echecs+=1
+             if self.grille_horaire['bio'].points<45 : nb_echecs_inf45+=1
+             if self.grille_horaire['chim'].points<45 : nb_echecs_inf45+=1
+             if self.grille_horaire['phys'].points<45 : nb_echecs_inf45+=1
+             if self.grille_horaire['sc_6'].points<50:
+                 self.grille_horaire['bio'].echec_force=True
+                 self.grille_horaire['chim'].echec_force=True
+                 self.grille_horaire['phys'].echec_force=True
+             if nb_echecs_sc>1 :
+                 self.grille_horaire['bio'].echec_force=True
+                 self.grille_horaire['chim'].echec_force=True
+                 self.grille_horaire['phys'].echec_force=True
+             if nb_echecs_inf45>0 :
+                 self.grille_horaire['bio'].echec_force=True
+                 self.grille_horaire['chim'].echec_force=True
+                 self.grille_horaire['phys'].echec_force=True
     
 #
 #
@@ -1170,6 +1141,8 @@ class Cours(Eleve):
          elif points.lower()=='cm':
              self.evaluation=4
              self.certif_med=True
+         elif points.lower()=='x':#utile nottament pour les sc6 en 5°et6°
+             self.evaluation=4
          elif points.lower()=='r':
              self.appreciation='r'
              self.evaluation=3
@@ -1518,7 +1491,7 @@ class Odf_file():
                  ligne=odf_create_row(style='style_ligne')
                  ligne.append(odf_create_cell(eleve,style='noms'))
                  for nom_cours in classe.liste_cours:
-                     nom_cours=nom_cours.lower()
+                     #nom_cours=nom_cours.lower()
                      #points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
                      if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
                          points=unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8')
@@ -1647,4 +1620,5 @@ if __name__=="__main__":
      gui.show()
      app.exec_()
      
-     
+# vérifier comment les points sont encodés, cad : il ne faudra créer le cours chez l'élève que si il y a effectivement des points
+# fait mais il faudrait revoir la cohérence des noms de cours entre le tableau et le fichier xml
