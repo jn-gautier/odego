@@ -85,7 +85,7 @@ class Gui(QMainWindow):
          niveau=['','1', '2', '3', '4', '5', '6']
          classes=['','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
          sections=['','GT','TQ']
-         delibe=[u'Noël',u'Mars',u'Juin']
+         delibe=[u'Noel',u'Mars',u'Juin']
          now=date.today()
          
          annees=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
@@ -534,7 +534,7 @@ class Gui(QMainWindow):
          self.titre='Conseil de classe '+self.niveau+self.section+self.classe+" - "+self.delibe+' '+self.annee
          #
          try:
-             classe.set_param(self.niveau,self.section)
+             classe.set_param(self.niveau,self.section,self.delibe)
              if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Noël'):
                  self.traitement_1deg_gt_noel()
              if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Mars'):
@@ -558,7 +558,7 @@ class Gui(QMainWindow):
      #
      def traitement_1deg_gt_noel(self):
          try:
-             classe.stats_elv(True,False)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -584,7 +584,7 @@ class Gui(QMainWindow):
      #
      def traitement_1deg_gt_mars(self):
          try:
-             classe.stats_elv(False,False)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -610,7 +610,7 @@ class Gui(QMainWindow):
      #
      def traitement_1deg_gt_juin(self):
          try:
-             classe.stats_elv(True,False)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -636,7 +636,7 @@ class Gui(QMainWindow):
      #
      def traitement_345_gt_noel(self):
          try:
-             classe.stats_elv(True,True)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -662,7 +662,7 @@ class Gui(QMainWindow):
      #
      def traitement_345_gt_mars(self):
          try:
-             classe.stats_elv(False,False)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -688,7 +688,7 @@ class Gui(QMainWindow):
      #
      def traitement_345_gt_juin(self):
          try:
-             classe.stats_elv(True,True)
+             classe.stats_elv()
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception, e:
@@ -753,10 +753,12 @@ class Classe(object):
          self.liste_cours=[]
          self.grille_horaire={}
          self.fichier_a_traiter=''
+         self.analyses={}
      #    
-     def set_param(self,niveau="",section=""):
+     def set_param(self,niveau="",section="",delibe=""):
          self.niveau=niveau
          self.section=section
+         self.delibe=delibe
          self.niv_sec=self.niveau+self.section
          liste_carac_bool=['ccnc','verrou','pseudo','option']
          liste_carac_int=['heures']
@@ -812,27 +814,58 @@ class Classe(object):
              print'Erreur dans la lecture du fichier de description des critères.'
              print 'Erreur : %s' % e
              print traceback.format_exc()
-     #
-     def stats_elv(self,do_moy_pond=True,do_echec_inf35=True):
+         #
+         try:
+             tree = ET.parse('./analyses.xml')
+             for niveau in tree.iter('niveau'):
+                 if niveau.get('name')==self.niv_sec:
+                     tree_niveau=niveau
+             for delibe in tree_niveau.iter('delibe'):
+                 if delibe.get('name')==self.delibe:
+                     tree_delibe=delibe
+             for analyse in tree_delibe:
+                 
+                 self.analyses[analyse.tag]=bool(int(analyse.text))
+             #print self.analyses
+                 #setattr(self.analyses, analyse.tag,bool(analyse.text))
+                 
+         except Exception, e:
+             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier des analyses à effectuer.")
+             print'Erreur dans la lecture du fichier des analyses à effectuer.'
+             print 'Erreur : %s' % e
+             print traceback.format_exc()
+         #
+     
+     def stats_elv(self):
          for eleve in self.carnet_cotes.itervalues():
-             if 'sc_6' in classe.liste_cours:
-                 eleve.fct_sciences6()
-             if do_moy_pond==True:
-                 eleve.moyenne_ponderee()
-             if do_echec_inf35==True:
-                 eleve.echec_inf35()
-             eleve.nombre_heures_horaire()
-             eleve.total_heures_echec()
-             eleve.cours_verrou_echec()
-             eleve.nb_cours_echec()
-             eleve.echec_contrat()
-             eleve.certif_med()
-             eleve.oubli_cours()
-             eleve.calc_credits_inf_50()
-             eleve.echec_travail()
-             eleve.fct_classement_cours()
-             if eleve.ddn != False :
+             if classe.analyses['fct_moyenne_ponderee']==True:
+                 eleve.fct_moyenne_ponderee()
+             if classe.analyses['fct_echec_inf35']==True:
+                 eleve.fct_echec_inf35()
+             if classe.analyses['fct_nb_heures_horaire']==True:
+                 eleve.fct_nb_heures_horaire()
+             if classe.analyses['fct_total_heures_echec']==True:
+                 eleve.fct_total_heures_echec()
+             if classe.analyses['fct_cours_verrou_echec']==True:
+                 eleve.fct_cours_verrou_echec()
+             if classe.analyses['fct_nb_cours_echec']==True:
+                 eleve.fct_nb_cours_echec()
+             if classe.analyses['fct_echec_contrat']==True:
+                 eleve.fct_echec_contrat()
+             if classe.analyses['fct_certif_med']==True:
+                 eleve.fct_certif_med()
+             if classe.analyses['fct_oubli_cours']==True:
+                 eleve.fct_oubli_cours()
+             if classe.analyses['fct_credits_inf_50']==True:
+                 eleve.fct_credits_inf_50()
+             if classe.analyses['fct_echec_travail']==True:
+                 eleve.fct_echec_travail()
+             if classe.analyses['fct_classement_cours']==True:
+                 eleve.fct_classement_cours()
+             if classe.analyses['fct_age']==True:
                  eleve.fct_age()
+             if classe.analyses['fct_sciences6']==True:
+                 eleve.fct_sciences6()
      #
      def prod_situation_globale(self):
          for eleve in self.carnet_cotes.itervalues():
@@ -891,7 +924,7 @@ class Eleve(Classe):
          self.age_str=False
      #
      #
-     def nombre_heures_horaire(self):
+     def fct_nb_heures_horaire(self):
          """Cette fonction calcule pour un eleve :
            => le nombre d'heures de cours certificatives dans son horaire,
            => le nombre total d'heures de cours dans son horaire.
@@ -904,7 +937,7 @@ class Eleve(Classe):
                  self.vol_horaire_cc+=cours.heures
      #
      #
-     def moyenne_ponderee(self):
+     def fct_moyenne_ponderee(self):
          """Cette fonction calcule pour un eleve :
            => la moyenne pondérée des cours certificatifs
            => la moyenne pondérée de l'ensemble des cours.
@@ -912,7 +945,6 @@ class Eleve(Classe):
          total_heures_cc=0
          total_heures_ccnc=0
          for cours in self.grille_horaire.itervalues():
-             print cours.abr
              if (cours.ccnc==True) & (cours.points!=False):
                  self.moy_pond_cc+=cours.heures*cours.points
                  total_heures_cc+=cours.heures
@@ -925,7 +957,7 @@ class Eleve(Classe):
          self.moy_pond_ccnc=round((self.moy_pond_ccnc/total_heures_ccnc),1)
      #
      #
-     def total_heures_echec(self): 
+     def fct_total_heures_echec(self): 
          """Cette fonction calcule, pour un eleve:
           => le nombre d'heures de cours certificatifs en échec,
           => le nombre d'heures de cours non-certificatifs en échec,
@@ -943,7 +975,7 @@ class Eleve(Classe):
              self.heures_echec_tot='0'
      #
      #
-     def cours_verrou_echec(self):
+     def fct_cours_verrou_echec(self):
          """Cette fonction calcule, pour un eleve:
            => le nom des cours verrou en échec,
            => le nombre de cours verrou en échec"""
@@ -955,7 +987,7 @@ class Eleve(Classe):
          self.nb_cours_verrou_echec=len(liste_cours_verrou)
      #
      #
-     def echec_inf35(self):
+     def fct_echec_inf35(self):
          """Cette fonction calcule, pour un eleve:
            => le nom des cours dont la cote est inférieure à 35,
            => le nombre de cours dont la cote est inférieure à 35."""
@@ -968,7 +1000,7 @@ class Eleve(Classe):
          self.nb_cours_inf35=len(liste_cours_inf35)
      #
      #
-     def nb_cours_echec(self):
+     def fct_nb_cours_echec(self):
          """Cette fonction calcule, pour un eleve:
            => le nombre de cours certificatifs en échec,
            => le nombre de cours non-certificatifs en échec."""
@@ -979,7 +1011,7 @@ class Eleve(Classe):
                  self.nb_cours_nc_echec+=1
      #
      #
-     def echec_contrat(self):
+     def fct_echec_contrat(self):
          liste_echec_contrat=[]
          for cours in self.grille_horaire.itervalues():
              if (cours.contrat==True) & (cours.evaluation==1):
@@ -987,7 +1019,7 @@ class Eleve(Classe):
          self.liste_echec_contrat=", ".join(liste_echec_contrat)
      #
      #
-     def certif_med(self):
+     def fct_certif_med(self):
          liste_certif_med=[]
          for cours in self.grille_horaire.itervalues():
              if cours.certif_med==True:
@@ -995,7 +1027,7 @@ class Eleve(Classe):
          self.liste_certif_med=", ".join(liste_certif_med)
      #
      #
-     def oubli_cours(self):
+     def fct_oubli_cours(self):
          liste_oubli_cours=[]
          for cours in self.grille_horaire.itervalues():
              if (cours.evaluation==0) & (cours.option==False) & (cours.certif_med==False):
@@ -1003,7 +1035,7 @@ class Eleve(Classe):
          self.liste_oubli_cours=", ".join(liste_oubli_cours)
      #
      #
-     def calc_credits_inf_50(self):
+     def fct_credits_inf_50(self):
          ecart=0
          ecart_pondere=0
          for cours in self.grille_horaire.itervalues():
@@ -1014,7 +1046,7 @@ class Eleve(Classe):
                      self.credits_inf_50+=ecart_pondere
      #
      #
-     def echec_travail(self):
+     def fct_echec_travail(self):
          liste_echec_travail=[]
          for cours in self.grille_horaire.itervalues():
              if (cours.evaluation==1) & (cours.echec_travail==True) : 
