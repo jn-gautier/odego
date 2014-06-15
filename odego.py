@@ -844,7 +844,7 @@ class Classe(object):
      #
      def update_liste_cours(self):
          """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
-         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca','ha','meth','ex_co']
+         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','ex_co']
          self.liste_cours=[]
          for eleve in self.carnet_cotes.itervalues():
              for cours in eleve.grille_horaire.keys():
@@ -1173,7 +1173,7 @@ class Eleve(Classe):
          self.prop_echec=round(self.prop_echec*100,2)
      #
      def fct_daca(self):
-         if self.grille_horaire['daca'].points<50:
+         if self.grille_horaire['daca+ep'].points<50:
              self.echec_daca=True
          
 #
@@ -1727,21 +1727,6 @@ class Odf_file():
                          elif cell.get_style()=='noel_mars':
                              cell.set_style('noel_mars_gris')
                          table.set_cell((cell.x,cell.y),cell)
-                         #style=odf_create_table_cell_style(background_color='#D0D0D0')
-                         #cell.set_style(style)
-                         #paragraph=cell.get_paragraph()
-                         #style=paragraph.get_style('paragraph')
-                         #paragraph.set_background(color='#D0D0D0')
-                         #cell.set_text(paragraph)
-                         #
-                         #pass
-                         #cell.set_attribute('fo:background-color', '#D0D0D0')
-                         #pass
-                         #paragraph=cell.get_paragraph()
-                         #style=paragraph.get_styles('paragraph')
-                         #print style
-                         #paragraph.set_background(color='#D0D0D0')
-                         #cell.set_style(style)
                  x+=1
              # fin mise fond gris
              

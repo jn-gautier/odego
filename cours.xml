@@ -1041,7 +1041,7 @@
              <option>0</option>
          </cours>
          <cours>
-             <intitule>education plastique</intitule>
+             <intitule>éducation plastique</intitule>
              <abr>ed_plas</abr>
              <heures>4</heures>
              <ccnc>1</ccnc>
@@ -1069,7 +1069,7 @@
          </cours>
          <cours>
              <intitule>DACA et EP</intitule>
-             <abr>daca</abr>
+             <abr>daca+ep</abr>
              <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
