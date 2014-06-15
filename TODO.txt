@@ -1,4 +1,3 @@
-
 # faire un splashscreen
 # créer une icone
 
@@ -6,13 +5,15 @@
 
 #ajouter la possibilité d'importer les points depuis un fichier xslx
 
-# dans le tableau recap, supprimer les colonnes pour lesquelles il n'y a pas de points
 # mettre une ligne sur deux en gris clair
 
 #dvp la gestion des rhetos et 5° ; attention, les critères sot différents en rhétos
+#compléter le menu a propos, aide
+vérifier la gestion de "fichier valide" dans les différents imports
 
-"""
 
 implémenter l'import xslx
 implémenter l'import clipboard
+importer xls, txt et clip comme ods cad en ne créant que les cours qui ont évalués
+modifier l'import en créant une liste de liste puis en la traitant par une fct commune à chaque import
 """

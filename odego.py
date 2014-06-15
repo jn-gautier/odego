@@ -3,7 +3,9 @@
 
 from xml.dom.minidom import parse
 import locale
-from os.path import *
+import os
+from time import time, sleep
+from os import path
 from lpod.document import odf_get_document, odf_new_document
 from types import *
 from lpod.table import *
@@ -11,20 +13,25 @@ from lpod.style import *
 from lpod.paragraph import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtSvg import *
+from PyQt4.QtWebKit import QGraphicsWebView
 import sys
 import traceback
 from datetime import date , datetime
-#import datetime
-import types
+from datetime import *
+#import types
 from functools import cmp_to_key 
 import xml.etree.ElementTree as ET
+import subprocess
+import platform 
+from math import radians, sin, cos
 
 class Gui(QMainWindow):
     
      def __init__(self):
          super(Gui, self).__init__()
          #self.initUI()
-         self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
+         #self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
          self.tableau_valide=False
          
          new_from_fileAction = QAction(QIcon('./icons/import_file.svg'),u"&Importer les points à partir d'un fichier", self)
@@ -35,7 +42,7 @@ class Gui(QMainWindow):
          new_from_clipboardAction = QAction(QIcon('./icons/editpaste.png'),u"Importer les points à partir du &presse papier", self)
          new_from_clipboardAction.setShortcut('Ctrl+V')
          new_from_clipboardAction.setStatusTip(u"Importer les points à partir de données copiées depuis un fichier")
-         new_from_clipboardAction.triggered.connect(self.test)
+         new_from_clipboardAction.triggered.connect(self.import_clipboard)
          
          StartAction = QAction(QIcon('./icons/ok_apply.svg'),u"Démarrer l'analyse", self)
          StartAction.setShortcut('Ctrl+D')
@@ -47,13 +54,13 @@ class Gui(QMainWindow):
          QuitAction.setStatusTip(u"Quitter")
          QuitAction.triggered.connect(self.appExit)
          
-         HelpAction = QAction(u"Obtenir de l'aide", self)
+         HelpAction = QAction(QIcon('./icons/help.svg'),u"Obtenir de l'aide", self)
          HelpAction.setStatusTip(u"Obtenir de l'aide concernant l'utilisation de ce logiciel")
-         HelpAction.triggered.connect(self.test)
+         HelpAction.triggered.connect(self.aide)
          
-         AboutAction = QAction(u"A propos", self)
+         AboutAction = QAction(QIcon('./icons/odego.svg'),u"À propos", self)
          AboutAction.setStatusTip(u"A propos de ce logiciel")
-         AboutAction.triggered.connect(self.test)
+         AboutAction.triggered.connect(self.about)
          
          menubar = self.menuBar()
          
@@ -83,14 +90,15 @@ class Gui(QMainWindow):
          self.setWindowIcon(QIcon('./icons/odego.svg')) 
          
          niveau=['','1', '2', '3', '4', '5', '6']
-         classes=['','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
+         classes=['','_','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
          sections=['','GT','TQ']
          delibe=[u'Noel',u'Mars',u'Juin']
          now=date.today()
-         
          annees=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
          #
          grid=QGridLayout()
+         widget=QWidget()
+         widget.setLayout(grid)
          #self.fname=False
          #self.fichier_valide=False
          self.combo_niveau=QComboBox()
@@ -115,28 +123,28 @@ class Gui(QMainWindow):
          grid.addWidget(self.combo_delib,4,1)
          grid.addWidget(self.combo_annees,4,2)
          grid.setRowStretch(5,1)
-         grid.setColumnStretch(3,1)
-         #
-         widget=QWidget()
-         widget.setLayout(grid)
+         #grid.setColumnStretch(3,1)
          #
          logDockWidget=QDockWidget(self)
          logDockWidget.setTitleBarWidget(QLabel( '<p style="font-size:10pt;font-weight:bold">Informations</p>' ))
          logDockWidget.setFeatures(QDockWidget.DockWidgetMovable)
          logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
-         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         #logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea)
          logDockWidget.setWidget(widget)
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          #
-         self.radio1=QCheckBox(u"Tableau récapitulatif")
-         self.radio2=QCheckBox(u"Analyse detaillée")
-         self.radio3=QCheckBox("Classement")
+         self.radio_tab_recap=QCheckBox(u"Tableau récapitulatif")
+         self.radio_tab_recap.setToolTip (QString(u'<p>Produire un tableau récapitulatif "classique" avec la sitation globale, la moyenne pondérée et le nombre d\' heures d\'échec.</p>'))
+         self.radio_ana_det=QCheckBox(u"Analyse detaillée")
+         self.radio_ana_det.setToolTip (QString(u'<p>Produire un fichier présentant pour chaque élève les détails de ses résultats et les raisons d\' un éventuel échec.</p>'))
+         self.radio_classmt=QCheckBox("Classement")
+         self.radio_classmt.setToolTip (QString(u'<p>Produire un tableau avec le classement des élèves en fonction de leur moyenne pondérée.</p>'))
          #
          v_layout=QVBoxLayout()
-         v_layout.addWidget(self.radio1)
-         v_layout.addWidget(self.radio2)
-         v_layout.addWidget(self.radio3)
+         v_layout.addWidget(self.radio_tab_recap)
+         v_layout.addWidget(self.radio_ana_det)
+         v_layout.addWidget(self.radio_classmt)
          v_layout.addStretch(1)
          
          widget=QWidget()
@@ -146,7 +154,7 @@ class Gui(QMainWindow):
          logDockWidget.setFeatures(QDockWidget.DockWidgetMovable)
          logDockWidget.setFeatures(QDockWidget.DockWidgetFloatable)
          logDockWidget.setTitleBarWidget(QLabel( '<p style="font-size:10pt;font-weight:bold">Analyses</p>' ))
-         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         #logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
          logDockWidget.setWidget(widget)
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
@@ -157,7 +165,7 @@ class Gui(QMainWindow):
          
          logDockWidget=QDockWidget(self)
          logDockWidget.setFeatures(QDockWidget.NoDockWidgetFeatures)
-         logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+         #logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
          logDockWidget.setWidget(self.boutton_ok)
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
@@ -166,10 +174,100 @@ class Gui(QMainWindow):
          self.combo_annees.setCurrentIndex(2)
          if now.month in [10,11,12,1]:
              self.combo_delib.setCurrentIndex(0)
-         if now.month in [2,3,4,5]:
+         if now.month in [2,3,4]:
              self.combo_delib.setCurrentIndex(1)
-         if now.month in [6,7,8,9]:
+         if now.month in [5,6,7,8,9]:
              self.combo_delib.setCurrentIndex(2)
+         self.current_dir = path.expanduser("~")
+     #
+     def splashscreen(self):
+         
+         svg_rend = QSvgWidget()     
+         svg_rend.setWindowFlags(Qt.SplashScreen)
+         for i in xrange(101):
+             blanc=str(int(255-float(i)/100*255))
+             gris=str(int(181-float(i)/100*181))
+             #print blanc, gris
+             svg_txt='<svg width="550px" height="290px">'
+             svg_txt+='<defs>'
+             svg_txt+='<linearGradient id="grad1" x1="0" y1="0" x2="0" y2="100%">'
+             svg_txt+='<stop style="stop-color:#ffffff;stop-opacity:1;" offset="0" />'
+             svg_txt+='<stop style="stop-color:#b5b5b5;stop-opacity:1;" offset="1"/>'
+             svg_txt+='</linearGradient>'
+             svg_txt+='<linearGradient id="grad2" x1="0%" y1="-10%" x2="0" y2="300%">'
+             svg_txt+='<stop style="stop-color:rgb(%s,%s,%s);stop-opacity:1" offset="0" />'%(blanc,blanc,blanc)
+             svg_txt+='<stop style="stop-color:rgb(%s,%s,%s);stop-opacity:1" offset="1"/>'%(gris,gris,gris)
+             svg_txt+='</linearGradient>'
+             svg_txt+='</defs>'
+             svg_txt+='<rect height="290" width="550" fill="url(#grad1)"/>'
+              
+             if i<=25:
+                 height=float(i)/25*66
+                 y1=str(210-height)
+                 y2=str(210+height)
+                 taille_rouge=str(float(i))
+                 stroke_rouge=str(2*6.5*(float(i)/100  ))
+                 
+                 svg_txt+='<line x1="68" y1="%s" x2="68" y2="%s" stroke="#000000" stroke-width="12"/>' %(y1,y2)
+                 svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="%s" stroke="#ffffff" stroke-width="%s" fill="#D30000" />' %(taille_rouge,stroke_rouge)
+                 
+             if 25<i<=50:
+                 alpha=(float(i)-25)/25*90
+                 alpha_rad=radians(alpha)
+                 l1_x1=str(68-44*sin(alpha_rad))
+                 l1_x2=str(68+88*sin(alpha_rad))
+                 l1_y1=str(188-44*cos(alpha_rad))
+                 l1_y2=str(188+88*cos(alpha_rad))
+                 taille_rouge=str(float(i))
+                 stroke_rouge=str(2*6.5*(float(i)/100  ))
+                 
+                 svg_txt+='<line x1="68" y1="144" x2="68" y2="276" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#000000" stroke-width="12"/>' %(l1_x1,l1_y1,l1_x2,l1_y2)
+                 svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="%s" stroke="#ffffff" stroke-width="%s" fill="#D30000" />' %(taille_rouge,stroke_rouge)
+                
+             if 50<i<=75:
+                 alpha=(float(i)-50)/25*90
+                 alpha_rad=radians(alpha)
+                 l2_x1=str(112-88*cos(alpha_rad))
+                 l2_x2=str(112+44*cos(alpha_rad))
+                 l2_y1=str(188+88*sin(alpha_rad))
+                 l2_y2=str(188-44*sin(alpha_rad))
+                 centre_x_orange=str(220+((float(i)-50)/25*125))
+                    
+                 svg_txt+='<line x1="68" y1="144" x2="68" y2="276" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="24" y1="188" x2="156" y2="188" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#000000" stroke-width="12"/>'%(l2_x1,l2_y1,l2_x2,l2_y2)
+                 svg_txt+='<circle id="rond_orange" cx="%s" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF8C00" />'%(centre_x_orange)
+                 svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#D30000" />'
+                 
+             if i>75:
+                 alpha=(float(i)-75)/25*90
+                 alpha_rad=radians(alpha)
+                 #print alpha
+                 l3_x1=str(112-88*sin(alpha_rad))
+                 l3_x2=str(112+44*sin(alpha_rad))
+                 l3_y1=str(232-88*cos(alpha_rad))
+                 l3_y2=str(232+44*cos(alpha_rad))
+                 centre_x_vert=str(345+((float(i)-75)/25*125))
+                    
+                 svg_txt+='<line x1="68" y1="144" x2="68" y2="276" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="24" y1="188" x2="156" y2="188" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="112" y1="144" x2="112" y2="276" stroke="#000000" stroke-width="12"/>'
+                 svg_txt+='<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#000000" stroke-width="12"/>' %(l3_x1,l3_y1,l3_x2,l3_y2)
+                 svg_txt+='<circle id="rond_vert" cx="%s" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#078018" />' %(centre_x_vert)
+                 svg_txt+='<circle id="rond_orange" cx="345" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF8C00" />'
+                 svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#D30000" />'
+         
+             svg_txt+='<text style="font-size:130px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:url(#grad2);stroke:none;font-family:Sans" x="275" y="110" > ODEGO</text>'
+             svg_txt+='</svg>'
+             
+             array=QByteArray(svg_txt)
+             svg_rend.load(array)
+             svg_rend.show()
+             QApplication.processEvents()
+             sleep(0.07)
+         sleep(0.5)
+         svg_rend.close()
      #
      def center(self):
          qr = self.frameGeometry()
@@ -180,12 +278,33 @@ class Gui(QMainWindow):
      def test(self):
          print 'hello'
      #
+     def aide(self):
+         message=u''
+         message+=u"<div><p>Pour obtenir de l'aide conçernant l'emploi de ce logiciel "
+         message+=u"vous pouvez contacter J.N. Gautier par téléphone à n'importe quelle heure "
+         message+=u"décente.</p>"
+         message+=u"<p>J.N. Gautier : <b>0494/84.14.59</b></p></div>"
+         message+=u"<p>Ce service vous coûtera généralement un café.</p>"
+         message+=u"<p>En cas d'utilisation du service d'aide en dehors des heures prévues, vous me serez redevable d'un bon sandiwch pendant les délibés.</p>"
+         message+=u"</div>"
+         QMessageBox.information(self,'Aide',message)
+     #
+     def about(self):
+         message=u'<div><p><b>Odego</b>, inspiré du grec <i>οδηγω : "je guide"</i>, est un outil '
+         message+=u"d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
+         message+=u'href="mailto:gautier.sciences@gmail.com">gautier.sciences@gmail.com</a></p></div>'
+         QMessageBox.about(self,"A propos d'odego",message)
+         #self.dial_about=QTextBrowser()
+         #self.dial_about.append(message)
+         #self.dial_about.show()
+     #
      def appExit(self):
          print "Au revoir!"
          app.quit()
      #
      def select_file(self):
-         self.file_name = QFileDialog.getOpenFileName(self,'Tableau avec les points de la classe.','/home/gautier/dossier_ivf/odego-projet/')
+         self.file_name = QFileDialog.getOpenFileName(self,'Tableau avec les points de la classe.',self.current_dir)
+         self.current_dir=os.path.dirname(unicode(self.file_name,'utf-8'))
          self.get_file_ext()
          classe.__init__()
          # je réinitialise la classe au cas ou l'utilisateur tente d'importer un fichier de points alors que cela a déjà été fait
@@ -193,224 +312,144 @@ class Gui(QMainWindow):
              self.import_ods()
          elif self.ext=='xls':
              self.import_xls()
-         elif self.ext=='xslx':
-             pass
+         elif self.ext=='xlsx':
+             self.import_xls()
          elif self.ext=='txt':
              self.import_txt()
-         elif self.ext=='csv':
+         elif self.ext=='tsv':
              self.import_txt()
          else:
-             QMessageBox.warning(self,'Erreur',u"Veuillez renseigner un fichier avec l'extension 'ods', 'xls' ou 'xslx'.")
+             QMessageBox.warning(self,'Erreur',u"Veuillez renseigner un fichier avec l'extension 'ods', 'xls', 'xlsx', 'txt' ou 'tsv'.")
      #
      def get_file_ext(self):
          ext=self.file_name.split('.')
          self.ext=ext[len(ext)-1]
      #
      def import_ods(self):
-         doc = odf_get_document(str(self.file_name))
-         body=doc.get_body()
-         table=body.get_tables()[0]
-         table.rstrip()
-         #
          try:
-             ligne_cours=False
-             for row in table.get_rows():
-                 prem_cell=row.get_value(0)
-                 if prem_cell!=None:
-                     if (prem_cell.lower()=='cours'):
-                         ligne_cours=True
-                         for cell in row.get_values():
-                             if cell!=None: #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
-                                 classe.liste_cours.append(cell)
-                         del classe.liste_cours[0]
-             if ligne_cours==False:
-                 raise ExceptionPasCours
-         except ExceptionPasCours :
-             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
-             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
-         try:    
-             for row in table.get_rows():
-                 prem_cell=row.get_value(0)
-                 if (prem_cell==None) or ( (prem_cell[0]=='&') & (prem_cell[1]=='&') or (prem_cell.lower()=='cours')):
-                     pass
-                 else:
-                     eleve=Eleve()
-                     if type(row.get_value(0)) is not unicode:
-                         eleve.nom=unicode(row.get_value(0),'utf-8')
-                         # le nom de l'élève est supposé se trouver dans la première cellule
-                     else:
-                         eleve.nom=row.get_value(0)
-                     ligne_points=row.get_values()
-                     del ligne_points[0] # on supprime le nom de l'élève
-                     for cours,points_eleve in zip(classe.liste_cours,ligne_points):
-                         #on parcours simultanement la liste des cours et celle des points
-                         
-                         #
-                         if (cours.lower()=='pia') & (points_eleve!=None):
-                             eleve.pia=True
-                         #
-                         elif (cours.lower()=='ctg') & (points_eleve!=None):
-                             eleve.ctg=True
-                         #
-                         elif (cours.lower()=='ddn') & (points_eleve!=None):
-                             eleve.ddn=points_eleve
-                         #
-                         elif points_eleve!=None:
-                             eleve.grille_horaire[cours]=Cours()
-                             #if points_eleve==None : points_eleve=False
-                             eleve.grille_horaire[cours].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours].points!=False : eleve.eval_certif=True
-                         else : pass
-                         print eleve.nom , cours, points_eleve
-                     classe.carnet_cotes[eleve.nom]=eleve
+             doc = odf_get_document(str(self.file_name))
+             body=doc.get_body()
+             table=body.get_tables()[0]
+             table.rstrip()
+             self.tableau_points=[]
+             #
+             for ligne in table.get_rows():
+                 liste_ligne_points=ligne.get_values()
+                 ligne_points=[]
+                 for elem in liste_ligne_points:
+                     if (elem==None) or (elem=='') or (elem=='None'):
+                         elem=False
+                     if (type (elem) is not unicode) & (elem!=False):
+                         elem=unicode(str(elem),'utf-8')
+                     
+                     ligne_points.append(elem)
+                 if ligne_points[0]!=False: #on encode la ligne uniquement si la première cellule contient quelque chose
+                     self.tableau_points.append(ligne_points)
+             self.fct_carnet_cote(self.tableau_points)
          except Exception, e:
-             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
-             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message=message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
              message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
              QMessageBox.critical(self,'Echec',message)
              print 'Erreur : %s' % e
              print 'Message : ', traceback.format_exc()
-         if 'DDN' in classe.liste_cours:
-             classe.liste_cours.remove('DDN')
-         if 'CTG' in classe.liste_cours:
-             classe.liste_cours.remove('CTG')
-         if 'PIA' in classe.liste_cours:
-             classe.liste_cours.remove('PIA')
-         
-         classe.prod_liste_eleves()
-         classe.update_liste_cours()
-         #print classe.liste_cours
-         self.tableau_valide=True
-         
-         if self.tableau_valide==True:
-             self.update_tableau_points_view()
      #
      def import_xls(self):
          import xlrd
-         workbook = xlrd.open_workbook(str(self.file_name))
-         worksheet = workbook.sheet_by_index(0)
          try:
-             ligne_cours=False
+             workbook = xlrd.open_workbook(str(self.file_name))
+             worksheet = workbook.sheet_by_index(0)
+             #
+             self.tableau_points=[]
+             #
              for rownum in range(worksheet.nrows):
-                 ligne_points=worksheet.row_values(rownum)
-                 prem_cell=ligne_points[0]
-                 if prem_cell!=(None or ''):
-                     if (prem_cell.lower()=='cours'):
-                         ligne_cours=True
-                         for cell in ligne_points:
-                             if cell!=(''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
-                                 classe.liste_cours.append(cell)
-                         del classe.liste_cours[0]
-             if ligne_cours==False:
-                 raise ExceptionPasCours
-         except ExceptionPasCours :
-             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
-             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
-         #
-         try:
-             for rownum in range(worksheet.nrows):
-                 ligne_points=worksheet.row_values(rownum)
-                 prem_cell=ligne_points[0]
-                 if (prem_cell=='') or ( (prem_cell[0]=='&') & (prem_cell[1]=='&')) or (prem_cell.lower()=='cours'):
-                     pass
-                 else:
-                     eleve=Eleve()
-                     #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
-                     eleve.nom=ligne_points[0]
-                     if type(eleve.nom) is not unicode:
-                         eleve.nom=unicode(eleve.nom,'utf-8')
-                     del ligne_points[0]
-                     for cours,cell in zip(classe.liste_cours,ligne_points):
-                         points_eleve=cell
-                         if points_eleve=='':
-                             points_eleve=None
-                         #
-                         if (cours.lower()=='pia') & (points_eleve!=''):
-                             eleve.pia=True
-                         #
-                         elif (cours.lower()=='ctg') & (points_eleve!=''):
-                             eleve.ctg=True
-                         #
-                         elif (cours.lower()=='ddn') & (points_eleve!=''):
-                             eleve.ddn=points_eleve
-                         #
-                         elif points_eleve!='':
-                             #if points_eleve==(''):
-                                 #points_eleve=False
-                             eleve.grille_horaire[cours]=Cours()
-                             eleve.grille_horaire[cours].analyse_points(str(points_eleve))
-                             if eleve.grille_horaire[cours].points!=False:
-                                 eleve.eval_certif=True
-                         else: pass
-                         print eleve.nom , cours, points_eleve
-                     classe.carnet_cotes[eleve.nom]=eleve
+                 liste_ligne_points=worksheet.row_values(rownum)
+                 ligne_points=[]
+                 for elem in liste_ligne_points:
+                     if (elem==None) or (elem=='') or (elem=='None'):
+                         elem=False
+                     if (type (elem) is not unicode) & (elem!=False):
+                         elem=unicode(str(elem),'utf-8')
+                         
+                     ligne_points.append(elem)
+                 self.tableau_points.append(ligne_points)
+             self.fct_carnet_cote(self.tableau_points)
          except Exception, e:
-             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
-             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
+             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             QMessageBox.critical(self,'Echec',message)
+     #
+     def import_txt(self):
+         try:
+             QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou csv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
+             myfile= open(self.file_name, "r")
+             self.tableau_points=[]
+             for ligne in myfile:
+                 liste_ligne_points=ligne.rstrip('\n\r').split('\t')
+                 ligne_points=[]
+                 for elem in liste_ligne_points:
+                     if type (elem) is not unicode:
+                         elem=unicode(elem,'utf-8')
+                     if elem==(None or '' or 'None'):
+                         elem=False
+                     ligne_points.append(elem)
+                 self.tableau_points.append(ligne_points)
+             self.fct_carnet_cote(self.tableau_points)
+         except Exception, e:
+             message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
              message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
              QMessageBox.critical(self,'Echec',message)
              print 'Erreur : %s' % e
              print 'Message : ', traceback.format_exc()
-             #traceback.print_exc()
-         if 'DDN' in classe.liste_cours:
-             classe.liste_cours.remove('DDN')
-         if 'CTG' in classe.liste_cours:
-             classe.liste_cours.remove('CTG')
-         if 'PIA' in classe.liste_cours:
-             classe.liste_cours.remove('PIA')
-         #print 'Liste des cours : ' , classe.liste_cours
-         classe.prod_liste_eleves()
-         classe.update_liste_cours()
-         print classe.liste_cours
-         self.tableau_valide=True
-         
-         if self.tableau_valide==True:
-             self.update_tableau_points_view()
      #
-     def import_txt(self):
-         QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou csv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
-         myfile= open(self.file_name, "r")
-         
+     def import_clipboard(self):
+         text_clip = QApplication.clipboard().text()
+         text_clip=text_clip.split('\n')#crée une QStringList avec une ligne du clip par élément de la liste
+         self.tableau_points=[]
+         for ligne in text_clip:
+             liste_ligne_points=ligne.split('\t') #crée une QStringList avec une cote ou un nom par élément de la liste
+             ligne_points=[]
+             for elem in liste_ligne_points: #je converti chaque elem en unicode
+                 elem=elem.toUtf8()
+                 if type (elem) is not unicode:
+                     elem=unicode(elem,'utf-8')
+                     #print elem
+                 if elem==(None or '' or 'None'):
+                     elem=False
+                 ligne_points.append(elem)
+             if '\n\r' in ligne_points:
+                 ligne_points=ligne_points.remove('\n\r')
+             self.tableau_points.append(ligne_points)
+         self.fct_carnet_cote(self.tableau_points)
+     #
+     def fct_carnet_cote(self,tableau_points):
          try:
              ligne_cours=False
-             for ligne in myfile:
-                 #print ligne.rstrip('\n\r').split('\t')
-                 #ligne=ligne.rstrip('\n\r')
-                 ligne_points=ligne.rstrip('\n\r').split('\t')
-                 #print ligne_points
+             for ligne_points in tableau_points:
                  prem_cell=ligne_points[0]
-                 if prem_cell!=(None or ''):
-                     if (prem_cell.lower()=='cours'):
-                         ligne_cours=True
-                         for cell in ligne_points:
-                             if cell!=(None or ''): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
-                                 classe.liste_cours.append(cell)
-                         del classe.liste_cours[0]
+                 if (prem_cell.lower()=='cours'):
+                     ligne_cours=True
+                     for cell in ligne_points:
+                         if cell!=(False): #il peut y avoir des cellules vides qui suivent celles avec les intitulés des cours ; on ne prend en compte que les cellules non vides.
+                             classe.liste_cours.append(cell.lower())
+                     del classe.liste_cours[0]
              if ligne_cours==False:
                  raise ExceptionPasCours
          except ExceptionPasCours :
              QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
              print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
-         #
+         ##
          try:
-             myfile= open(self.file_name, "r")
-             for ligne in myfile:
+             for ligne_points in tableau_points:
                  
-                 ligne_points=ligne.rstrip('\n\r').split('\t')
                  prem_cell=ligne_points[0]
-                 if (prem_cell=='') or ( (prem_cell[0]=='&') & (prem_cell[1]=='&')) or (prem_cell.lower()=='cours'):
+                 if (prem_cell==False) or ( (prem_cell[0]=='&') & (prem_cell[1]=='&')) or (prem_cell.lower()=='cours'):
+                     # il peut y avoir des lignes vides en bas de tableau, cela justifie le test prem_cell==False
                      pass
                  else:
                      eleve=Eleve()
-                     #eleve.grille_horaire=copy.deepcopy(self.grille_horaire)
                      eleve.nom=ligne_points[0]
-                     if type(eleve.nom) is not unicode:
-                         eleve.nom=unicode(eleve.nom,'utf-8')
                      del ligne_points[0]
-                     for cours,cell in zip(classe.liste_cours,ligne_points):
-                         points_eleve=cell
-                         if points_eleve=='':
-                             points_eleve=False
+                     for cours,points_eleve in zip(classe.liste_cours,ligne_points):
                          #
                          if (cours.lower()=='pia') & (points_eleve!=False):
                              eleve.pia=True
@@ -419,9 +458,15 @@ class Gui(QMainWindow):
                              eleve.ctg=True
                          #
                          elif (cours.lower()=='ddn') & (points_eleve!=False):
-                             pass#eleve.ddn=points_eleve
+                             eleve.ddn=points_eleve
                          #
-                         elif points_eleve!='':
+                         elif (cours.lower()=='noel') & (points_eleve!=False):
+                             eleve.noel=points_eleve
+                         #
+                         elif (cours.lower()=='mars') & (points_eleve!=False):
+                             eleve.mars=points_eleve
+                         #
+                         elif points_eleve!=False:
                              eleve.grille_horaire[cours]=Cours()
                              eleve.grille_horaire[cours].analyse_points(str(points_eleve))
                              if eleve.grille_horaire[cours].points!=False:
@@ -430,20 +475,27 @@ class Gui(QMainWindow):
                          print eleve.nom , cours, points_eleve
                      classe.carnet_cotes[eleve.nom]=eleve
          except Exception, e:
-             message=u"<p>Un problème majeur a été rencontré lors de l'importation de votre fichier.</p>"
-             message+=u"<p>Essayez d'importer vos points par copier-coller.</p>"
+             message=u"<p>Un problème majeur a été rencontré lors de la création du modèle de tableau.</p>"
              message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
              QMessageBox.critical(self,'Echec',message)
              print 'Erreur : %s' % e
              print 'Message : ', traceback.format_exc()
              #traceback.print_exc()
-         if 'DDN' in classe.liste_cours:
-             classe.liste_cours.remove('DDN')
-         if 'CTG' in classe.liste_cours:
-             classe.liste_cours.remove('CTG')
-         if 'PIA' in classe.liste_cours:
-             classe.liste_cours.remove('PIA')
-         #print 'Liste des cours : ' , classe.liste_cours
+         if 'ddn' in classe.liste_cours:
+             classe.liste_cours.remove('ddn')
+             classe.ddn=True
+         if 'ctg' in classe.liste_cours:
+             classe.liste_cours.remove('ctg')
+             classe.ctg=True
+         if 'pia' in classe.liste_cours:
+             classe.liste_cours.remove('pia')
+             classe.pia=True
+         if 'noel' in classe.liste_cours:
+             classe.liste_cours.remove('noel')
+             classe.noel=True
+         if 'mars' in classe.liste_cours:
+             classe.liste_cours.remove('mars')
+             classe.mars=True
          classe.prod_liste_eleves()
          classe.update_liste_cours()
          print classe.liste_cours
@@ -452,7 +504,12 @@ class Gui(QMainWindow):
          if self.tableau_valide==True:
              self.update_tableau_points_view()
      #
+     #
      def update_tableau_points_view(self):
+         try :
+             self.table.setParent(None)
+         except:
+             pass
          self.table=QTableWidget()
          self.table.setEditTriggers(QTableWidget.NoEditTriggers)
          premier_elv=True
@@ -462,9 +519,16 @@ class Gui(QMainWindow):
                  for nom_cours in classe.liste_cours:
                      if premier_elv==True:
                          self.table.insertColumn(self.table.columnCount())
-                     #nom_cours=nom_cours.lower()
                      if nom_cours in classe.carnet_cotes[eleve].grille_horaire.keys():
+                         points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
+                         appreciation=classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation
                          item=QString(unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
+                         if points!=False:
+                             item=QString(unicode(str(points),'utf-8'))
+                         elif appreciation!=False:
+                             item=QString(unicode(str(appreciation),'utf-8'))
+                         else:
+                             item=QString('')
                      else :
                          item=QString('')
                      newitem = QTableWidgetItem(item)
@@ -478,13 +542,13 @@ class Gui(QMainWindow):
          self.table.setVerticalHeaderLabels(labels)
          self.setCentralWidget(self.table)
          
-         new_bottom=int(0.75*(QDesktopWidget().availableGeometry().bottom()) )
-         new_right=int(0.75*(QDesktopWidget().availableGeometry().right()))
+         #new_bottom=int(0.75*(QDesktopWidget().availableGeometry().bottom()) )
+         #new_right=int(0.75*(QDesktopWidget().availableGeometry().right()))
          
-         new_height=int(0.1*(QDesktopWidget().availableGeometry().bottom()) )
-         new_left=int(0.1*(QDesktopWidget().availableGeometry().right()))
+         #new_height=int(0.1*(QDesktopWidget().availableGeometry().bottom()) )
+         #new_left=int(0.1*(QDesktopWidget().availableGeometry().right()))
          
-         self.setGeometry(new_height,new_left,new_right,new_bottom)
+         #self.setGeometry(new_height,new_left,new_right,new_bottom)
          self.showMaximized()
      
      def verif_avant_analyse(self):
@@ -505,7 +569,7 @@ class Gui(QMainWindow):
              alert+=u'</ul> </div>'
              QMessageBox.warning(self,'Informations manquantes',alert)
          
-         if (self.radio1.isChecked()==False) & (self.radio2.isChecked()==False) & (self.radio3.isChecked()==False):
+         if (self.radio_tab_recap.isChecked()==False) & (self.radio_ana_det.isChecked()==False) & (self.radio_classmt.isChecked()==False):
              message=u"<div><p>Aucune analyse n'a été demandée pour cette classe.</p>"
              message+=u"<p>N'oubliez pas de cocher les analyses souhaitées <b>avant de pousser sur démarrage</b>.</p> </div>"
              QMessageBox.information(self,u"Aucune analyse demandée",message)
@@ -521,32 +585,19 @@ class Gui(QMainWindow):
      def pre_traitement(self):
          print u"Pré-traitement des données"
          #self.fichier_a_traiter=self.fname
-         self.creer_tableau_recap=self.radio1.isChecked()
-         self.creer_analyse_eleve=self.radio2.isChecked()
-         self.creer_classement=self.radio3.isChecked()
+         self.creer_tableau_recap=self.radio_tab_recap.isChecked()
+         self.creer_analyse_eleve=self.radio_ana_det.isChecked()
+         self.creer_classement=self.radio_classmt.isChecked()
          self.niveau=unicode(self.combo_niveau.currentText(),'utf-8')
          self.section=unicode(self.combo_section.currentText(),'utf-8')
          self.classe=unicode(self.combo_classes.currentText(),'utf-8')
          self.annee=unicode(self.combo_annees.currentText(),'utf-8')
          self.delibe=unicode(self.combo_delib.currentText(),'utf-8')
-         self.path=(split(str(self.file_name)))[0]
          self.file2save=self.delibe+"_"+self.annee+"_"+self.niveau+self.section+self.classe
          self.titre='Conseil de classe '+self.niveau+self.section+self.classe+" - "+self.delibe+' '+self.annee
          #
          try:
              classe.set_param(self.niveau,self.section,self.delibe)
-             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Noël'):
-                 self.traitement_1deg_gt_noel()
-             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Mars'):
-                 self.traitement_1deg_gt_mars()
-             if ((self.niveau=='1') or (self.niveau=='2')) & (self.section=='GT') & (self.delibe==u'Juin'):
-                 self.traitement_1deg_gt_juin()
-             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Noël'):
-                 self.traitement_345_gt_noel()
-             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Mars'):
-                 self.traitement_345_gt_mars()
-             if ((self.niveau=='3') or (self.niveau=='4')) & (self.section=='GT') & (self.delibe==u'Juin'):
-                 self.traitement_345_gt_juin()
          except Exception, e:
              QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
              <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
@@ -555,8 +606,6 @@ class Gui(QMainWindow):
              </div>")
              print 'Erreur : %s' % e
              print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_1deg_gt_noel(self):
          try:
              classe.stats_elv()
              classe.prod_situation_globale()
@@ -567,153 +616,25 @@ class Gui(QMainWindow):
              print 'Message : ', traceback.format_exc() 
          try:
              if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
+                 analyse=Odf_file(doc_type="analyse",titre=self.titre,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
+                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,file_name=self.file2save)
                  tableau.tableau_recap()
                  del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
-         except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_1deg_gt_mars(self):
-         try:
-             classe.stats_elv()
-             classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
-         except Exception, e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-         try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
-                 tableau.tableau_recap()
+             if self.creer_classement==True:
+                 tableau=Odf_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
+                 tableau.classement()
                  del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
-         except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_1deg_gt_juin(self):
-         try:
-             classe.stats_elv()
-             classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
-         except Exception, e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-         try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
-                 tableau.tableau_recap()
-                 del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
-         except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_345_gt_noel(self):
-         try:
-             classe.stats_elv()
-             classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
-         except Exception, e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-         try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
-                 tableau.tableau_recap()
-                 del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
-         except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_345_gt_mars(self):
-         try:
-             classe.stats_elv()
-             classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
-         except Exception, e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-         try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
-                 tableau.tableau_recap()
-                 del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
-         except Exception, e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-     #
-     def traitement_345_gt_juin(self):
-         try:
-             classe.stats_elv()
-             classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
-         except Exception, e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
-             print 'Erreur : %s' % e
-             print 'Message : ', traceback.format_exc() 
-         try:
-             if self.creer_analyse_eleve==True:
-                 analyse=Odf_file(doc_type="analyse",titre=self.titre,path=self.path,file_name=self.file2save)
-                 analyse.analyse_eleve()
-                 del analyse
-                 #
-             if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,path=self.path,file_name=self.file2save)
-                 tableau.tableau_recap()
-                 del tableau
-             if (self.creer_analyse_eleve or self.creer_tableau_recap)==True:
-                 QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
+             QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
              print 'Erreur : %s' % e
              print 'Message : ', traceback.format_exc() 
      #
      #
-     
 class ExceptionPasCours(Exception): pass
 #
 #
@@ -754,6 +675,11 @@ class Classe(object):
          self.grille_horaire={}
          self.fichier_a_traiter=''
          self.analyses={}
+         self.ctg=False
+         self.ddn=False
+         self.pia=False
+         self.noel=False
+         self.mars=False
      #    
      def set_param(self,niveau="",section="",delibe=""):
          self.niveau=niveau
@@ -783,16 +709,18 @@ class Classe(object):
                      setattr(cours, carac, valeure)
                  # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
                  for eleve in self.carnet_cotes.itervalues():
-                     list_cours_elv=[nom_cours.lower() for nom_cours in eleve.grille_horaire.keys()]
-                     if cours.abr.lower() in list_cours_elv:
+                     #list_cours_elv=[nom_cours for nom_cours in eleve.grille_horaire.keys()]
+                     #print list_cours_elv, cours.abr
+                     if cours.abr.lower() in eleve.grille_horaire.keys():
                          for carac in liste_carac_bool:
-                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
                          for carac in liste_carac_int:
-                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
                          for carac in liste_carac_str:
-                             setattr(eleve.grille_horaire[cours.abr],carac,getattr(cours,carac))
+                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
                      else:
-                         eleve.grille_horaire[cours.abr]=cours
+                         eleve.grille_horaire[cours.abr.lower()]=cours
+                     #print eleve.grille_horaire.keys()
                  #self.grille_horaire[cours.abr]=cours
              print "Création d'une classe de", self.niv_sec
          except Exception, e:
@@ -838,6 +766,8 @@ class Classe(object):
      
      def stats_elv(self):
          for eleve in self.carnet_cotes.itervalues():
+             if classe.analyses['fct_sciences6']==True:
+                 eleve.fct_sciences6()
              if classe.analyses['fct_moyenne_ponderee']==True:
                  eleve.fct_moyenne_ponderee()
              if classe.analyses['fct_echec_inf35']==True:
@@ -862,34 +792,65 @@ class Classe(object):
                  eleve.fct_echec_travail()
              if classe.analyses['fct_classement_cours']==True:
                  eleve.fct_classement_cours()
+             if classe.analyses['fct_classement_cours_app']==True:
+                 eleve.fct_classement_cours_app()
              if classe.analyses['fct_age']==True:
                  eleve.fct_age()
-             if classe.analyses['fct_sciences6']==True:
-                 eleve.fct_sciences6()
+             if classe.analyses['fct_prop_echec']==True:
+                 eleve.fct_prop_echec()
+             if classe.analyses['fct_daca']==True:
+                 eleve.fct_daca()
+             
      #
      def prod_situation_globale(self):
          for eleve in self.carnet_cotes.itervalues():
+             situation_globale=False
              if eleve.heures_echec_cc==0 :
                  eleve.situation_globale=3 #aucun probleme
+                 situation_globale=True #un critère a été rencontré
              #
-             elif (eleve.heures_echec_cc>8) or (eleve.nb_cours_verrou_echec>=2) \
-             or ((eleve.nb_cours_inf35>0) & (eleve.nb_cours_cc_echec>=2)):
-                 eleve.situation_globale=1 #redoublement
-             else:
+             if eleve.heures_echec_cc>self.criteres.heures_echec_max:
+                 eleve.situation_globale=1
+                 situation_globale=True #un critère a été rencontré
+                 
+             if eleve.nb_cours_verrou_echec>self.criteres.cours_verrou_echec_max:
+                 eleve.situation_globale=1
+                 situation_globale=True #un critère a été rencontré
+                 
+             if ((eleve.nb_cours_inf35>=self.criteres.echec_sur_exclusion_max) & (eleve.nb_cours_cc_echec>=2)):
+                 eleve.situation_globale=1
+                 situation_globale=True #un critère a été rencontré
+                 
+             if eleve.echec_daca==True:
+                 eleve.situation_globale=1 # en art uniquement
+                 situation_globale=True #un critère a été rencontré
+                 
+             if eleve.prop_echec>33.33 :
+                 eleve.situation_globale=1 # en rétho uniquement
+                 situation_globale=True #un critère a été rencontré
+             
+             if situation_globale==False: #aucun critère n'a été rencontré:
                  eleve.situation_globale=2 # certains cours en echec mais réussite de l'année
+             
              if (eleve.liste_certif_med!='') or (eleve.liste_oubli_cours!=''):
                  eleve.situation_globale=4 # non délibérable
+             
+             
+             
      #
      #
      def prod_liste_eleves(self):
          self.liste_eleves=self.carnet_cotes.keys()
      #
      def update_liste_cours(self):
+         """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
+         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca','ha','meth','ex_co']
          self.liste_cours=[]
          for eleve in self.carnet_cotes.itervalues():
              for cours in eleve.grille_horaire.keys():
                  if cours not in self.liste_cours:
                      self.liste_cours.append(cours)
+         self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_ecole.index(cours))
 #
 #
 class Eleve(Classe):
@@ -922,6 +883,11 @@ class Eleve(Classe):
          self.liste_cours_inf35=''
          self.age=False
          self.age_str=False
+         self.classement_cours=False
+         self.noel=''
+         self.mars=''
+         self.echec_daca=False
+         self.prop_echec=0
      #
      #
      def fct_nb_heures_horaire(self):
@@ -1095,49 +1061,121 @@ class Eleve(Classe):
          self.classement_cours['70=>80[']=" ; ".join(liste_70_80)
          self.classement_cours['80=>100]']=" ; ".join(liste_sup80)
      #
+     def fct_classement_cours_app(self):
+         self.classement_cours={}
+         liste_e=[]
+         liste_f=[]
+         liste_r=[]
+         for cours in self.grille_horaire.itervalues():
+             if cours.appreciation!=False:
+                 if cours.appreciation=='e':
+                     liste_e.append(cours.abr.lower())
+                 elif cours.appreciation=='f':
+                     liste_f.append(cours.abr.lower())
+                 elif cours.appreciation=='r':
+                     liste_r.append(cours.abr.lower())
+         self.classement_cours['e']=" ; ".join(liste_e)
+         self.classement_cours['f']=" ; ".join(liste_f)
+         self.classement_cours['r']=" ; ".join(liste_r)
+     #
      def fct_age(self):
+         """Cette fonction calcule l'age des élèves apd de leur date de naissance.
+         Cette fct doit tenir compte du fait que la date de naissance (ddn) est encodée 
+         sous des formats différents selon le type de document (xls, ods, tsv, ...) et va tenter de convertir les dates reçues vers le 
+         format iso-8601 yyyy-mm-dd"""
+         self.ddn=self.ddn.replace('/','-')
+         try:
+             self.ddn=datetime.strptime(self.ddn, '%Y-%m-%d %H:%M:%S').date()
+         except ValueError:
+             try:
+                 self.ddn=datetime.strptime(self.ddn, '%Y-%m-%d').date()
+             except ValueError:
+                 try:
+                     self.ddn=datetime.strptime(self.ddn, '%y-%m-%d').date()
+                 except ValueError:
+                     try:
+                         self.ddn=datetime.strptime(self.ddn, '%d-%m-%Y').date()
+                     except ValueError:
+                         try:
+                             self.ddn=datetime.strptime(self.ddn, '%d-%m-%Y').date()
+                         except ValueError:
+                             print "Le format de la date de naissance de %s n'est pas pris en charge" %(self.nom)
+                             #print 'Erreur : %s' % e
+                             #print traceback.format_exc()
+                             self.ddn=False
+                             self.age=False
+                             self.age_str=False
+                         except Exception, e:
+                             self.ddn=False
+                             self.age=False
+                             self.age_str=False
+                             print"Erreur inconnue dans le traitement d'une date de naissance"
+                             print 'Erreur : %s' % e
+                             print traceback.format_exc()
          
-         if isinstance(self.ddn, datetime):
-             self.ddn=self.ddn.date()
-             #self.ddn=datetime.strptime(self.ddn, '%d/%m/%Y').date()
-             
-         elif isinstance(self.ddn, date):
-                 self.ddn=self.ddn.date()
-         else:
-             pass
-         
-         age=date.today()-self.ddn
-         mois=age.days/30
-         self.age_str=str(mois/12)+' ans '+str(mois % 12)+' mois'
-         self.age=float(mois)/12
+         if self.ddn!=False:
+             age=date.today()-self.ddn
+             mois=age.days/30
+             self.age_str=str(mois/12)+' ans '+str(mois % 12)+' mois'
+             self.age=float(mois)/12
      #    
      def fct_sciences6 (self):
-         if self.grille_horaire['sc_6'].evaluation==4:
-             #si le cours de sc6 est évalué de manière certificative
+         sc_3=False
+         sc_6=False
+         if self.grille_horaire['phys_2'].points!=False:
+             sc_6=True
+         if self.grille_horaire['chim_2'].points!=False:
+             sc_6=True
+         if self.grille_horaire['bio_2'].points!=False:
+             sc_6=True
+         if self.grille_horaire['phys_1'].points!=False:
+             sc_3=True
+         if self.grille_horaire['chim_1'].points!=False:
+             sc_3=True
+         if self.grille_horaire['bio_1'].points!=False:
+             sc_3=True
+         if (sc_6==True) & (sc_3==True):
+             QMessageBox.warning(gui,u'Erreur',u"L'élève %s possède des points en sciences 6 et en sciences 3.") %self.nom
+         if (sc_6==True) & (sc_3==False):
+             self.grille_horaire['sc'].points=(self.grille_horaire['bio_2'].points+self.grille_horaire['chim_2'].points+self.grille_horaire['phys_2'].points)/3 # calcul de la moyenne pour sc6
+             
              nb_echecs=0
              nb_echecs_inf45=0
-             self.grille_horaire['sc_6'].points=(self.grille_horaire['bio'].points+self.grille_horaire['chim'].points+self.grille_horaire['phys'].points)/3 # calcul de la moyenne pour sc6 
              
-             if self.grille_horaire['bio'].points<50 : nb_echecs+=1
-             if self.grille_horaire['chim'].points<50 : nb_echecs+=1
-             if self.grille_horaire['phys'].points<50 : nb_echecs+=1
-             if self.grille_horaire['bio'].points<45 : nb_echecs_inf45+=1
-             if self.grille_horaire['chim'].points<45 : nb_echecs_inf45+=1
-             if self.grille_horaire['phys'].points<45 : nb_echecs_inf45+=1
-             if self.grille_horaire['sc_6'].points<50:
-                 self.grille_horaire['bio'].echec_force=True
-                 self.grille_horaire['chim'].echec_force=True
-                 self.grille_horaire['phys'].echec_force=True
+             if self.grille_horaire['bio_2'].points<50 : nb_echecs+=1
+             if self.grille_horaire['chim_2'].points<50 : nb_echecs+=1
+             if self.grille_horaire['phys_2'].points<50 : nb_echecs+=1
+             if self.grille_horaire['bio_2'].points<45 : nb_echecs_inf45+=1
+             if self.grille_horaire['chim_2'].points<45 : nb_echecs_inf45+=1
+             if self.grille_horaire['phys_2'].points<45 : nb_echecs_inf45+=1
+             
+             if self.grille_horaire['sc'].points<50:
+                 self.grille_horaire['bio_2'].echec_force=True
+                 self.grille_horaire['chim_2'].echec_force=True
+                 self.grille_horaire['phys_2'].echec_force=True
              if nb_echecs_sc>1 :
-                 self.grille_horaire['bio'].echec_force=True
-                 self.grille_horaire['chim'].echec_force=True
-                 self.grille_horaire['phys'].echec_force=True
+                 self.grille_horaire['bio_2'].echec_force=True
+                 self.grille_horaire['chim_2'].echec_force=True
+                 self.grille_horaire['phys_2'].echec_force=True
              if nb_echecs_inf45>0 :
-                 self.grille_horaire['bio'].echec_force=True
-                 self.grille_horaire['chim'].echec_force=True
-                 self.grille_horaire['phys'].echec_force=True
-    
-#
+                 self.grille_horaire['bio_2'].echec_force=True
+                 self.grille_horaire['chim_2'].echec_force=True
+                 self.grille_horaire['phys_2'].echec_force=True
+         if (sc_6==False) & (sc_3==True):
+             self.grille_horaire['sc'].points=(self.grille_horaire['bio_1'].points+self.grille_horaire['chim_1'].points+self.grille_horaire['phys_1'].points)/3
+             if self.grille_horaire['sc'].points<50:
+                 self.grille_horaire['bio_1'].echec_force=True
+                 self.grille_horaire['chim_1'].echec_force=True
+                 self.grille_horaire['phys_1'].echec_force=True
+     #
+     def fct_prop_echec(self):
+         self.prop_echec=(self.heures_echec_nc+self.heures_echec_cc)/float(self.vol_horaire_ccnc)
+         self.prop_echec=round(self.prop_echec*100,2)
+     #
+     def fct_daca(self):
+         if self.grille_horaire['daca'].points<50:
+             self.echec_daca=True
+         
 #
 class Cours(Eleve):
      #
@@ -1200,28 +1238,28 @@ class Cours(Eleve):
 #
 class Odf_file():
      """Cet objet permet de gérer tout ce qui concerne la production des documents odf : analyse détaillée, tableau récapitulatif et classement des élèves."""
-     def __init__(self, doc_type="",titre="",path="",file_name=""):
+     def __init__(self, doc_type="",titre="",file_name=""):
          self.doc_type=doc_type
          
          if self.doc_type=='tableau_recap':
              self.document= odf_new_document('spreadsheet')
              self.insert_ods_styles()
-             print "Création du tableau récapitulatif"
+             print "Création du tableau récapitulatif."
          #
          if self.doc_type=='analyse':
              self.document= odf_new_document('text')
              self.insert_odt_styles()
-             print "Création du document d'analyse"
+             print "Création du document d'analyse."
          #
          if self.doc_type=='classement':
-             pass
+             self.document= odf_new_document('spreadsheet')
+             print "Création du tableau de classement."
          #
-         if (self.doc_type!='tableau_recap') & (self.doc_type!='analyse'):
+         if (self.doc_type!='tableau_recap') & (self.doc_type!='analyse') & (self.doc_type!='classement'):
              print "Le type de document demandé n'est pas valide."
          #
          self.body = self.document.get_body()
          self.titre=titre
-         self.path=path
          self.file_name=file_name
      #
      #
@@ -1246,10 +1284,10 @@ class Odf_file():
          ('paragraph',name='tit_ligne',display_name='tit_ligne', area='text',size='11pt',style='italic'))
          #
          self.document.insert_style(odf_create_style\
-         ('paragraph',name='echec_admis',display_name='echec_admis', area='text',size='11pt',color='#ff7e0e'))
+         ('paragraph',name='echec_admis',display_name='echec_admis', area='text',size='11pt',color='#FF8C00'))
          #
          self.document.insert_style(odf_create_style\
-         ('paragraph',name='echec_non_admis',display_name='echec_non_admis', area='text', size='11pt',color='#ff000e'))
+         ('paragraph',name='echec_non_admis',display_name='echec_non_admis', area='text', size='11pt',color='#D30000'))
          #
          self.document.insert_style(odf_create_style\
          ('paragraph',name='non_echec',display_name='non_echec', area='text',size='11pt',color='#078018'))
@@ -1267,31 +1305,55 @@ class Odf_file():
      #
      #
      def insert_ods_styles(self): 
-         style=odf_create_style('table-row', name='style_ligne',height='1cm')
+         style=odf_create_style('table-row', name='style_ligne',height='0.7cm')
          self.document.insert_style(style,automatic=True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="titre" style:display-name="titre" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="18pt"/></style:style>')
+         style_colone = odf_create_element(u'<style:style style:name="style_colone" style:family="table-column"><style:table-column-properties fo:break-before="auto" style:column-width="1.3cm"/></style:style>')
+         mon_style_colone=self.document.insert_style(style_colone, automatic = True)
+         #
+         
+         style_cell = odf_create_element(u'<style:style style:name="neutre" style:display-name="neutre" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="neutre" style:display-name="neutre" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="12pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="reussite" style:display-name="reussite" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="reussite" style:display-name="reussite" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="12pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="faible" style:display-name="faible" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" /><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF8C00" style:font-name="Sans" fo:font-size="8pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="faible" style:display-name="faible" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" /><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#ff7e0e" style:font-name="Sans" fo:font-size="12pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="echec" style:display-name="echec" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="8pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="echec" style:display-name="echec" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#ff000e" style:font-name="Sans" fo:font-size ="12pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noms" style:display-name="noms" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="noms" style:display-name="noms" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" /><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="11pt" fo:hyphenate="true" fo:wrap-option="wrap"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noel_mars" style:display-name="noel_mars" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         ###
+         ###
+         style_cell = odf_create_element(u'<style:style style:name="neutre_gris" style:display-name="neutre_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="titre" style:display-name="titre" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="18pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="reussite_gris" style:display-name="reussite_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style= odf_create_element(u'<style:page-layout style:name="mon_layout"><style:page-layout-properties fo:page-width="29.7cm" fo:page-height="21.001cm" style:print-orientation="landscape" fo:margin="1cm"></style:page-layout-properties></style:page-layout>')
+         style_cell = odf_create_element(u'<style:style style:name="faible_gris" style:display-name="faible_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF8C00" style:font-name="Sans" fo:font-size="8pt"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         #
+         style_cell = odf_create_element(u'<style:style style:name="echec_gris" style:display-name="echec_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="8pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         #
+         style_cell = odf_create_element(u'<style:style style:name="noms_gris" style:display-name="noms_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         #
+         style_cell = odf_create_element(u'<style:style style:name="noel_mars_gris" style:display-name="noel_mars_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0" /><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         ###
+         ###
+         style_cell = odf_create_element(u'<style:style style:name="titre" style:display-name="titre" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="14pt"/></style:style>')
+         self.document.insert_style(style_cell, automatic = True)
+         #
+         style= odf_create_element(u'<style:page-layout style:name="mon_layout"><style:page-layout-properties fo:page-width="29.7cm" fo:page-height="21.001cm" style:print-orientation="landscape" fo:margin="0.7cm"></style:page-layout-properties></style:page-layout>')
          self.document.insert_style(style, automatic = True)
          #
          style= odf_create_element(u'<style:master-page style:name="paysage" style:display-name="paysage" style:page-layout-name="mon_layout"></style:master-page>')
@@ -1299,19 +1361,19 @@ class Odf_file():
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_echec_non_admis',display_name='cell_echec_non_admis',\
-         background_color='#ff000e'),automatic=True)
+         background_color='#D30000',border="0.05pt solid #000000"),automatic=True)
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_echec_admis',display_name='cell_echec_admis',\
-         background_color='#ff7e0e'),automatic=True)
+         background_color='#FF8C00',border="0.05pt solid #000000"),automatic=True)
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_non_echec',display_name='cell_non_echec',\
-         background_color='#078018',width='3cm'),automatic=True)
+         background_color='#078018',width='6cm',border="0.05pt solid #000000"),automatic=True)
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_non_delib',display_name='cell_non_delib',\
-         background_color='#919191'),automatic=True)
+         background_color='#919191',border="0.05pt solid #000000"),automatic=True)
          #
          style=odf_create_style('table',name='ma_table')
          style.set_attribute('style:master-page-name','paysage')
@@ -1381,12 +1443,12 @@ class Odf_file():
      #
      #
      def creer_resume_points(self,table, dico):
-     #
-         ligne_niv2_entetes=odf_create_row()
-         ligne_niv2_points=odf_create_row()
-         cellule_vide=odf_create_cell(style='style_cell')
+     #   
+         ligne_niv2_entetes=odf_create_row(style='style_ligne')
+         ligne_niv2_points=odf_create_row(style='style_ligne')
          liste_categorie = dico.keys()
          liste_categorie.sort()
+         liste_categorie.reverse()
          #
          for categorie in liste_categorie:
              if type (categorie) is not unicode:
@@ -1396,13 +1458,18 @@ class Odf_file():
              cell_niv2_entete=odf_create_cell(style='style_cell')
              cell_niv2_points=odf_create_cell(style='style_cell')
              #
-             #print categorie, type (categorie),unicode(categorie,'utf-8')
-             #print unicode(categorie,'utf-8')
              txt_cell_niv2_entete=odf_create_paragraph(categorie,style='petit')
              txt_cell_niv2_points=odf_create_paragraph(dico[categorie],style='petit')
              #
              cell_niv2_entete.append(txt_cell_niv2_entete)
              cell_niv2_points.append(txt_cell_niv2_points)
+             #
+             if len(liste_categorie)==3:
+                 #lorsqu'on fait une délibé de mars, il n'y a que trois catégories (rfe)
+                 #on fusionne deux cellules pour qu'il en ait 6 au total
+                 # et que la ligne remplisse tout le tableau 
+                 cell_niv2_entete.set_attribute('table:number-columns-spanned','2')
+                 cell_niv2_points.set_attribute('table:number-columns-spanned','2')
              #
              ligne_niv2_entetes.append(cell_niv2_entete)
              ligne_niv2_points.append(cell_niv2_points)
@@ -1442,7 +1509,7 @@ class Odf_file():
                  remarque+=' '+eleve.age_str
              table=self.creer_ligne_entete(table,nom_eleve+remarque)
              #
-             if eleve.eval_certif ==True:
+             if eleve.classement_cours !=False:
                  table=self.creer_resume_points(table,eleve.classement_cours )
              #
              if eleve.heures_echec_cc > classe.criteres.heures_echec_max:
@@ -1452,23 +1519,33 @@ class Odf_file():
                  table=self.creer_ligne(table, 'Total heures échec',1,eleve.heures_echec_tot ,None)
              #
              if eleve.nb_cours_verrou_echec > classe.criteres.cours_verrou_echec_max:
-                 table=self.creer_ligne(table,"Nb cours verrou échec", 2,eleve.liste_cours_verrou_echec ,None)
+                 table=self.creer_ligne(table,"Cours verrou échec", 2,eleve.liste_cours_verrou_echec ,None)
              if (eleve.nb_cours_verrou_echec >0) & (eleve.nb_cours_verrou_echec < classe.criteres.cours_verrou_echec_max):
-                 table=self.creer_ligne(table, "Nb cours verrou échec", 1,eleve.liste_cours_verrou_echec ,None)
+                 table=self.creer_ligne(table, "Cours verrou échec", 1,eleve.liste_cours_verrou_echec ,None)
              #
              if (eleve.nb_cours_inf35 >0) & (eleve.nb_cours_cc_echec >classe.criteres.echec_sur_exclusion_max):
                  table=self.creer_ligne(table, "Cours inf. 35", 2,eleve.liste_cours_inf35 ,None)
              if (eleve.nb_cours_inf35 ==1) & (eleve.nb_cours_cc_echec ==1):
                  table=self.creer_ligne(table, "Cours inf. 35", 1,eleve.liste_cours_inf35 ,None)
              #
-             if (eleve.moy_pond_cc <50) & (eleve.moy_pond_cc !=0):
-                 table=self.creer_ligne(table, "Moyenne pond.", 2,str(eleve.moy_pond_cc ),None)
-             elif (eleve.moy_pond_cc >=50) & (eleve.moy_pond_cc <60 ):
-                 table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_cc ),None)
-             elif (eleve.moy_pond_cc >60):
-                 table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_cc ),'non_echec')
+             if (eleve.moy_pond_ccnc <50) & (eleve.moy_pond_ccnc !=0):
+                 table=self.creer_ligne(table, "Moyenne pond.", 2,str(eleve.moy_pond_ccnc ),None)
+             elif (eleve.moy_pond_ccnc >=50) & (eleve.moy_pond_ccnc <60 ):
+                 table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_ccnc ),None)
+             elif (eleve.moy_pond_ccnc >60):
+                 table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_ccnc ),'non_echec')
              else:
                  pass
+             #
+             if (eleve.noel!="") or (eleve.mars!=""):
+                 resultats_anterieurs=u''
+                 if eleve.noel!="":
+                     resultats_anterieurs+=u'Noël : '
+                     resultats_anterieurs+=eleve.noel
+                 if eleve.mars!="":
+                     resultats_anterieurs+=u' ; Mars : '
+                     resultats_anterieurs+=eleve.mars
+                 table=self.creer_ligne_2cell(table,"Résultats antérieurs",resultats_anterieurs )
              #
              if (eleve.liste_echec_contrat )!="":
                  table=self.creer_ligne_2cell(table,"Echec sur contrat",eleve.liste_echec_contrat )
@@ -1487,13 +1564,36 @@ class Odf_file():
              if (eleve.liste_oubli_cours )!="":
                  table=self.creer_ligne_2cell(table,"Remarque", 'Pas de points en '+eleve.liste_oubli_cours )
              #
+             if (eleve.prop_echec )>33.33:
+                 table=self.creer_ligne_2cell(table,"Remarque", 'La proportion des échces est de '+str(eleve.prop_echec)+'%.' )
+             #
+             if (eleve.echec_daca )==True:
+                 table=self.creer_ligne_2cell(table,"Remarque", "L'élève n'a pas 50% en DACA et éducation plastique." )
+             #
              #if (eleve.credit_pond_inf_50 )!="":
                  #table=creer_ligne_2cell(table,"Echec pondéré", str(eleve.credit_pond_inf_50 ))
              #
              self.body.append(odf_create_paragraph())
              self.body.append(table)
          #
-         self.document.save(self.path+"/"+self.file_name+'_analyse.odt', pretty=True)
+         doc_name=gui.current_dir+'/'+self.file_name+'_analyse.odt'
+         doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver document analyse',doc_name,"Document texte OpenDocument (*.odt)"))
+         self.document.save(target=doc_name, pretty=True)
+         gui.current_dir=os.path.dirname(doc_name)
+         if platform.system()=='Linux':
+             try:
+                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+             except:
+                 pass
+         if platform.system()=='Windows':
+             try:
+                 proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+             except:
+                 pass
      #
      #
      def tableau_recap(self):
@@ -1509,7 +1609,14 @@ class Odf_file():
              ligne.append(odf_create_cell("Cours",style='noms'))
              #
              for nom_cours in classe.liste_cours:
-                 ligne.append(odf_create_cell(nom_cours,style='noms'))
+                 abr=0###
+                 ligne.append(odf_create_cell(nom_cours.upper(),style='noms'))
+             #
+             if classe.noel==True:
+                 ligne.append(odf_create_cell(u"Noël",style='noms'))
+             #
+             if classe.mars==True:
+                 ligne.append(odf_create_cell("Mars",style='noms'))
              #
              ligne.append(odf_create_cell("Echecs",style='noms'))
              #
@@ -1546,14 +1653,22 @@ class Odf_file():
                          cell_points=odf_create_cell(points,style='neutre')
                      ligne.append(cell_points)
                  #
+                 if classe.noel==True:
+                     txt_noel=unicode(str(classe.carnet_cotes[eleve].noel),'utf-8')
+                     ligne.append(odf_create_cell(txt_noel,style='noel_mars'))
+                 #
+                 if classe.mars==True:
+                     txt_mars=unicode(str(classe.carnet_cotes[eleve].mars),'utf-8')
+                     ligne.append(odf_create_cell(txt_mars,style='noel_mars'))
+                 #
                  txt_heures_echec=unicode(str(classe.carnet_cotes[eleve].heures_echec_tot),'utf-8')+unicode(' / ','utf-8')\
                  +unicode(str(classe.carnet_cotes[eleve].vol_horaire_ccnc),'utf-8' )
                  ligne.append(odf_create_cell(txt_heures_echec,style='noms'))
                  #
-                 txt=unicode(str(classe.carnet_cotes[eleve].moy_pond_cc ),'utf-8')
-                 if classe.carnet_cotes[eleve].moy_pond_cc <50:
+                 txt=unicode(str(classe.carnet_cotes[eleve].moy_pond_ccnc ),'utf-8')
+                 if classe.carnet_cotes[eleve].moy_pond_ccnc <50:
                      cell=odf_create_cell(txt,style='echec')
-                 elif classe.carnet_cotes[eleve].moy_pond_cc <60:
+                 elif classe.carnet_cotes[eleve].moy_pond_ccnc <60:
                      cell=odf_create_cell(txt,style='faible')
                  else:
                      cell=odf_create_cell(txt,style='reussite')
@@ -1571,42 +1686,127 @@ class Odf_file():
                  ligne.append(cell_situation_globale)
                  #
                  table.append(ligne)
+             #ce passage sert à redimensionner les colonnes
+             nb_colonnes=len(table.get_columns())-1 #on retire 1 car la colonne avec les noms est traitée différement
+             
+             larg_colonne=round(26.0/nb_colonnes,2) #26 est la largeur disponible sur une page A4 moins les marges et la colonne des noms
+             larg_colonne=unicode(str(larg_colonne)+'cm','utf-8')
+             
+             x=0
+             for column in table.get_columns():
+                 
+                 if x==0:
+                     # la première colonne doit être plus large puisqu'elle continet les noms des élèves
+                     col_style = odf_create_style('table-column', width='2.3cm')
+                     name = self.document.insert_style(style=col_style, automatic=True)
+                 else:
+                     col_style = odf_create_style('table-column', width=larg_colonne)
+                     name = self.document.insert_style(style=col_style, automatic=True)
+                 column.set_style(col_style)
+                 table.set_column(column.x, column)
+                 x+=1
+             # fin redimensionnement des colonnes
+             
+             #ce passage sert à mettre un fond gris pour les lignes impaires
+             x=0
+             for row in table.get_rows():
+                 if (int(x/2)==x/2.0) & (x!=0):
+                     for cell in row.get_cells():
+                         #print 'style'
+                         #print cell.get_style()
+                         if cell.get_style()=='neutre':
+                             cell.set_style('neutre_gris')
+                         elif cell.get_style()=='reussite':
+                             cell.set_style('reussite_gris')
+                         elif cell.get_style()=='echec':
+                             cell.set_style('echec_gris')
+                         elif cell.get_style()=='faible':
+                             cell.set_style('faible_gris')
+                         elif cell.get_style()=='noms':
+                             cell.set_style('noms_gris')
+                         elif cell.get_style()=='noel_mars':
+                             cell.set_style('noel_mars_gris')
+                         table.set_cell((cell.x,cell.y),cell)
+                         #style=odf_create_table_cell_style(background_color='#D0D0D0')
+                         #cell.set_style(style)
+                         #paragraph=cell.get_paragraph()
+                         #style=paragraph.get_style('paragraph')
+                         #paragraph.set_background(color='#D0D0D0')
+                         #cell.set_text(paragraph)
+                         #
+                         #pass
+                         #cell.set_attribute('fo:background-color', '#D0D0D0')
+                         #pass
+                         #paragraph=cell.get_paragraph()
+                         #style=paragraph.get_styles('paragraph')
+                         #print style
+                         #paragraph.set_background(color='#D0D0D0')
+                         #cell.set_style(style)
+                 x+=1
+             # fin mise fond gris
+             
              self.body.append(table)
-             self.document.save(self.path+"/"+self.file_name+'_tableau.ods', pretty=True)
+             doc_name=self.file_name+'_tableau.ods'
+             doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver tableau récapitulatif',doc_name,"Classeur OpenDocument (*.ods)"))
+             self.document.save(target=doc_name, pretty=True)
+             gui.current_dir=os.path.dirname(doc_name)
+             if platform.system()=='Linux':
+                 try:
+                     pass
+                     proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                     proc.wait()
+                     proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                     proc.wait()
+                 except:
+                     pass
+             if platform.system()=='Windows':
+                 try:
+                     proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                     proc.wait()
+                 except:
+                     pass
      #
-     #def classement(body, dico_remarques_classe):
-         #classement_moy_pond=[]
-         #for eleve,remarques in dico_remarques_classe.items():
-           #nom_moy_pond=[]
-           #nom_moy_pond.append(remarques['moy_pond'])
-           #nom_moy_pond.append(eleve)
-           #classement_moy_pond.append(nom_moy_pond)
-         #table=odf_create_table(name='classement')
-         #classement_moy_pond.sort()
-         #for eleve in classement_moy_pond:
-           #ligne=odf_create_row()
-           #cell_moy=odf_create_cell()
-           #cell_nom=odf_create_cell()
-           #text_moy=odf_create_paragraph(unicode(str(eleve[0])))
-           #text_nom=odf_create_paragraph(eleve[1])
-           #cell_moy.append(text_moy)
-           #cell_nom.append(text_nom)
-           #ligne.append(cell_nom)
-           #ligne.append(cell_moy)
-           #table.append(ligne)
-         #body.append(odf_create_paragraph())
-         #body.append(table)
-         ##
-         #table=odf_create_table(name='essai')
-         #colonne=odf_create_column(repeated=(4),style='style_colonne')
-         #table.append(colonne)
-         #ligne=odf_create_row()
-         #ligne.append(odf_create_cell(style="cell_non_echec"))
-         ##
-         #table.append(ligne)
-         #body.append(table)
-         ##
-         #return(body)
+     def classement(self): #travailler avec des tuples, créer les tuples puis imprimer en fonction d'un classement selon la moy_pond; les tuples doivent être rangé dans une liste 
+         classement_moy_pond=[]
+         for eleve in classe.carnet_cotes.itervalues():
+             tuple_moy_nom=(eleve.moy_pond_ccnc,eleve.nom)
+             classement_moy_pond.append(tuple_moy_nom)
+         classement_moy_pond=sorted(classement_moy_pond)
+         table=odf_create_table(name='classement')
+         
+         ligne=odf_create_row()
+         cell=odf_create_cell(u'Nom')
+         ligne.append(cell)
+         cell=odf_create_cell(u'Moyenne pondérée')
+         ligne.append(cell)
+         table.append(ligne)
+         
+         for eleve in classement_moy_pond:
+             ligne=odf_create_row()
+             cell=odf_create_cell(eleve[1])
+             ligne.append(cell)
+             cell=odf_create_cell(unicode(str(eleve[0]),'utf-8'))
+             ligne.append(cell)
+             table.append(ligne)
+         self.body.append(table)
+         doc_name=self.file_name+'_classement.ods'
+         doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver tableau classement',doc_name,"Classeur OpenDocument (*.ods)"))
+         self.document.save(target=doc_name, pretty=True)
+         gui.current_dir=os.path.dirname(doc_name)
+         if platform.system()=='Linux':
+             try:
+                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+             except:
+                 pass
+         if platform.system()=='Windows':
+             try:
+                 proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+             except:
+                 pass
 
 #
 #
@@ -1634,23 +1834,23 @@ class NettoiePoints(object):
                  self.points=int(self.points)
 #
 #
-class OldGui(QDialog):
-     def __init__(self, parent=None):
-         super(Gui, self).__init__(parent)
-         clipboard = QApplication.clipboard()
-         text=clipboard.text()
-         text=text.split('\n')
-         for ligne in text:
-             print ligne.toUtf8()
-#
-#
 if __name__=="__main__":
+     #subprocess.Popen(['libreoffice','--quickstart'])
+     #saveout = sys.stdout
+     fsock = open('out.log', 'w')
+     #sys.stdout = fsock
+     app = QApplication(sys.argv)
+     
      compfr=Compfr()
      classe=Classe()
-     app = QApplication(sys.argv)
+     
      gui=Gui()
+     #gui.splashscreen()
      gui.show()
      app.exec_()
-     
-# vérifier comment les points sont encodés, cad : il ne faudra créer le cours chez l'élève que si il y a effectivement des points
-# fait mais il faudrait revoir la cohérence des noms de cours entre le tableau et le fichier xml
+     fsock.close()
+
+# attention : lorsque le document ne contient que des RFE, les appréciations avec des caractères parasites n'apparaissent pas dans le tableau final mais sont comptées comme des échec. On pourrait prévoir une vérification : si le contenu existe et n'est pas une cote et est différent de ref alors signaler l'erreur.
+# vérifier le code
+#attention la fct_sc6 plante si elle est utilisée dans une classe ou il n'y a pas de science 6
+#commenter les classes et les fonctions
