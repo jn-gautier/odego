@@ -20,6 +20,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -39,6 +40,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -58,6 +60,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>    
      <niveau name="2GT">
@@ -79,6 +82,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -98,6 +102,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -117,6 +122,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>  
      <niveau name="3GT">
@@ -138,6 +144,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
@@ -157,6 +164,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -176,6 +184,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="4GT">
@@ -197,6 +206,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -216,6 +226,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -235,6 +246,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="5GT">
@@ -256,6 +268,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -275,6 +288,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -294,6 +308,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="6GT">
@@ -315,6 +330,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -334,6 +350,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -353,6 +370,7 @@
              <fct_sciences6>1</fct_sciences6>
              <fct_prop_echec>1</fct_prop_echec>
              <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="3TQ">
@@ -374,6 +392,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>1</fct_daca>
+             <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -392,7 +411,8 @@
              <fct_age>1</fct_age>
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>1</fct_daca>
+             <fct_daca>0</fct_daca>
+             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
@@ -412,6 +432,7 @@
              <fct_sciences6>0</fct_sciences6>
              <fct_prop_echec>0</fct_prop_echec>
              <fct_daca>1</fct_daca>
+             <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
 </ecole>

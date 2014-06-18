@@ -92,7 +92,7 @@ class Gui(QMainWindow):
          niveau=['','1', '2', '3', '4', '5', '6']
          classes=['','_','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
          sections=['','GT','TQ']
-         delibe=[u'Noel',u'Mars',u'Juin']
+         delibe=[u'Noel',u'Mars',u'Juin',u'Sept.']
          now=date.today()
          annees=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
          #
@@ -291,7 +291,7 @@ class Gui(QMainWindow):
      #
      def about(self):
          message=u'<div><p><b>Odego</b>, inspiré du grec <i>οδηγω : "je guide"</i>, est un outil '
-         message+=u"d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
+         message+=u"d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p>Les fichiers sont produits au format OpenDocument et sont éditables avec LibreOffice, une suite bureautique libre et gratuite.</p><p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
          message+=u'href="mailto:gautier.sciences@gmail.com">gautier.sciences@gmail.com</a></p></div>'
          QMessageBox.about(self,"A propos d'odego",message)
          #self.dial_about=QTextBrowser()
@@ -386,10 +386,12 @@ class Gui(QMainWindow):
              for ligne in myfile:
                  liste_ligne_points=ligne.rstrip('\n\r').split('\t')
                  ligne_points=[]
+                 print liste_ligne_points
                  for elem in liste_ligne_points:
+                     print elem, type (elem), len(elem)
                      if type (elem) is not unicode:
                          elem=unicode(elem,'utf-8')
-                     if elem==(None or '' or 'None'):
+                     if (elem==('' or 'None')) or (len(elem)==0):
                          elem=False
                      ligne_points.append(elem)
                  self.tableau_points.append(ligne_points)
@@ -800,6 +802,8 @@ class Classe(object):
                  eleve.fct_prop_echec()
              if classe.analyses['fct_daca']==True:
                  eleve.fct_daca()
+             if classe.analyses['fct_moyenne_ponderee_cg']==True:
+                 eleve.fct_moyenne_ponderee_cg()
              
      #
      def prod_situation_globale(self):
@@ -865,6 +869,7 @@ class Eleve(Classe):
          self.vol_horaire_ccnc=0
          self.grille_horaire={}
          self.moy_pond_cc=0
+         self.moy_pond_cg=0
          self.moy_pond_ccnc=0
          self.heures_echec_cc=0
          self.heures_echec_nc=0
@@ -1175,6 +1180,18 @@ class Eleve(Classe):
      def fct_daca(self):
          if self.grille_horaire['daca+ep'].points<50:
              self.echec_daca=True
+     #
+     def fct_moyenne_ponderee_cg(self):
+         """Cette fonction calcule, pour un eleve,
+         la moyenne pondérée des cours généraux certificatifs.
+         Il s'agit d'une fonction s'adressant aux élèves d'art"""
+         total_heures_cg=0
+         for cours in self.grille_horaire.itervalues():
+             if (cours.ccnc==True) & (cours.points!=False) & (cours.abr not in ['cr','ed_plas','3d','fc']):
+                 self.moy_pond_cg+=cours.heures*cours.points
+                 total_heures_cg+=cours.heures
+             #
+         self.moy_pond_cg=round((self.moy_pond_cg/total_heures_cg),1)
          
 #
 class Cours(Eleve):
@@ -1537,6 +1554,22 @@ class Odf_file():
              else:
                  pass
              #
+             if 'daca+ep' in eleve.grille_horaire.keys():
+                 if eleve.grille_horaire['daca+ep'].points<50:
+                     table=self.creer_ligne(table, "DACA et éducation plastique", 2,str(eleve.grille_horaire['daca+ep'].points ),None)
+                 elif (eleve.grille_horaire['daca+ep'].points>50) & (eleve.grille_horaire['daca+ep'].points<60):
+                     table=self.creer_ligne(table,"DACA et éducation plastique", 1,str(eleve.grille_horaire['daca+ep'].points ),None)
+                 else:
+                     table=self.creer_ligne(table,"DACA et éducation plastique", 1,str(eleve.grille_horaire['daca+ep'].points ),'non_echec')
+             #
+             if eleve.moy_pond_cg!=0:
+                 if eleve.moy_pond_cg<50:
+                     table=self.creer_ligne(table, "Moyenne cours généraux", 2,str(eleve.moy_pond_cg ),None)
+                 elif (eleve.moy_pond_cg>50) & (eleve.moy_pond_cg<60):
+                     table=self.creer_ligne(table,"Moyenne cours généraux", 1,str(eleve.moy_pond_cg ),None)
+                 else:
+                     table=self.creer_ligne(table,"Moyenne cours généraux", 1,str(eleve.moy_pond_cg ),'non_echec')
+             #
              if (eleve.noel!="") or (eleve.mars!=""):
                  resultats_anterieurs=u''
                  if eleve.noel!="":
@@ -1566,10 +1599,6 @@ class Odf_file():
              #
              if (eleve.prop_echec )>33.33:
                  table=self.creer_ligne_2cell(table,"Remarque", 'La proportion des échces est de '+str(eleve.prop_echec)+'%.' )
-             #
-             if (eleve.echec_daca )==True:
-                 table=self.creer_ligne_2cell(table,"Remarque", "L'élève n'a pas 50% en DACA et éducation plastique." )
-             #
              #if (eleve.credit_pond_inf_50 )!="":
                  #table=creer_ligne_2cell(table,"Echec pondéré", str(eleve.credit_pond_inf_50 ))
              #
@@ -1582,9 +1611,9 @@ class Odf_file():
          gui.current_dir=os.path.dirname(doc_name)
          if platform.system()=='Linux':
              try:
-                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
-                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
              except:
                  pass
@@ -1738,9 +1767,9 @@ class Odf_file():
              if platform.system()=='Linux':
                  try:
                      pass
-                     proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
-                     proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
                  except:
                      pass
@@ -1780,9 +1809,9 @@ class Odf_file():
          gui.current_dir=os.path.dirname(doc_name)
          if platform.system()=='Linux':
              try:
-                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
-                 proc=subprocess.Popen(['libreoffice','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
              except:
                  pass
@@ -1839,3 +1868,4 @@ if __name__=="__main__":
 # vérifier le code
 #attention la fct_sc6 plante si elle est utilisée dans une classe ou il n'y a pas de science 6
 #commenter les classes et les fonctions
+# lors de la production des documents et de leur conversion vers docx et pdf, utiliser une progressbar qui progresse en 3 étapes
