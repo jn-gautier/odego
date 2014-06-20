@@ -42,4 +42,9 @@
          <cours_verrou_echec_max>1</cours_verrou_echec_max>
          <echec_sur_exclusion_max>1000</echec_sur_exclusion_max>
      </niveau>
+     <niveau name="4TQ">
+         <heures_echec_max>8</heures_echec_max>
+         <cours_verrou_echec_max>1</cours_verrou_echec_max>
+         <echec_sur_exclusion_max>1000</echec_sur_exclusion_max>
+     </niveau>
 </ecole>

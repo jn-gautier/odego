@@ -1077,4 +1077,132 @@
              <option>0</option>
          </cours>
      </niveau>
+     <niveau name="4TQ">
+         <cours>
+             <intitule>français</intitule>
+             <abr>fran</abr>
+             <heures>4</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>religion</intitule>
+             <abr>rel</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>sciences humaines</intitule>
+             <abr>sh</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>sciences et techno</intitule>
+             <abr>sc_tech</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>néerlandais</intitule>
+             <abr>ndls</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>mathématique</intitule>
+             <abr>math</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>éducation physique</intitule>
+             <abr>ed_phys</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>croquis</intitule>
+             <abr>cr</abr>
+             <heures>4</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>formes et couleurs</intitule>
+             <abr>fc</abr>
+             <heures>3</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>3 dimensions</intitule>
+             <abr>3d</abr>
+             <heures>3</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>éducation plastique</intitule>
+             <abr>ed_plas</abr>
+             <heures>4</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>hist. de l'art</intitule>
+             <abr>ha</abr>
+             <heures>2</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>expression et comm.</intitule>
+             <abr>exco</abr>
+             <heures>2</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>DACA et EP</intitule>
+             <abr>daca+ep</abr>
+             <heures>0</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>1</pseudo>
+             <option>0</option>
+         </cours>
+     </niveau>
 </ecole>

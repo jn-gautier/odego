@@ -848,7 +848,7 @@ class Classe(object):
      #
      def update_liste_cours(self):
          """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
-         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','ex_co']
+         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','exco']
          self.liste_cours=[]
          for eleve in self.carnet_cotes.itervalues():
              for cours in eleve.grille_horaire.keys():
@@ -1102,7 +1102,7 @@ class Eleve(Classe):
                          self.ddn=datetime.strptime(self.ddn, '%d-%m-%Y').date()
                      except ValueError:
                          try:
-                             self.ddn=datetime.strptime(self.ddn, '%d-%m-%Y').date()
+                             self.ddn=datetime.strptime(self.ddn, '%d-%m-%y').date()
                          except ValueError:
                              print "Le format de la date de naissance de %s n'est pas pris en charge" %(self.nom)
                              #print 'Erreur : %s' % e
@@ -1120,9 +1120,10 @@ class Eleve(Classe):
          
          if self.ddn!=False:
              age=date.today()-self.ddn
-             mois=age.days/30
-             self.age_str=str(mois/12)+' ans '+str(mois % 12)+' mois'
-             self.age=float(mois)/12
+             ans=int(age.days//365.2425)
+             mois=int(round((age.days%365.2425)/30.5))
+             self.age_str=str(ans)+' ans '+str(mois)+' mois'
+             self.age=age.days/365.2425
      #    
      def fct_sciences6 (self):
          sc_3=False
@@ -1141,6 +1142,8 @@ class Eleve(Classe):
              sc_3=True
          if (sc_6==True) & (sc_3==True):
              QMessageBox.warning(gui,u'Erreur',u"L'élève %s possède des points en sciences 6 et en sciences 3.") %self.nom
+         if (sc_6==False) & (sc_3==False):
+             QMessageBox.warning(gui,u'Erreur',u"L'élève %s ne possède ni des points en sciences 6 ni en sciences 3.") %self.nom
          if (sc_6==True) & (sc_3==False):
              self.grille_horaire['sc'].points=(self.grille_horaire['bio_2'].points+self.grille_horaire['chim_2'].points+self.grille_horaire['phys_2'].points)/3 # calcul de la moyenne pour sc6
              
@@ -1270,10 +1273,8 @@ class Odf_file():
          #
          if self.doc_type=='classement':
              self.document= odf_new_document('spreadsheet')
+             self.insert_ods_styles()
              print "Création du tableau de classement."
-         #
-         if (self.doc_type!='tableau_recap') & (self.doc_type!='analyse') & (self.doc_type!='classement'):
-             print "Le type de document demandé n'est pas valide."
          #
          self.body = self.document.get_body()
          self.titre=titre
@@ -1367,13 +1368,16 @@ class Odf_file():
          self.document.insert_style(style_cell, automatic = True)
          ###
          ###
-         style_cell = odf_create_element(u'<style:style style:name="titre" style:display-name="titre" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="14pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="titre" style:display-name="titre" style:family="table-cell"><style:table-cell-properties  style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="14pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
          style= odf_create_element(u'<style:page-layout style:name="mon_layout"><style:page-layout-properties fo:page-width="29.7cm" fo:page-height="21.001cm" style:print-orientation="landscape" fo:margin="0.7cm"></style:page-layout-properties></style:page-layout>')
          self.document.insert_style(style, automatic = True)
          #
          style= odf_create_element(u'<style:master-page style:name="paysage" style:display-name="paysage" style:page-layout-name="mon_layout"></style:master-page>')
+         self.document.insert_style(style, automatic = True)
+         #
+         style= odf_create_element(u'<style:master-page style:name="portrait" style:display-name="portrait" style:page-layout-name="mon_layout_portrait"></style:master-page>')
          self.document.insert_style(style, automatic = True)
          #
          self.document.insert_style(odf_create_style\
@@ -1394,6 +1398,10 @@ class Odf_file():
          #
          style=odf_create_style('table',name='ma_table')
          style.set_attribute('style:master-page-name','paysage')
+         self.document.insert_style(style,automatic=True)
+         #
+         style=odf_create_style('table',name='ma_table_portrait')
+         style.set_attribute('style:master-page-name','portrait')
          self.document.insert_style(style,automatic=True)
      #
      #
@@ -1766,9 +1774,10 @@ class Odf_file():
              gui.current_dir=os.path.dirname(doc_name)
              if platform.system()=='Linux':
                  try:
-                     pass
+                     QApplication.processEvents()
                      proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
+                     #QApplication.processEvents()
                      proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
                  except:
@@ -1786,22 +1795,31 @@ class Odf_file():
              tuple_moy_nom=(eleve.moy_pond_ccnc,eleve.nom)
              classement_moy_pond.append(tuple_moy_nom)
          classement_moy_pond=sorted(classement_moy_pond)
-         table=odf_create_table(name='classement')
+         table=odf_create_table(name='classement',style="ma_table_portrait")
          
-         ligne=odf_create_row()
-         cell=odf_create_cell(u'Nom')
+         ligne=odf_create_row(style='style_ligne')
+         cell=odf_create_cell(u'Nom',style='noms')
          ligne.append(cell)
-         cell=odf_create_cell(u'Moyenne pondérée')
+         cell=odf_create_cell(u'Moyenne pondérée',style='noms')
          ligne.append(cell)
          table.append(ligne)
          
          for eleve in classement_moy_pond:
-             ligne=odf_create_row()
-             cell=odf_create_cell(eleve[1])
+             ligne=odf_create_row(style='style_ligne')
+             cell=odf_create_cell(eleve[1],style='noms')
              ligne.append(cell)
-             cell=odf_create_cell(unicode(str(eleve[0]),'utf-8'))
+             cell=odf_create_cell(unicode(str(eleve[0]),'utf-8'),style='noms')
              ligne.append(cell)
              table.append(ligne)
+         
+         #mise en forme de la table
+         col_style = odf_create_style('table-column', width='4cm')
+         name = self.document.insert_style(style=col_style, automatic=True)
+         for column in table.get_columns():
+             column.set_style(col_style)
+             table.set_column(column.x, column)
+         #fin mise en forme de la table
+         
          self.body.append(table)
          doc_name=self.file_name+'_classement.ods'
          doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver tableau classement',doc_name,"Classeur OpenDocument (*.ods)"))
@@ -1809,6 +1827,7 @@ class Odf_file():
          gui.current_dir=os.path.dirname(doc_name)
          if platform.system()=='Linux':
              try:
+                 QApplication.processEvents()
                  proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
                  proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
@@ -1817,6 +1836,7 @@ class Odf_file():
                  pass
          if platform.system()=='Windows':
              try:
+                 QApplication.processEvents()
                  proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
              except:
@@ -1866,6 +1886,5 @@ if __name__=="__main__":
 
 # attention : lorsque le document ne contient que des RFE, les appréciations avec des caractères parasites n'apparaissent pas dans le tableau final mais sont comptées comme des échec. On pourrait prévoir une vérification : si le contenu existe et n'est pas une cote et est différent de ref alors signaler l'erreur.
 # vérifier le code
-#attention la fct_sc6 plante si elle est utilisée dans une classe ou il n'y a pas de science 6
 #commenter les classes et les fonctions
 # lors de la production des documents et de leur conversion vers docx et pdf, utiliser une progressbar qui progresse en 3 étapes
