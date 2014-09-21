@@ -24,7 +24,7 @@ from functools import cmp_to_key
 import xml.etree.ElementTree as ET
 import subprocess
 import platform 
-from math import radians, sin, cos
+from math import radians, sin, cos,floor
 
 class Gui(QMainWindow):
     
@@ -298,6 +298,20 @@ class Gui(QMainWindow):
          #self.dial_about.append(message)
          #self.dial_about.show()
      #
+     def progress(self):
+         self.prog=QProgressDialog()
+         #prog.setTitle('Hello')
+         #prog.setGeometry(30, 40, 200, 25)
+         self.prog.setWindowFlags(Qt.SplashScreen)
+         self.prog.setCancelButtonText (QString())
+         self.prog.setLabelText (QString())
+         for i in xrange (101):
+             prog.setValue(i)
+             prog.show()
+             print i
+             QApplication.processEvents()
+             sleep(0.02)
+     #
      def appExit(self):
          print "Au revoir!"
          app.quit()
@@ -380,7 +394,7 @@ class Gui(QMainWindow):
      #
      def import_txt(self):
          try:
-             QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou csv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
+             QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou tsv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
              myfile= open(self.file_name, "r")
              self.tableau_points=[]
              for ligne in myfile:
@@ -524,7 +538,7 @@ class Gui(QMainWindow):
                      if nom_cours in classe.carnet_cotes[eleve].grille_horaire.keys():
                          points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
                          appreciation=classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation
-                         item=QString(unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
+                         #item=QString(unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
                          if points!=False:
                              item=QString(unicode(str(points),'utf-8'))
                          elif appreciation!=False:
@@ -543,14 +557,6 @@ class Gui(QMainWindow):
          labels=QStringList(labels)
          self.table.setVerticalHeaderLabels(labels)
          self.setCentralWidget(self.table)
-         
-         #new_bottom=int(0.75*(QDesktopWidget().availableGeometry().bottom()) )
-         #new_right=int(0.75*(QDesktopWidget().availableGeometry().right()))
-         
-         #new_height=int(0.1*(QDesktopWidget().availableGeometry().bottom()) )
-         #new_left=int(0.1*(QDesktopWidget().availableGeometry().right()))
-         
-         #self.setGeometry(new_height,new_left,new_right,new_bottom)
          self.showMaximized()
      
      def verif_avant_analyse(self):
@@ -768,6 +774,8 @@ class Classe(object):
      
      def stats_elv(self):
          for eleve in self.carnet_cotes.itervalues():
+             eleve.fct_dispense()
+             #
              if classe.analyses['fct_sciences6']==True:
                  eleve.fct_sciences6()
              if classe.analyses['fct_moyenne_ponderee']==True:
@@ -838,9 +846,6 @@ class Classe(object):
              
              if (eleve.liste_certif_med!='') or (eleve.liste_oubli_cours!=''):
                  eleve.situation_globale=4 # non délibérable
-             
-             
-             
      #
      #
      def prod_liste_eleves(self):
@@ -848,7 +853,7 @@ class Classe(object):
      #
      def update_liste_cours(self):
          """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
-         liste_cours_ecole=['rel','fran','sh','fgs','geo','hist','fh','sc_tech','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','ed_phys','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','exco']
+         liste_cours_ecole=['rel','fran','sh','fh','fgs','geo','hist','sc_tech','ed_phys','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','exco']
          self.liste_cours=[]
          for eleve in self.carnet_cotes.itervalues():
              for cours in eleve.grille_horaire.keys():
@@ -894,6 +899,12 @@ class Eleve(Classe):
          self.echec_daca=False
          self.prop_echec=0
      #
+     #
+     def fct_dispense(self):
+         for cours in self.grille_horaire.itervalues():
+             if (cours.evaluation==5):
+                 cours.option=True
+                 cours.evaluation=0
      #
      def fct_nb_heures_horaire(self):
          """Cette fonction calcule pour un eleve :
@@ -1214,6 +1225,7 @@ class Cours(Eleve):
          self.abr=''
          self.verrou=False
          self.option=False
+         self.disp_ndls=False
      #
      def analyse_points(self,points):
          if "#" in points:
@@ -1231,6 +1243,8 @@ class Cours(Eleve):
          elif points.lower()=='cm':
              self.evaluation=4
              self.certif_med=True
+         elif points.lower()=='disp':
+             self.evaluation=5
          elif points.lower()=='x':#utile nottament pour les sc6 en 5°et6°
              self.evaluation=4
          elif points.lower()=='r':
@@ -1285,7 +1299,7 @@ class Odf_file():
          #
          border = make_table_cell_border_string(thick = '0.5pt', color = 'black')
          style_ligne_inserer=odf_create_style('table-row', name='style_ligne', display_name='style_ligne')
-         style_ligne_inserer.set_properties(properties={'style:min-row-height':'0.7cm'})
+         style_ligne_inserer.set_properties(properties={'style:min-row-height':'0.69cm'})
          self.document.insert_style(style_ligne_inserer,automatic=True)
          #
          self.document.insert_style(odf_create_style\
@@ -1619,18 +1633,57 @@ class Odf_file():
          gui.current_dir=os.path.dirname(doc_name)
          if platform.system()=='Linux':
              try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (QString())
+                 prog.setLabelText (QString(u'Analyse => pdf'))
+                 for i in xrange(36):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
                  proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
+                 QApplication.processEvents()
+                 prog.setLabelText (QString(u'Analyse => openxml :-('))
+                 for i in xrange(36):
+                     prog.setValue(35+i)
+                     prog.show()
+                     QApplication.processEvents()
                  proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
+                 prog.setLabelText (QString(u'Analyse ...fin'))
+                 for i in xrange(31):
+                     prog.setValue(70+i)
+                     prog.show()
+                     QApplication.processEvents()
              except:
-                 pass
+                 QMessageBox.warning(gui,'Erreur',u"<div><p> LibreOffice ne semble pas installé sur ce système et la producation d'un document pdf ou openxml n'est donc pas possible.</p><p>Vous pouvez signaler ce problème au développeur.</p></div>")
          if platform.system()=='Windows':
              try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (QString())
+                 prog.setLabelText (QString(u'Tableau => pdf'))
+                 for i in xrange(36):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
                  proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
+                 prog.setLabelText (QString(u'Tableau => openxml :-('))
+                 for i in xrange(36):
+                     prog.setValue(35+i)
+                     prog.show()
+                     QApplication.processEvents()
+                 proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc.wait()
+                 prog.setLabelText (QString(u'Tableau ...fin'))
+                 for i in xrange(31):
+                     prog.setValue(70+i)
+                     prog.show()
+                     QApplication.processEvents()
              except:
-                 pass
+                 QMessageBox.warning(gui,'Erreur',u"<div><p> LibreOffice ne semble pas installé sur ce système et la producation d'un document pdf ou openxml n'est donc pas possible.</p><p>Vous pouvez signaler ce problème au développeur.</p></div>")
      #
      #
      def tableau_recap(self):
@@ -1726,7 +1779,7 @@ class Odf_file():
              #ce passage sert à redimensionner les colonnes
              nb_colonnes=len(table.get_columns())-1 #on retire 1 car la colonne avec les noms est traitée différement
              
-             larg_colonne=round(26.0/nb_colonnes,2) #26 est la largeur disponible sur une page A4 moins les marges et la colonne des noms
+             larg_colonne=(floor((26.0/nb_colonnes)*100))/100 #26 est la largeur disponible sur une page A4 moins les marges et la colonne des noms
              larg_colonne=unicode(str(larg_colonne)+'cm','utf-8')
              
              x=0
@@ -1774,20 +1827,58 @@ class Odf_file():
              gui.current_dir=os.path.dirname(doc_name)
              if platform.system()=='Linux':
                  try:
-                     QApplication.processEvents()
+                     prog=QProgressDialog()
+                     prog.setWindowFlags(Qt.SplashScreen)
+                     prog.setCancelButtonText (QString())
+                     prog.setLabelText (QString(u'Tableau => pdf'))
+                     for i in xrange(36):
+                         prog.setValue(i)
+                         prog.show()
+                         QApplication.processEvents()
                      proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
-                     #QApplication.processEvents()
-                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                     QApplication.processEvents()
+                     prog.setLabelText (QString(u'Tableau => openxml'))
+                     for i in xrange(36):
+                         prog.setValue(35+i)
+                         prog.show()
+                         QApplication.processEvents()
+                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
+                     prog.setLabelText (QString(u'Tableau ...fin'))
+                     for i in xrange(31):
+                         prog.setValue(70+i)
+                         prog.show()
+                         QApplication.processEvents()
                  except:
-                     pass
+                     QMessageBox.warning(gui,'Erreur',u"<div><p> LibreOffice ne semble pas installé sur ce système et la producation d'un document pdf ou openxml n'est donc pas possible.</p><p>Vous pouvez signaler ce problème au développeur.</p></div>")
              if platform.system()=='Windows':
                  try:
+                     prog=QProgressDialog()
+                     prog.setWindowFlags(Qt.SplashScreen)
+                     prog.setCancelButtonText (QString())
+                     prog.setLabelText (QString(u'Tableau récapitulatif : export pdf.'))
+                     for i in xrange(36):
+                         prog.setValue(i)
+                         prog.show()
+                         QApplication.processEvents()
                      proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
+                     QApplication.processEvents()
+                     prog.setLabelText (QString(u'Tableau récapitulatif : export openxml.'))
+                     for i in xrange(36):
+                         prog.setValue(35+i)
+                         prog.show()
+                         QApplication.processEvents()
+                     proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
+                     proc.wait()
+                     prog.setLabelText (QString(u'Tableau récapitulatif : fin.'))
+                     for i in xrange(31):
+                         prog.setValue(70+i)
+                         prog.show()
+                         QApplication.processEvents()
                  except:
-                     pass
+                     QMessageBox.warning(gui,'Erreur',u"<div><p> LibreOffice ne semble pas installé sur ce système et la producation d'un document pdf ou openxml n'est donc pas possible.</p><p>Vous pouvez signaler ce problème au développeur.</p></div>")
      #
      def classement(self): #travailler avec des tuples, créer les tuples puis imprimer en fonction d'un classement selon la moy_pond; les tuples doivent être rangé dans une liste 
          classement_moy_pond=[]
@@ -1830,7 +1921,7 @@ class Odf_file():
                  QApplication.processEvents()
                  proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
-                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
              except:
                  pass
@@ -1860,8 +1951,10 @@ class NettoiePoints(object):
          self.points=''.join(self.points)
          if self.points=='':
              self.points=False
+         
          if self.points!=False:
              self.points=float(self.points)
+             if self.points==0.0 : self.points=0.1
              if self.points!=int(self.points):
                  self.points=round(self.points,1)
              else :
@@ -1879,7 +1972,7 @@ if __name__=="__main__":
      classe=Classe()
      
      gui=Gui()
-     #gui.splashscreen()
+     gui.splashscreen()
      gui.show()
      app.exec_()
      fsock.close()
@@ -1887,4 +1980,4 @@ if __name__=="__main__":
 # attention : lorsque le document ne contient que des RFE, les appréciations avec des caractères parasites n'apparaissent pas dans le tableau final mais sont comptées comme des échec. On pourrait prévoir une vérification : si le contenu existe et n'est pas une cote et est différent de ref alors signaler l'erreur.
 # vérifier le code
 #commenter les classes et les fonctions
-# lors de la production des documents et de leur conversion vers docx et pdf, utiliser une progressbar qui progresse en 3 étapes
+#peut-être produire des statistiques globales sur la classe : nb échecs, moyenne de la classe??
