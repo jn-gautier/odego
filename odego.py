@@ -308,7 +308,7 @@ class Gui(QMainWindow):
          for i in xrange (101):
              prog.setValue(i)
              prog.show()
-             print i
+             #print i
              QApplication.processEvents()
              sleep(0.02)
      #
@@ -400,9 +400,8 @@ class Gui(QMainWindow):
              for ligne in myfile:
                  liste_ligne_points=ligne.rstrip('\n\r').split('\t')
                  ligne_points=[]
-                 print liste_ligne_points
+                 #print liste_ligne_points
                  for elem in liste_ligne_points:
-                     print elem, type (elem), len(elem)
                      if type (elem) is not unicode:
                          elem=unicode(elem,'utf-8')
                      if (elem==('' or 'None')) or (len(elem)==0):
@@ -452,7 +451,6 @@ class Gui(QMainWindow):
                  raise ExceptionPasCours
          except ExceptionPasCours :
              QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
-             print "Il n'y a pas de ligne avec les cours dans votre fichier, ou celle-ci n'est pas indiquée par le mot 'Cours'"
          ##
          try:
              for ligne_points in tableau_points:
@@ -513,8 +511,8 @@ class Gui(QMainWindow):
              classe.liste_cours.remove('mars')
              classe.mars=True
          classe.prod_liste_eleves()
-         classe.update_liste_cours()
-         print classe.liste_cours
+         #classe.update_liste_cours()
+         #print classe.liste_cours
          self.tableau_valide=True
          
          if self.tableau_valide==True:
@@ -606,6 +604,7 @@ class Gui(QMainWindow):
          #
          try:
              classe.set_param(self.niveau,self.section,self.delibe)
+             classe.update_liste_cours()
          except Exception, e:
              QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
              <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
@@ -717,8 +716,6 @@ class Classe(object):
                      setattr(cours, carac, valeure)
                  # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
                  for eleve in self.carnet_cotes.itervalues():
-                     #list_cours_elv=[nom_cours for nom_cours in eleve.grille_horaire.keys()]
-                     #print list_cours_elv, cours.abr
                      if cours.abr.lower() in eleve.grille_horaire.keys():
                          for carac in liste_carac_bool:
                              setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
@@ -728,8 +725,7 @@ class Classe(object):
                              setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
                      else:
                          eleve.grille_horaire[cours.abr.lower()]=cours
-                     #print eleve.grille_horaire.keys()
-                 #self.grille_horaire[cours.abr]=cours
+                     
              print "Création d'une classe de", self.niv_sec
          except Exception, e:
              QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
@@ -760,10 +756,7 @@ class Classe(object):
                  if delibe.get('name')==self.delibe:
                      tree_delibe=delibe
              for analyse in tree_delibe:
-                 
                  self.analyses[analyse.tag]=bool(int(analyse.text))
-             #print self.analyses
-                 #setattr(self.analyses, analyse.tag,bool(analyse.text))
                  
          except Exception, e:
              QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier des analyses à effectuer.")
@@ -822,7 +815,7 @@ class Classe(object):
                  situation_globale=True #un critère a été rencontré
              #
              if eleve.heures_echec_cc>self.criteres.heures_echec_max:
-                 eleve.situation_globale=1
+                 eleve.situation_globale=1 #echec en fin d'année
                  situation_globale=True #un critère a été rencontré
                  
              if eleve.nb_cours_verrou_echec>self.criteres.cours_verrou_echec_max:
@@ -836,9 +829,13 @@ class Classe(object):
              if eleve.echec_daca==True:
                  eleve.situation_globale=1 # en art uniquement
                  situation_globale=True #un critère a été rencontré
-                 
+             
+             #if (eleve.prop_echec<=33.33) & (eleve.prop_echec>0) :
+                 #eleve.situation_globale=2 # en rétho uniquement, l'élève est admissible pour une 2°session
+                 #situation_globale=True #un critère a été rencontré
+             
              if eleve.prop_echec>33.33 :
-                 eleve.situation_globale=1 # en rétho uniquement
+                 eleve.situation_globale=1 # en rétho uniquement, l'élève n'est pas admissible pour une 2°session
                  situation_globale=True #un critère a été rencontré
              
              if situation_globale==False: #aucun critère n'a été rencontré:
@@ -853,13 +850,38 @@ class Classe(object):
      #
      def update_liste_cours(self):
          """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
-         liste_cours_ecole=['rel','fran','sh','fh','fgs','geo','hist','sc_tech','ed_phys','ndls','math','chim','phys','bio','sc_3','sc_5','sc_6','angl4','sc_eco','lat','grec','rf','angl2','actu','esp','info','cr','fc','3d','ed_plas','daca+ep','ha','meth','exco']
+         liste_cours_1gt=['rel','fran','ndls','math','edm','sc','ed_phys','techno','mus','lat','ac_m','ac_n','proj_f','proj_n','proj_m']
+         liste_cours_2gt=['rel','fran','ndls','math','edm','sc','ed_phys','techno','des','lat','fse','tdf','ac_n','proj_f','proj_n','proj_m']
+         liste_cours_3gt=['rel','fran','geo','hist','ndls','math','chim','phys','bio','sc_3','sc_5','ed_phys','angl_4','sc_eco','lat','grec','rf','angl_2']
+         liste_cours_4gt=['rel','fran','geo','hist','ndls','math','chim','phys','bio','sc_3','sc_5','ed_phys','angl_4','sc_eco','lat','grec','rf','angl_2']
+         liste_cours_5gt=['rel','fran','fgs','fh','ndls','math_4','math_6','chim','phys','bio','chim_1','phys_1','bio_1','chim_2','phys_2','bio_2','sc_3','sc_6','ed_phys','angl_4','sc_eco','lat','grec','angl_2','actu','esp','info','ha']
+         liste_cours_6gt=['rel','fran','fgs','fh','ndls','math_4','math_6','chim','phys','bio','chim_1','phys_1','bio_1','chim_2','phys_2','bio_2','sc_3','sc_6','ed_phys','angl_4','sc_eco','lat','grec','angl_2','actu','esp','info','ha']
+         liste_cours_3tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','meth']
+         liste_cours_4tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','exco']
+         liste_cours_5tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','info','daca+ep','mus','ha','ds','ac_n']
+         liste_cours_6tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','daca+ep','audio','anim','ha','ds','angl']
+         if self.niv_sec=='1GT':liste_cours_annee=liste_cours_1gt
+         if self.niv_sec=='2GT':liste_cours_annee=liste_cours_2gt
+         if self.niv_sec=='3GT':liste_cours_annee=liste_cours_3gt
+         if self.niv_sec=='4GT':liste_cours_annee=liste_cours_4gt
+         if self.niv_sec=='5GT':liste_cours_annee=liste_cours_5gt
+         if self.niv_sec=='6GT':liste_cours_annee=liste_cours_6gt
+         if self.niv_sec=='3TQ':liste_cours_annee=liste_cours_3tq
+         if self.niv_sec=='4TQ':liste_cours_annee=liste_cours_4tq
+         if self.niv_sec=='5TQ':liste_cours_annee=liste_cours_5tq
+         if self.niv_sec=='6TQ':liste_cours_annee=liste_cours_6tq
+         
          self.liste_cours=[]
          for eleve in self.carnet_cotes.itervalues():
              for cours in eleve.grille_horaire.keys():
-                 if cours not in self.liste_cours:
+                 #les cours de chim_1,chim_2, ... n'apparaissent pas tels quels dans la liste des cours
+                 #ils se retrouvent sous le nom de 'chim', 'phys', ... afin de les placer dans la même colonne du tableau récapitulatif
+                 if (cours=='chim_1') or (cours=='chim_2'): cours=u'chim'
+                 if (cours=='phys_1') or (cours=='phys_2'): cours=u'phys'
+                 if (cours=='bio_1') or (cours=='bio_2'): cours=u'bio'
+                 if (cours not in self.liste_cours) & (eleve.grille_horaire[cours].points!=False):
                      self.liste_cours.append(cours)
-         self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_ecole.index(cours))
+         self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_annee.index(cours))
 #
 #
 class Eleve(Classe):
@@ -1156,10 +1178,10 @@ class Eleve(Classe):
          if (sc_6==False) & (sc_3==False):
              QMessageBox.warning(gui,u'Erreur',u"L'élève %s ne possède ni des points en sciences 6 ni en sciences 3.") %self.nom
          if (sc_6==True) & (sc_3==False):
-             self.grille_horaire['sc'].points=(self.grille_horaire['bio_2'].points+self.grille_horaire['chim_2'].points+self.grille_horaire['phys_2'].points)/3 # calcul de la moyenne pour sc6
-             
              nb_echecs=0
              nb_echecs_inf45=0
+             self.grille_horaire['sc_3'].points=False
+             self.grille_horaire['sc_3'].evaluation=0
              
              if self.grille_horaire['bio_2'].points<50 : nb_echecs+=1
              if self.grille_horaire['chim_2'].points<50 : nb_echecs+=1
@@ -1168,11 +1190,11 @@ class Eleve(Classe):
              if self.grille_horaire['chim_2'].points<45 : nb_echecs_inf45+=1
              if self.grille_horaire['phys_2'].points<45 : nb_echecs_inf45+=1
              
-             if self.grille_horaire['sc'].points<50:
+             if self.grille_horaire['sc_6'].points<50:
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
-             if nb_echecs_sc>1 :
+             if nb_echecs>1 :
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
@@ -1181,8 +1203,9 @@ class Eleve(Classe):
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
          if (sc_6==False) & (sc_3==True):
-             self.grille_horaire['sc'].points=(self.grille_horaire['bio_1'].points+self.grille_horaire['chim_1'].points+self.grille_horaire['phys_1'].points)/3
-             if self.grille_horaire['sc'].points<50:
+             self.grille_horaire['sc_6'].points=False
+             self.grille_horaire['sc_6'].evaluation=0
+             if self.grille_horaire['sc_3'].points<50:
                  self.grille_horaire['bio_1'].echec_force=True
                  self.grille_horaire['chim_1'].echec_force=True
                  self.grille_horaire['phys_1'].echec_force=True
@@ -1571,10 +1594,15 @@ class Odf_file():
                  table=self.creer_ligne(table, "Moyenne pond.", 2,str(eleve.moy_pond_ccnc ),None)
              elif (eleve.moy_pond_ccnc >=50) & (eleve.moy_pond_ccnc <60 ):
                  table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_ccnc ),None)
-             elif (eleve.moy_pond_ccnc >60):
+             elif (eleve.moy_pond_ccnc >=60):
                  table=self.creer_ligne(table,"Moyenne pond.", 1,str(eleve.moy_pond_ccnc ),'non_echec')
              else:
                  pass
+             #
+             if (eleve.prop_echec>0) & (eleve.prop_echec<=33.33):
+                 table=self.creer_ligne(table,"Prop. échecs", 1,(str(eleve.prop_echec)+'%'),None)
+             if eleve.prop_echec>33.33:
+                 table=self.creer_ligne(table,"Prop. échecs", 2,(str(eleve.prop_echec)+'%'),None)
              #
              if 'daca+ep' in eleve.grille_horaire.keys():
                  if eleve.grille_horaire['daca+ep'].points<50:
@@ -1619,8 +1647,6 @@ class Odf_file():
              if (eleve.liste_oubli_cours )!="":
                  table=self.creer_ligne_2cell(table,"Remarque", 'Pas de points en '+eleve.liste_oubli_cours )
              #
-             if (eleve.prop_echec )>33.33:
-                 table=self.creer_ligne_2cell(table,"Remarque", 'La proportion des échces est de '+str(eleve.prop_echec)+'%.' )
              #if (eleve.credit_pond_inf_50 )!="":
                  #table=creer_ligne_2cell(table,"Echec pondéré", str(eleve.credit_pond_inf_50 ))
              #
@@ -1717,9 +1743,41 @@ class Odf_file():
              table.append(ligne)
              #
              for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
+                 #print classe.carnet_cotes[eleve].grille_horaire['sc_3']
                  ligne=odf_create_row(style='style_ligne')
                  ligne.append(odf_create_cell(eleve,style='noms'))
                  for nom_cours in classe.liste_cours:
+                     #ce passage sert à afficher les pts de chim_1 et chim_2 sous le nom commun de chim
+                     # et de faire de même pour phys et bio, ceci n'est nécessaire qu'en 5° et 6°
+                     
+                     if nom_cours=='chim' :
+                         try: 
+                             classe.carnet_cotes[eleve].grille_horaire['chim_1'].points
+                             classe.carnet_cotes[eleve].grille_horaire['chim_2'].points
+                             if classe.carnet_cotes[eleve].grille_horaire['chim_1'].points!=False:
+                                 nom_cours='chim_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
+                                 nom_cours='chim_2'
+                         except KeyError :pass
+                     if nom_cours=='phys':
+                         try:
+                             classe.carnet_cotes[eleve].grille_horaire['phys_1'].points
+                             classe.carnet_cotes[eleve].grille_horaire['phys_2'].points
+                             if classe.carnet_cotes[eleve].grille_horaire['phys_1'].points!=False:
+                                 nom_cours='phys_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['phys_2'].points!=False:
+                                 nom_cours='phys_2'
+                         except KeyError :pass
+                     if nom_cours=='bio':
+                         try:
+                             classe.carnet_cotes[eleve].grille_horaire['bio_1'].points
+                             classe.carnet_cotes[eleve].grille_horaire['bio_2'].points
+                             if classe.carnet_cotes[eleve].grille_horaire['bio_1'].points!=False:
+                                 nom_cours='bio_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['bio_2'].points!=False:
+                                 nom_cours='bio_2'
+                         except KeyError :pass
+                     # fin du passage de gestion des cours de chim, phys et bio en 5° et 6°
                      #nom_cours=nom_cours.lower()
                      #points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
                      if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
@@ -1964,7 +2022,7 @@ class NettoiePoints(object):
 if __name__=="__main__":
      #subprocess.Popen(['libreoffice','--quickstart'])
      #saveout = sys.stdout
-     fsock = open('out.log', 'w')
+     #fsock = open('out.log', 'w')
      #sys.stdout = fsock
      app = QApplication(sys.argv)
      
@@ -1972,12 +2030,8 @@ if __name__=="__main__":
      classe=Classe()
      
      gui=Gui()
-     gui.splashscreen()
+     #gui.splashscreen()
      gui.show()
      app.exec_()
-     fsock.close()
-
-# attention : lorsque le document ne contient que des RFE, les appréciations avec des caractères parasites n'apparaissent pas dans le tableau final mais sont comptées comme des échec. On pourrait prévoir une vérification : si le contenu existe et n'est pas une cote et est différent de ref alors signaler l'erreur.
-# vérifier le code
-#commenter les classes et les fonctions
-#peut-être produire des statistiques globales sur la classe : nb échecs, moyenne de la classe??
+     #fsock.close()
+     

@@ -1,19 +1,9 @@
-# faire un splashscreen
-# créer une icone
+
 
 # completement dissocier l'analyse et la production du document, cad dans la prod du document, faire des tests du type if critere_cours_verrou_echec=0/1/2 et faire une fonction d'analyse générale if nb_cours_verrou_echec>nb_cours_verrou_echec_max alors 2
 
-#ajouter la possibilité d'importer les points depuis un fichier xslx
+# attention : lorsque le document ne contient que des RFE, les appréciations avec des caractères parasites n'apparaissent pas dans le tableau final mais sont comptées comme des échec. On pourrait prévoir une vérification : si le contenu existe et n'est pas une cote et est différent de ref alors signaler l'erreur.
+# vérifier le code
+#commenter les classes et les fonctions
 
-# mettre une ligne sur deux en gris clair
-
-#dvp la gestion des rhetos et 5° ; attention, les critères sot différents en rhétos
-#compléter le menu a propos, aide
-vérifier la gestion de "fichier valide" dans les différents imports
-
-
-implémenter l'import xslx
-implémenter l'import clipboard
-importer xls, txt et clip comme ods cad en ne créant que les cours qui ont évalués
-modifier l'import en créant une liste de liste puis en la traitant par une fct commune à chaque import
-"""
+#introduire tous les cours dans cours.xml
