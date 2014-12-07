@@ -1286,6 +1286,24 @@
              <option>0</option>
          </cours>
          <cours>
+             <intitule>infographie</intitule>
+             <abr>info</abr>
+             <heures>2</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>1</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
+             <intitule>gravure</intitule>
+             <abr>grav</abr>
+             <heures>2</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>1</pseudo>
+             <option>0</option>
+         </cours>
+         <cours>
              <intitule>éducation plastique</intitule>
              <abr>ed_plas</abr>
              <heures>4</heures>

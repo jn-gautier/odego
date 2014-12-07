@@ -25,6 +25,10 @@ import xml.etree.ElementTree as ET
 import subprocess
 import platform 
 from math import radians, sin, cos,floor
+import urllib2
+import csv
+import getpass
+import re, urllib
 
 class Gui(QMainWindow):
     
@@ -43,6 +47,11 @@ class Gui(QMainWindow):
          new_from_clipboardAction.setShortcut('Ctrl+V')
          new_from_clipboardAction.setStatusTip(u"Importer les points à partir de données copiées depuis un fichier")
          new_from_clipboardAction.triggered.connect(self.import_clipboard)
+         
+         new_from_downloadAction = QAction(QIcon('./icons/download_file.svg'),u"Télécharger les points à partir de Google Drive", self)
+         new_from_downloadAction.setShortcut('Ctrl+D')
+         new_from_downloadAction.setStatusTip(u"Télécharger les points à partir de Google Drive")
+         new_from_downloadAction.triggered.connect(self.dialog_import_download)
          
          StartAction = QAction(QIcon('./icons/ok_apply.svg'),u"Démarrer l'analyse", self)
          StartAction.setShortcut('Ctrl+D')
@@ -71,6 +80,7 @@ class Gui(QMainWindow):
          fileMenu = menubar.addMenu(u'&Importer')
          fileMenu.addAction(new_from_fileAction)
          fileMenu.addAction(new_from_clipboardAction)
+         fileMenu.addAction(new_from_downloadAction)
          
          fileMenu = menubar.addMenu('&Aide')
          fileMenu.addAction(HelpAction)
@@ -79,6 +89,7 @@ class Gui(QMainWindow):
          self.toolbar = self.addToolBar('Toolbar')
          self.toolbar.addAction(new_from_fileAction)
          self.toolbar.addAction(new_from_clipboardAction)
+         self.toolbar.addAction(new_from_downloadAction)
          self.toolbar.addAction(QuitAction)
          #self.toolbar.addAction(StartAction)
          
@@ -436,11 +447,89 @@ class Gui(QMainWindow):
              self.tableau_points.append(ligne_points)
          self.fct_carnet_cote(self.tableau_points)
      #
+     def dialog_import_download(self):
+         
+         classe,ok = QInputDialog.getItem(self,QString(u'Télécharger les points depuis Google Drive'),QString(u"Choisissez une classe"),QStringList(['1A','1B','1C','1D','1E','1F','2A','2B','2C','2D','2E','3A','3B','3C','3D','3E','3TQ','4A','4B','4C','4TQ','5A','5B','5C','5TQ','6A','6B','6C','6TQ']),editable = False)
+         classe=str(classe)
+         #
+         liste_liens={}
+         myfile=open('./liens_tableaux_delibes.tsv', "r")
+         #
+         for ligne in myfile:
+             liste_infos=ligne.rstrip('\n\r').split('\t')
+             infos=Infos()
+             infos.classe=liste_infos[0]
+             infos.prof=liste_infos[1]
+             infos.id_tab=liste_infos[2]
+             #print infos.classe,infos.prof,infos.id_tab
+             liste_liens[infos.classe]= infos
+         if classe=='ALL':
+             for infos in liste_liens.itervalues():
+                 self.download(infos.id_tab,infos.classe)
+         else:
+             infos=liste_liens[classe]
+             self.download(infos.id_tab,infos.classe)
+             
+     def get_auth_token(self,email, password):
+         url = "https://www.google.com/accounts/ClientLogin"
+         params = {"Email": email, "Passwd": password,"service": 'wise',"accountType": "HOSTED_OR_GOOGLE","source": 'Client'}
+         req = urllib2.Request(url, urllib.urlencode(params))
+         return re.findall(r"Auth=(.*)", urllib2.urlopen(req).read())[0]
+
+     def download_old(self,spreadsheet, worksheet, email, password, format="tsv"):
+         url_format = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key=%s&exportFormat=%s&gid=%i'
+         headers = {"Authorization": "GoogleLogin auth=" + self.get_auth_token(email, password),"GData-Version": "3.0"}
+         req = urllib2.Request(url_format % (spreadsheet, format, worksheet), headers=headers)
+         return urllib2.urlopen(req)
+     
+     def download(self,spread_id,classe):
+         #url_format = "https://docs.google.com/spreadsheets/export?id=%s&exportFormat=tsv " %(spread_id)
+         #req = urllib2.Request(url_format)
+         #directory='./decembre_2014/%s'%classe
+         #if not os.path.exists(directory):
+             #os.makedirs(directory)
+         if classe in ('4A','4B','4C','5A','5B','5C','6A','6B','6C'):
+             
+             email,ok = QInputDialog.getText(self,QString(u"Adresse courielle"),QString(u'Indiquez votre adresse mail'))
+             email=str(email)
+             password,ok = QInputDialog.getText(self,QString(u"Mot de passe"),QString(u'Indiquez votre login'),QLineEdit.Password)
+             password=str(password)
+             spreadsheet_id =spread_id# (spreadsheet id here)
+             worksheet_id=0
+             # Create client and spreadsheet objects
+             tsv= self.download_old(spreadsheet_id, worksheet_id, email, password)
+     
+         else:
+             link='https://docs.google.com/spreadsheets/export?id=%s&exportFormat=tsv'%spread_id
+             req = urllib2.Request(link) 
+             tsv=urllib2.urlopen(req)
+        
+     
+         tsv=csv.reader(tsv,delimiter='\t')
+         
+         self.tableau_points=[]
+         for liste_ligne_points in tsv:
+             #liste_ligne_points=ligne.split('\t') #crée une QStringList avec une cote ou un nom par élément de la liste
+             ligne_points=[]
+             for elem in liste_ligne_points:
+                 if type (elem) is not unicode:
+                     elem=unicode(elem,'utf-8')
+                 if (elem==('' or 'None')) or (len(elem)==0):
+                     elem=False
+                 ligne_points.append(elem)
+             print ligne_points
+             self.tableau_points.append(ligne_points)
+         self.fct_carnet_cote(self.tableau_points)
+
+
+     
+     #
      def fct_carnet_cote(self,tableau_points):
          try:
              ligne_cours=False
              for ligne_points in tableau_points:
                  prem_cell=ligne_points[0]
+                 print ligne_points
                  if (prem_cell.lower()=='cours'):
                      ligne_cours=True
                      for cell in ligne_points:
@@ -642,6 +731,14 @@ class Gui(QMainWindow):
              print 'Message : ', traceback.format_exc() 
      #
      #
+     
+class Infos():
+     def __init__(self):
+         self.classe=''
+         self.prof=''
+         self.id_tab=''
+         
+         
 class ExceptionPasCours(Exception): pass
 #
 #
@@ -876,10 +973,11 @@ class Classe(object):
              for cours in eleve.grille_horaire.keys():
                  #les cours de chim_1,chim_2, ... n'apparaissent pas tels quels dans la liste des cours
                  #ils se retrouvent sous le nom de 'chim', 'phys', ... afin de les placer dans la même colonne du tableau récapitulatif
-                 if (cours=='chim_1') or (cours=='chim_2'): cours=u'chim'
-                 if (cours=='phys_1') or (cours=='phys_2'): cours=u'phys'
-                 if (cours=='bio_1') or (cours=='bio_2'): cours=u'bio'
+                 
                  if (cours not in self.liste_cours) & (eleve.grille_horaire[cours].points!=False):
+                     if (cours=='chim_1') or (cours=='chim_2'): cours=u'chim'
+                     if (cours=='phys_1') or (cours=='phys_2'): cours=u'phys'
+                     if (cours=='bio_1') or (cours=='bio_2'): cours=u'bio'
                      self.liste_cours.append(cours)
          self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_annee.index(cours))
 #
@@ -1174,9 +1272,9 @@ class Eleve(Classe):
          if self.grille_horaire['bio_1'].points!=False:
              sc_3=True
          if (sc_6==True) & (sc_3==True):
-             QMessageBox.warning(gui,u'Erreur',u"L'élève %s possède des points en sciences 6 et en sciences 3.") %self.nom
+             QMessageBox.warning(gui,u'Erreur',u"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
          if (sc_6==False) & (sc_3==False):
-             QMessageBox.warning(gui,u'Erreur',u"L'élève %s ne possède ni des points en sciences 6 ni en sciences 3.") %self.nom
+             QMessageBox.warning(gui,u'Erreur',u"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
          if (sc_6==True) & (sc_3==False):
              nb_echecs=0
              nb_echecs_inf45=0
@@ -1758,7 +1856,10 @@ class Odf_file():
                                  nom_cours='chim_1'
                              if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
                                  nom_cours='chim_2'
-                         except KeyError :pass
+                             if nom_cours=='chim':
+                                 QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en chimie 1 ni en chimie 2.</p></div>"%eleve)
+                         except KeyError :
+                             pass
                      if nom_cours=='phys':
                          try:
                              classe.carnet_cotes[eleve].grille_horaire['phys_1'].points
@@ -1767,7 +1868,10 @@ class Odf_file():
                                  nom_cours='phys_1'
                              if classe.carnet_cotes[eleve].grille_horaire['phys_2'].points!=False:
                                  nom_cours='phys_2'
-                         except KeyError :pass
+                             if nom_cours=='phys':
+                                 QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en phys_1 ni en phys_2.</p></div>"%eleve)
+                         except KeyError :
+                             pass
                      if nom_cours=='bio':
                          try:
                              classe.carnet_cotes[eleve].grille_horaire['bio_1'].points
@@ -1776,7 +1880,10 @@ class Odf_file():
                                  nom_cours='bio_1'
                              if classe.carnet_cotes[eleve].grille_horaire['bio_2'].points!=False:
                                  nom_cours='bio_2'
-                         except KeyError :pass
+                             if nom_cours=='bio':
+                                 QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en bio_1 ni en bio_2.</p></div>"%eleve)
+                         except KeyError :
+                             pass
                      # fin du passage de gestion des cours de chim, phys et bio en 5° et 6°
                      #nom_cours=nom_cours.lower()
                      #points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
