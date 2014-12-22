@@ -3,6 +3,7 @@
 <ecole>
      <niveau name="1GT">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -43,6 +44,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -65,6 +67,7 @@
      </niveau>    
      <niveau name="2GT">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -105,6 +108,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -127,6 +131,7 @@
      </niveau>  
      <niveau name="3GT">
         <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -167,6 +172,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -189,6 +195,7 @@
      </niveau>
      <niveau name="4GT">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -229,6 +236,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -251,6 +259,7 @@
      </niveau>
      <niveau name="5GT">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -291,6 +300,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -313,6 +323,7 @@
      </niveau>
      <niveau name="6GT">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -353,6 +364,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>1</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -375,6 +387,7 @@
      </niveau>
      <niveau name="3TQ">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -415,6 +428,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -437,6 +451,7 @@
      </niveau>
      <niveau name="4TQ">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -477,6 +492,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -499,6 +515,7 @@
      </niveau>
      <niveau name="5TQ">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -539,6 +556,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -561,6 +579,7 @@
      </niveau>
      <niveau name="6TQ">
          <delibe name="Noel">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
@@ -601,6 +620,7 @@
              <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
+             <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
              <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>

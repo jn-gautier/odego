@@ -3,6 +3,33 @@
 <ecole>
      <niveau name="1GT">
          <cours>
+             <intitule>mathématique</intitule>
+             <abr>MATH_F</abr>
+             <heures>6</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
+         </cours>
+         <cours>
+             <intitule>néerlandais</intitule>
+             <abr>NDLS_F</abr>
+             <heures>5</heures>
+             <ccnc>1</ccnc>
+             <verrou>1</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
+         </cours>
+         <cours>
+             <intitule>sciences</intitule>
+             <abr>SC_F</abr>
+             <heures>4</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
+         </cours>
+         <cours>
              <intitule>français</intitule>
              <abr>FRAN</abr>
              <heures>6</heures>
@@ -24,10 +51,10 @@
              <intitule>mathématique</intitule>
              <abr>MATH</abr>
              <heures>4</heures>
-             <ccnc>O</ccnc>
+             <ccnc>1</ccnc>
              <verrou>1</verrou>
              <pseudo>0</pseudo>
-             <option>0</option>
+             <option>1</option>
          </cours>
          <cours>
              <intitule>religion</intitule>
@@ -72,25 +99,34 @@
              <ccnc>1</ccnc>
              <verrou>1</verrou>
              <pseudo>0</pseudo>
-             <option>0</option>
-         </cours>
-         <cours>
-             <intitule>techno</intitule>
-             <abr>TECHNO</abr>
-             <heures>1</heures>
-             <ccnc>0</ccnc>
-             <verrou>0</verrou>
-             <pseudo>0</pseudo>
-             <option>0</option>
+             <option>1</option>
          </cours>
          <cours>
              <intitule>musique</intitule>
              <abr>MUS</abr>
              <heures>1</heures>
-             <ccnc>0</ccnc>
+             <ccnc>1</ccnc>
              <verrou>0</verrou>
              <pseudo>0</pseudo>
-             <option>0</option>
+             <option>1</option>
+         </cours>
+         <cours>
+             <intitule>techno</intitule>
+             <abr>TECHNO</abr>
+             <heures>1</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
+         </cours>
+         <cours>
+             <intitule>dessin</intitule>
+             <abr>DES</abr>
+             <heures>1</heures>
+             <ccnc>1</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
          </cours>
          <cours>
              <intitule>act. comp. ndls</intitule>
@@ -114,6 +150,15 @@
              <intitule>projet français</intitule>
              <abr>PROJ_F</abr>
              <heures>1</heures>
+             <ccnc>0</ccnc>
+             <verrou>0</verrou>
+             <pseudo>0</pseudo>
+             <option>1</option>
+         </cours>
+         <cours>
+             <intitule>act. comp. français</intitule>
+             <abr>AC_F</abr>
+             <heures>2</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
              <pseudo>0</pseudo>
@@ -160,7 +205,7 @@
          <cours>
              <intitule>mathématique</intitule>
              <abr>MATH</abr>
-             <heures>4</heures>
+             <heures>5</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
              <pseudo>0</pseudo>
@@ -215,16 +260,16 @@
              <intitule>techno</intitule>
              <abr>TECHNO</abr>
              <heures>1</heures>
-             <ccnc>0</ccnc>
+             <ccnc>1</ccnc>
              <verrou>0</verrou>
              <pseudo>0</pseudo>
              <option>0</option>
          </cours>
          <cours>
              <intitule>dessin</intitule>
-             <abr>DESS</abr>
+             <abr>DES</abr>
              <heures>1</heures>
-             <ccnc>0</ccnc>
+             <ccnc>1</ccnc>
              <verrou>0</verrou>
              <pseudo>0</pseudo>
              <option>0</option>
@@ -616,7 +661,7 @@
          <cours>
              <intitule>français</intitule>
              <abr>FRAN</abr>
-             <heures>5</heures>
+             <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
              <pseudo>0</pseudo>
@@ -688,7 +733,7 @@
          <cours>
              <intitule>biologie(2)</intitule>
              <abr>BIO_2</abr>
-             <heures>0</heures>
+             <heures>2</heures>
              <ccnc>1</ccnc>
              <verrou>0</verrou>
              <pseudo>0</pseudo>
@@ -843,7 +888,7 @@
          <cours>
              <intitule>français</intitule>
              <abr>FRAN</abr>
-             <heures>5</heures>
+             <heures>4</heures>
              <ccnc>1</ccnc>
              <verrou>1</verrou>
              <pseudo>0</pseudo>
@@ -1288,7 +1333,7 @@
          <cours>
              <intitule>infographie</intitule>
              <abr>info</abr>
-             <heures>2</heures>
+             <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
              <pseudo>1</pseudo>
@@ -1297,7 +1342,7 @@
          <cours>
              <intitule>gravure</intitule>
              <abr>grav</abr>
-             <heures>2</heures>
+             <heures>0</heures>
              <ccnc>0</ccnc>
              <verrou>0</verrou>
              <pseudo>1</pseudo>

@@ -248,7 +248,7 @@ class Gui(QMainWindow):
                  svg_txt+='<line x1="68" y1="144" x2="68" y2="276" stroke="#000000" stroke-width="12"/>'
                  svg_txt+='<line x1="24" y1="188" x2="156" y2="188" stroke="#000000" stroke-width="12"/>'
                  svg_txt+='<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#000000" stroke-width="12"/>'%(l2_x1,l2_y1,l2_x2,l2_y2)
-                 svg_txt+='<circle id="rond_orange" cx="%s" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF8C00" />'%(centre_x_orange)
+                 svg_txt+='<circle id="rond_orange" cx="%s" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF6E00" />'%(centre_x_orange)
                  svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#D30000" />'
                  
              if i>75:
@@ -266,7 +266,7 @@ class Gui(QMainWindow):
                  svg_txt+='<line x1="112" y1="144" x2="112" y2="276" stroke="#000000" stroke-width="12"/>'
                  svg_txt+='<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="#000000" stroke-width="12"/>' %(l3_x1,l3_y1,l3_x2,l3_y2)
                  svg_txt+='<circle id="rond_vert" cx="%s" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#078018" />' %(centre_x_vert)
-                 svg_txt+='<circle id="rond_orange" cx="345" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF8C00" />'
+                 svg_txt+='<circle id="rond_orange" cx="345" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#FF6E00" />'
                  svg_txt+='<circle id="rond_rouge" cx="220" cy="210" r="50" stroke="#ffffff" stroke-width="6.5" fill="#D30000" />'
          
              svg_txt+='<text style="font-size:130px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:url(#grad2);stroke:none;font-family:Sans" x="275" y="110" > ODEGO</text>'
@@ -868,6 +868,8 @@ class Classe(object):
              #
              if classe.analyses['fct_sciences6']==True:
                  eleve.fct_sciences6()
+             if classe.analyses['fct_points_sup_100']==True:
+                 eleve.fct_points_sup_100()
              if classe.analyses['fct_moyenne_ponderee']==True:
                  eleve.fct_moyenne_ponderee()
              if classe.analyses['fct_echec_inf35']==True:
@@ -947,14 +949,14 @@ class Classe(object):
      #
      def update_liste_cours(self):
          """Cette fonction produit une liste des cours ne contenant que les cours évalués pour au moins un élève de la classe"""
-         liste_cours_1gt=['rel','fran','ndls','math','edm','sc','ed_phys','techno','mus','lat','ac_m','ac_n','proj_f','proj_n','proj_m']
+         liste_cours_1gt=['rel','fran','ndls','ndls_f','math','math_f','edm','sc','sc_f','ed_phys','techno','mus','des','lat','ac_m','ac_f','ac_n','proj_f','proj_n','proj_m']
          liste_cours_2gt=['rel','fran','ndls','math','edm','sc','ed_phys','techno','des','lat','fse','tdf','ac_n','proj_f','proj_n','proj_m']
          liste_cours_3gt=['rel','fran','geo','hist','ndls','math','chim','phys','bio','sc_3','sc_5','ed_phys','angl_4','sc_eco','lat','grec','rf','angl_2']
          liste_cours_4gt=['rel','fran','geo','hist','ndls','math','chim','phys','bio','sc_3','sc_5','ed_phys','angl_4','sc_eco','lat','grec','rf','angl_2']
          liste_cours_5gt=['rel','fran','fgs','fh','ndls','math_4','math_6','chim','phys','bio','chim_1','phys_1','bio_1','chim_2','phys_2','bio_2','sc_3','sc_6','ed_phys','angl_4','sc_eco','lat','grec','angl_2','actu','esp','info','ha']
          liste_cours_6gt=['rel','fran','fgs','fh','ndls','math_4','math_6','chim','phys','bio','chim_1','phys_1','bio_1','chim_2','phys_2','bio_2','sc_3','sc_6','ed_phys','angl_4','sc_eco','lat','grec','angl_2','actu','esp','info','ha']
          liste_cours_3tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','meth']
-         liste_cours_4tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','exco']
+         liste_cours_4tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','exco','grav','info']
          liste_cours_5tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','info','daca+ep','mus','ha','ds','ac_n']
          liste_cours_6tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','daca+ep','audio','anim','ha','ds','angl']
          if self.niv_sec=='1GT':liste_cours_annee=liste_cours_1gt
@@ -978,7 +980,8 @@ class Classe(object):
                      if (cours=='chim_1') or (cours=='chim_2'): cours=u'chim'
                      if (cours=='phys_1') or (cours=='phys_2'): cours=u'phys'
                      if (cours=='bio_1') or (cours=='bio_2'): cours=u'bio'
-                     self.liste_cours.append(cours)
+                     if cours not in self.liste_cours:
+                         self.liste_cours.append(cours)
          self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_annee.index(cours))
 #
 #
@@ -1019,6 +1022,11 @@ class Eleve(Classe):
          self.echec_daca=False
          self.prop_echec=0
      #
+     def fct_points_sup_100(self):
+         for cours in self.grille_horaire.itervalues():
+             if cours.points!=False:
+                 if cours.points>100:
+                     QMessageBox.warning(gui,u'Erreur',u"<div><p>L'élève %s a une cote supérieure à 100.</p> <p> %s : %s</p></div>"%(self.nom,cours.intitule,cours.points) )
      #
      def fct_dispense(self):
          for cours in self.grille_horaire.itervalues():
@@ -1257,6 +1265,7 @@ class Eleve(Classe):
              self.age=age.days/365.2425
      #    
      def fct_sciences6 (self):
+         #en retirant sc_3 et sc_6 du tableau des points, les objets curs ne sont plus créés dans la grille horoire des élèves, je devrais donc créer les cours de sc_3 et sc_6 dans la fct_sciences6 et les initialiser correctement.
          sc_3=False
          sc_6=False
          if self.grille_horaire['phys_2'].points!=False:
@@ -1272,7 +1281,7 @@ class Eleve(Classe):
          if self.grille_horaire['bio_1'].points!=False:
              sc_3=True
          if (sc_6==True) & (sc_3==True):
-             QMessageBox.warning(gui,u'Erreur',u"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
+             QMessageBox.warning(gui,u'Erreur',u"L'élève %s a des points en sciences 6 et en sciences 3."%self.nom) 
          if (sc_6==False) & (sc_3==False):
              QMessageBox.warning(gui,u'Erreur',u"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
          if (sc_6==True) & (sc_3==False):
@@ -1288,25 +1297,75 @@ class Eleve(Classe):
              if self.grille_horaire['chim_2'].points<45 : nb_echecs_inf45+=1
              if self.grille_horaire['phys_2'].points<45 : nb_echecs_inf45+=1
              
+             self.grille_horaire['sc_6'].points=(self.grille_horaire['phys_2'].points+self.grille_horaire['bio_2'].points+self.grille_horaire['chim_2'].points)/3
+             self.grille_horaire['sc_6'].points=round(self.grille_horaire['sc_6'].points,1)
+             
+             if 'sc_6' not in classe.liste_cours:
+                 classe.liste_cours.append('sc_6')
+             
+             if self.grille_horaire['sc_6'].points<50:
+                 self.grille_horaire['sc_6'].evaluation=1
+             if (self.grille_horaire['sc_6'].points>=50) & (self.grille_horaire['sc_6'].points<60):
+                 self.grille_horaire['sc_6'].evaluation=2
+             if self.grille_horaire['sc_6'].points>=60:
+                 self.grille_horaire['sc_6'].evaluation=3   
+             
              if self.grille_horaire['sc_6'].points<50:
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
+                 self.grille_horaire['bio_2'].evaluation=1
+                 self.grille_horaire['chim_2'].evaluation=1
+                 self.grille_horaire['phys_2'].evaluation=1
              if nb_echecs>1 :
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
+                 self.grille_horaire['sc_6'].echec_force=True
+                 self.grille_horaire['bio_2'].evaluation=1
+                 self.grille_horaire['chim_2'].evaluation=1
+                 self.grille_horaire['phys_2'].evaluation=1
              if nb_echecs_inf45>0 :
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
+                 self.grille_horaire['sc_6'].echec_force=True
+                 self.grille_horaire['bio_2'].evaluation=1
+                 self.grille_horaire['chim_2'].evaluation=1
+                 self.grille_horaire['phys_2'].evaluation=1
          if (sc_6==False) & (sc_3==True):
+             nb_cours_evalues=0
+             self.grille_horaire['sc_3'].points=0
+             if self.grille_horaire['bio_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['bio_1'].points)
+                 nb_cours_evalues+=1
+             if self.grille_horaire['phys_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['phys_1'].points)
+                 nb_cours_evalues+=1
+             if self.grille_horaire['chim_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['chim_1'].points)
+                 nb_cours_evalues+=1
+             self.grille_horaire['sc_3'].points=(self.grille_horaire['sc_3'].points)/nb_cours_evalues
+             self.grille_horaire['sc_3'].points=round(self.grille_horaire['sc_3'].points,1)
+             if 'sc_3' not in classe.liste_cours:
+                 classe.liste_cours.append('sc_3')
+             
+             if self.grille_horaire['sc_3'].points<50:
+                 self.grille_horaire['sc_3'].evaluation=1
+             if (self.grille_horaire['sc_3'].points>=50) & (self.grille_horaire['sc_3'].points<60):
+                 self.grille_horaire['sc_3'].evaluation=2
+             if self.grille_horaire['sc_3'].points>=60:
+                 self.grille_horaire['sc_3'].evaluation=3   
+             
              self.grille_horaire['sc_6'].points=False
              self.grille_horaire['sc_6'].evaluation=0
              if self.grille_horaire['sc_3'].points<50:
                  self.grille_horaire['bio_1'].echec_force=True
                  self.grille_horaire['chim_1'].echec_force=True
                  self.grille_horaire['phys_1'].echec_force=True
+                 self.grille_horaire['bio_1'].evaluation=1
+                 self.grille_horaire['chim_1'].evaluation=1
+                 self.grille_horaire['phys_1'].evaluation=1
      #
      def fct_prop_echec(self):
          self.prop_echec=(self.heures_echec_nc+self.heures_echec_cc)/float(self.vol_horaire_ccnc)
@@ -1322,7 +1381,7 @@ class Eleve(Classe):
          Il s'agit d'une fonction s'adressant aux élèves d'art"""
          total_heures_cg=0
          for cours in self.grille_horaire.itervalues():
-             if (cours.ccnc==True) & (cours.points!=False) & (cours.abr not in ['cr','ed_plas','3d','fc']):
+             if (cours.ccnc==True) & (cours.points!=False) & (cours.abr not in ['cr','ed_plas','3d','fc','info','grav','anim','audio','ha','exco','ds','mus']):
                  self.moy_pond_cg+=cours.heures*cours.points
                  total_heures_cg+=cours.heures
              #
@@ -1366,7 +1425,7 @@ class Cours(Eleve):
              self.certif_med=True
          elif points.lower()=='disp':
              self.evaluation=5
-         elif points.lower()=='x':#utile nottament pour les sc6 en 5°et6°
+         elif points.lower()=='x':#le cours n'est pas évalué (ex: meth en 3TQ)
              self.evaluation=4
          elif points.lower()=='r':
              self.appreciation='r'
@@ -1381,6 +1440,8 @@ class Cours(Eleve):
              points=points.replace(',','.')
              points=NettoiePoints(points).points# rappel: la fonction nettoie_point converti également les points en float
              self.points=points
+             #if points>100:
+                 #QMessageBox.warning(gui,'Erreur',u"<div><p> Il y a une valeur su.</p></div>")
              if points<50:
                  self.evaluation=1
              elif (points>=50) & (points<60) & (self.echec_force==False):
@@ -1437,7 +1498,7 @@ class Odf_file():
          ('paragraph',name='tit_ligne',display_name='tit_ligne', area='text',size='11pt',style='italic'))
          #
          self.document.insert_style(odf_create_style\
-         ('paragraph',name='echec_admis',display_name='echec_admis', area='text',size='11pt',color='#FF8C00'))
+         ('paragraph',name='echec_admis',display_name='echec_admis', area='text',size='11pt',color='#FF6E00'))
          #
          self.document.insert_style(odf_create_style\
          ('paragraph',name='echec_non_admis',display_name='echec_non_admis', area='text', size='11pt',color='#D30000'))
@@ -1465,41 +1526,41 @@ class Odf_file():
          mon_style_colone=self.document.insert_style(style_colone, automatic = True)
          #
          
-         style_cell = odf_create_element(u'<style:style style:name="neutre" style:display-name="neutre" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="neutre" style:display-name="neutre" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="reussite" style:display-name="reussite" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="reussite" style:display-name="reussite" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="faible" style:display-name="faible" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" /><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF8C00" style:font-name="Sans" fo:font-size="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="faible" style:display-name="faible" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" /><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF6E00" style:font-name="Sans" fo:font-size="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="echec" style:display-name="echec" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="8pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="echec" style:display-name="echec" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="7pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="noms" style:display-name="noms" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noms" style:display-name="noms" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="7pt" fo:hyphenate="true"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="noel_mars" style:display-name="noel_mars" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noel_mars" style:display-name="noel_mars" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="7pt" fo:hyphenate="true"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          ###
          ###
-         style_cell = odf_create_element(u'<style:style style:name="neutre_gris" style:display-name="neutre_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="neutre_gris" style:display-name="neutre_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties style:font-name="Sans" fo:font-size ="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="reussite_gris" style:display-name="reussite_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="reussite_gris" style:display-name="reussite_gris" style:family="table-cell"><style:table-cell-properties  fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#078018" style:font-name="Sans" fo:font-size ="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="faible_gris" style:display-name="faible_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF8C00" style:font-name="Sans" fo:font-size="8pt"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="faible_gris" style:display-name="faible_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center" /><style:text-properties fo:color="#FF6E00" style:font-name="Sans" fo:font-size="7pt"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="echec_gris" style:display-name="echec_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="8pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="echec_gris" style:display-name="echec_gris" style:family="table-cell"><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:color="#D30000" style:font-name="Sans" fo:font-size ="7pt" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="noms_gris" style:display-name="noms_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noms_gris" style:display-name="noms_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0"/><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#000000" style:font-name="Sans" fo:font-size="7pt" fo:hyphenate="true"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          #
-         style_cell = odf_create_element(u'<style:style style:name="noel_mars_gris" style:display-name="noel_mars_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0" /><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="8pt" fo:hyphenate="true"/></style:style>')
+         style_cell = odf_create_element(u'<style:style style:name="noel_mars_gris" style:display-name="noel_mars_gris" style:family="table-cell" ><style:table-cell-properties fo:border="0.05pt solid #000000" style:vertical-align="middle" fo:wrap-option="wrap" fo:background-color="#D0D0D0" /><style:paragraph-properties fo:text-align="start"/><style:text-properties fo:color="#595959" style:font-name="Sans" fo:font-size="7pt" fo:hyphenate="true"/></style:style>')
          self.document.insert_style(style_cell, automatic = True)
          ###
          ###
@@ -1521,7 +1582,7 @@ class Odf_file():
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_echec_admis',display_name='cell_echec_admis',\
-         background_color='#FF8C00',border="0.05pt solid #000000"),automatic=True)
+         background_color='#FF6E00',border="0.05pt solid #000000"),automatic=True)
          #
          self.document.insert_style(odf_create_style\
          ('table-cell',name='cell_non_echec',display_name='cell_non_echec',\
@@ -1737,7 +1798,7 @@ class Odf_file():
                  table=self.creer_ligne_2cell(table,"Remarque","L'élève dispose d'un contrat de travail global" )
              #
              if (eleve.liste_echec_travail )!="":
-                 table=self.creer_ligne_2cell(table,"Prévoir contrat",eleve.liste_echec_travail )
+                 table=self.creer_ligne_2cell(table,"Envisager contrat",eleve.liste_echec_travail )
              #
              if eleve.liste_certif_med != '':
                  table=self.creer_ligne_2cell(table,"Certificat médical", eleve.liste_certif_med)
@@ -1773,7 +1834,7 @@ class Odf_file():
                      prog.setValue(35+i)
                      prog.show()
                      QApplication.processEvents()
-                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 #proc=subprocess.Popen(['libreoffice','--headless','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
                  prog.setLabelText (QString(u'Analyse ...fin'))
                  for i in xrange(31):
@@ -1799,7 +1860,7 @@ class Odf_file():
                      prog.setValue(35+i)
                      prog.show()
                      QApplication.processEvents()
-                 proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
+                 #proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','docx',doc_name,'--outdir',gui.current_dir])
                  proc.wait()
                  prog.setLabelText (QString(u'Tableau ...fin'))
                  for i in xrange(31):
@@ -1841,7 +1902,6 @@ class Odf_file():
              table.append(ligne)
              #
              for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
-                 #print classe.carnet_cotes[eleve].grille_horaire['sc_3']
                  ligne=odf_create_row(style='style_ligne')
                  ligne.append(odf_create_cell(eleve,style='noms'))
                  for nom_cours in classe.liste_cours:
@@ -1853,6 +1913,10 @@ class Odf_file():
                              classe.carnet_cotes[eleve].grille_horaire['chim_1'].points
                              classe.carnet_cotes[eleve].grille_horaire['chim_2'].points
                              if classe.carnet_cotes[eleve].grille_horaire['chim_1'].points!=False:
+                                 nom_cours='chim_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==4:
+                                 nom_cours='chim_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
                                  nom_cours='chim_1'
                              if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
                                  nom_cours='chim_2'
@@ -1866,6 +1930,10 @@ class Odf_file():
                              classe.carnet_cotes[eleve].grille_horaire['phys_2'].points
                              if classe.carnet_cotes[eleve].grille_horaire['phys_1'].points!=False:
                                  nom_cours='phys_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['phys_1'].evaluation==4:
+                                 nom_cours='phys_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['phys_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
+                                 nom_cours='phys_1'
                              if classe.carnet_cotes[eleve].grille_horaire['phys_2'].points!=False:
                                  nom_cours='phys_2'
                              if nom_cours=='phys':
@@ -1873,10 +1941,15 @@ class Odf_file():
                          except KeyError :
                              pass
                      if nom_cours=='bio':
+                         
                          try:
                              classe.carnet_cotes[eleve].grille_horaire['bio_1'].points
                              classe.carnet_cotes[eleve].grille_horaire['bio_2'].points
                              if classe.carnet_cotes[eleve].grille_horaire['bio_1'].points!=False:
+                                 nom_cours='bio_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['bio_1'].evaluation==4:
+                                 nom_cours='bio_1'
+                             if classe.carnet_cotes[eleve].grille_horaire['bio_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
                                  nom_cours='bio_1'
                              if classe.carnet_cotes[eleve].grille_horaire['bio_2'].points!=False:
                                  nom_cours='bio_2'
@@ -2003,13 +2076,13 @@ class Odf_file():
                      proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
                      QApplication.processEvents()
-                     prog.setLabelText (QString(u'Tableau => openxml'))
+                     #prog.setLabelText (QString(u'Tableau => openxml'))
                      for i in xrange(36):
                          prog.setValue(35+i)
                          prog.show()
                          QApplication.processEvents()
-                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
-                     proc.wait()
+                     #proc=subprocess.Popen(['libreoffice','--headless','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
+                     #proc.wait()
                      prog.setLabelText (QString(u'Tableau ...fin'))
                      for i in xrange(31):
                          prog.setValue(70+i)
@@ -2030,13 +2103,13 @@ class Odf_file():
                      proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
                      proc.wait()
                      QApplication.processEvents()
-                     prog.setLabelText (QString(u'Tableau récapitulatif : export openxml.'))
+                     #prog.setLabelText (QString(u'Tableau récapitulatif : export openxml.'))
                      for i in xrange(36):
                          prog.setValue(35+i)
                          prog.show()
                          QApplication.processEvents()
-                     proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
-                     proc.wait()
+                     #proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
+                     #proc.wait()
                      prog.setLabelText (QString(u'Tableau récapitulatif : fin.'))
                      for i in xrange(31):
                          prog.setValue(70+i)
