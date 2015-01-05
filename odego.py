@@ -715,15 +715,24 @@ class Gui(QMainWindow):
                  analyse=Odf_file(doc_type="analyse",titre=self.titre,file_name=self.file2save)
                  analyse.analyse_eleve()
                  del analyse
+                 #analyse=Latex_file(doc_type="analyse",titre=self.titre,file_name=self.file2save)
+                 #analyse.analyse_eleve()
+                 #del analyse
                  #
              if self.creer_tableau_recap==True:
-                 tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,file_name=self.file2save)
-                 tableau.tableau_recap()
+                 #tableau=Odf_file(doc_type="tableau_recap",titre=self.titre,file_name=self.file2save)
+                 #tableau.tableau_recap()
+                 #del tableau
+                 tableau=Latex_file(doc_type="tableau_recap",titre=self.titre,file_name=self.file2save)
+                 #tableau.tableau_recap()
                  del tableau
              if self.creer_classement==True:
                  tableau=Odf_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
                  tableau.classement()
                  del tableau
+                 #tableau=Latex_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
+                 #tableau.classement()
+                 #del tableau
              QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
          except Exception, e:
              QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
@@ -2018,6 +2027,7 @@ class Odf_file():
              nb_colonnes=len(table.get_columns())-1 #on retire 1 car la colonne avec les noms est traitée différement
              
              larg_colonne=(floor((26.0/nb_colonnes)*100))/100 #26 est la largeur disponible sur une page A4 moins les marges et la colonne des noms
+             larg_colonne=larg_colonne-0.01
              larg_colonne=unicode(str(larg_colonne)+'cm','utf-8')
              
              x=0
@@ -2073,8 +2083,8 @@ class Odf_file():
                          prog.setValue(i)
                          prog.show()
                          QApplication.processEvents()
-                     proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
-                     proc.wait()
+                     #proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
+                     #proc.wait()
                      QApplication.processEvents()
                      #prog.setLabelText (QString(u'Tableau => openxml'))
                      for i in xrange(36):
@@ -2170,8 +2180,197 @@ class Odf_file():
                  proc.wait()
              except:
                  pass
-
 #
+#
+class Latex_file():
+     #
+     def __init__(self, doc_type="",titre="",file_name=""):
+         self.doc_type=doc_type
+         self.titre=titre
+         self.file_name=file_name
+         
+         if self.doc_type=='tableau_recap':
+             print "Création du tableau récapitulatif."
+             self.tableau_recap()
+         #
+         if self.doc_type=='analyse':
+             print "Création du document d'analyse."
+         #
+         if self.doc_type=='classement':
+             print "Création du tableau de classement."
+         #
+     def analyse (self):
+         pass
+     #
+     def classement (self):
+         pass
+     #
+     def tableau_recap (self):
+         en_tete=["COURS"]
+         for nom_cours in classe.liste_cours:
+             en_tete.append(nom_cours.replace(u'_',u'-').upper())
+         if classe.noel==True:
+             en_tete.append(u"Noël")
+         if classe.mars==True:
+             en_tete.append(u"Mars")
+         en_tete.append(u"Échecs")
+         en_tete.append(u"Moy.")
+         en_tete.append(u"Global")
+         str_en_tete=u"\\begin{tabularx}{28cm}{|p{2.3cm}|"
+         for nom in en_tete:
+             str_en_tete+=u"X|"
+         str_en_tete+=u"}"
+         
+         #
+         tab_file=[]
+         tab_file.append(u'\documentclass[12pt]{article}')
+         tab_file.append(u"\\usepackage[utf8]{inputenc}") #active la gestion des carac en utf-8
+         #tab_file.append(u"\\usepackage[frenchb]{babel}")#???
+         #tab_file.append(u"\\usepackage[T1]{fontenc}")
+         tab_file.append(u"\\usepackage[a4paper,margin=0.7cm,landscape]{geometry} ")
+         #tab_file.append(u"\\usepackage{array}") #améliore le rendu des tableaux
+         tab_file.append(u"\\usepackage{tabularx}")
+         tab_file.append(u"\\usepackage[table]{xcolor}") #gestion des couleurs dans le tableau
+         #tab_file.append(u"\\renewcommand{\\familydefault}{\sfdefault}") #utilisation d'une fonte sans serif
+         #tab_file.append(u"\\renewcommand \\arraystretch{2}") #hauteur des lignes dans le tableau
+         tab_file.append(u"\\definecolor{gris}{rgb}{0.82,0.82,0.82}") #définition des couleurs utilisées dans le document
+         tab_file.append(u"\\definecolor{gris_fonce}{rgb}{0.57,0.57,0.57}")
+         tab_file.append(u"\\definecolor{vert}{rgb}{0.03,0.5,0.1}")
+         tab_file.append(u"\\definecolor{orange}{rgb}{1,0.43,0}")
+         tab_file.append(u"\\definecolor{rouge}{rgb}{0.9,0,0}")
+         tab_file.append(u"\\begin{document}")
+         tab_file.append(u"\\sffamily")
+         tab_file.append(u"\\thispagestyle{empty} ") #pour éviter le numéro en bas de page
+         tab_file.append(u"\\begin{center} \large "+ self.titre +" \\end {center}") 
+         tab_file.append(u"\\tiny ") #pour diminuer la taille des caractères dans le tableau
+         tab_file.append(u"\\rowcolors{1}{}{gris}") #pour mettre une ligne sur deux en gris dans le tableau
+         tab_file.append(str_en_tete)
+         tab_file.append(u"\\hline")
+         tab_file.append((' & '.join(en_tete))+"\\\\[1.5em]")
+         tab_file.append(u"\\hline")
+         
+         for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
+             ligne=[]
+             ligne.append(u'\\tiny '+eleve[0:30])
+             #ligne.append()
+             for nom_cours in classe.liste_cours:
+                 #ce passage sert à afficher les pts de chim_1 et chim_2 sous le nom commun de chim
+                 # et de faire de même pour phys et bio, ceci n'est nécessaire qu'en 5° et 6°
+                 if nom_cours=='chim' :
+                     try: 
+                         classe.carnet_cotes[eleve].grille_horaire['chim_1'].points
+                         classe.carnet_cotes[eleve].grille_horaire['chim_2'].points
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_1'].points!=False:
+                             nom_cours='chim_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==4:
+                             nom_cours='chim_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
+                             nom_cours='chim_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
+                             nom_cours='chim_2'
+                         if nom_cours=='chim':
+                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en chimie 1 ni en chimie 2.</p></div>"%eleve)
+                     except KeyError :
+                         pass
+                 if nom_cours=='bio' :
+                     try: 
+                         classe.carnet_cotes[eleve].grille_horaire['bio_1'].points
+                         classe.carnet_cotes[eleve].grille_horaire['bio_2'].points
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_1'].points!=False:
+                             nom_cours='bio_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_1'].evaluation==4:
+                             nom_cours='bio_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
+                             nom_cours='bio_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_2'].points!=False:
+                             nom_cours='bio_2'
+                         if nom_cours=='bio':
+                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en bio 1 ni en bio 2.</p></div>"%eleve)
+                     except KeyError :
+                         pass
+                 if nom_cours=='phys' :
+                     try: 
+                         classe.carnet_cotes[eleve].grille_horaire['phys_1'].points
+                         classe.carnet_cotes[eleve].grille_horaire['phys_2'].points
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_1'].points!=False:
+                             nom_cours='phys_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_1'].evaluation==4:
+                             nom_cours='phys_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
+                             nom_cours='phys_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_2'].points!=False:
+                             nom_cours='phys_2'
+                         if nom_cours=='phys':
+                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en phys 1 ni en phys 2.</p></div>"%eleve)
+                     except KeyError :
+                         pass
+                 if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
+                     points=unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8')
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation!=False:
+                     points=unicode(classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation,'utf-8')
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].certif_med==True:
+                     points=u'cm'
+                 else:
+                     points=unicode('','utf-8')
+                     #print points, type(points)
+                 if classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==0:
+                     couleur=u'{{'
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==1:
+                     couleur=u'\\scriptsize \\centering \\textcolor{rouge} {\\underline{'
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==2:
+                     couleur=u'\\scriptsize \\centering \\textcolor{orange} {{'
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==3:
+                     couleur=u'\\scriptsize \\centering \\textcolor{vert} {{'
+                 elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==4:
+                     couleur=u'{{'
+                 ligne.append(couleur+points+u'}}')
+             if classe.noel==True:
+                 txt_noel=unicode(str(classe.carnet_cotes[eleve].noel),'utf-8')
+                 ligne.append(txt_noel)
+             #
+             if classe.mars==True:
+                 txt_mars=unicode(str(classe.carnet_cotes[eleve].mars),'utf-8')
+                 ligne.append(txt_mars)
+             #
+             txt_heures_echec=unicode(str(classe.carnet_cotes[eleve].heures_echec_tot),'utf-8')+unicode(' / ','utf-8')\
+                 +unicode(str(classe.carnet_cotes[eleve].vol_horaire_ccnc),'utf-8' )
+             ligne.append(u'\\scriptsize '+txt_heures_echec)
+                 #
+             txt=unicode(str(classe.carnet_cotes[eleve].moy_pond_ccnc ),'utf-8')
+             if classe.carnet_cotes[eleve].moy_pond_ccnc <50:
+                 cell=(u'\\scriptsize \\textcolor{rouge}{'+txt+'}')
+             elif classe.carnet_cotes[eleve].moy_pond_ccnc <60:
+                 cell=(u'\\scriptsize \\textcolor{orange}{'+txt+'}')
+             else:
+                 cell=(u'\\scriptsize \\textcolor{vert}{'+txt+'}')
+             ligne.append(cell)
+                 #
+             #cell_situation_globale=odf_create_cell()
+             if classe.carnet_cotes[eleve].situation_globale ==3:
+                 cell_situation_globale=u'\\cellcolor{vert}{}'
+             elif classe.carnet_cotes[eleve].situation_globale ==1:
+                 cell_situation_globale=u'\\cellcolor{rouge}{}'
+             elif classe.carnet_cotes[eleve].situation_globale ==2:
+                 cell_situation_globale=u'\\cellcolor{orange}{}'
+             elif classe.carnet_cotes[eleve].situation_globale ==4:
+                 cell_situation_globale=u'\\cellcolor{gris_fonce}{}'
+             ligne.append(cell_situation_globale)    
+             tab_file.append((' & '.join(ligne))+"\\\\ [1.5em]")
+             tab_file.append(u"\\hline")
+         
+         tab_file.append(u"\\end{tabularx}")
+         tab_file.append(u"\\end{document}")
+         
+         doc_name=self.file_name+'_tableau.tex'
+         doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver tableau récapitulatif',doc_name,"Document TEX (*.tex)"))
+         #self.document.save(target=doc_name, pretty=True)
+         gui.current_dir=os.path.dirname(doc_name)
+         f = open(doc_name,'w')
+         for ligne in tab_file:
+             f.write(ligne.encode('utf-8')+' \n')
+         f.close()
+         proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
+         proc.wait()
 #
 class Criteres(Classe):
      #
