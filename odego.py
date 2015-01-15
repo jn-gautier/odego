@@ -4,7 +4,7 @@
 from xml.dom.minidom import parse
 import locale
 import os
-from time import time, sleep
+import time
 from os import path
 from types import *
 from PyQt4.QtGui import *
@@ -31,54 +31,54 @@ class Gui(QMainWindow):
      def __init__(self):
          super(Gui, self).__init__()
          #self.initUI()
-         #self.file_to_open=QLineEdit(u"Sélectionnez le fichier.")
+         #self.file_to_open=QLineEdit("Sélectionnez le fichier.")
          self.tableau_valide=False
          
-         new_from_fileAction = QAction(QIcon('./icons/import_file.svg'),u"&Importer les points à partir d'un fichier", self)
+         new_from_fileAction = QAction(QIcon('./icons/import_file.svg'),"&Importer les points à partir d'un fichier", self)
          new_from_fileAction.setShortcut('Ctrl+I')
-         new_from_fileAction.setStatusTip(u"Importer les points directement à partir d'un fichier")
+         new_from_fileAction.setStatusTip("Importer les points directement à partir d'un fichier")
          new_from_fileAction.triggered.connect(self.select_file)
          
-         new_from_clipboardAction = QAction(QIcon('./icons/editpaste.png'),u"Importer les points à partir du &presse papier", self)
+         new_from_clipboardAction = QAction(QIcon('./icons/editpaste.png'),"Importer les points à partir du &presse papier", self)
          new_from_clipboardAction.setShortcut('Ctrl+V')
-         new_from_clipboardAction.setStatusTip(u"Importer les points à partir de données copiées depuis un fichier")
+         new_from_clipboardAction.setStatusTip("Importer les points à partir de données copiées depuis un fichier")
          new_from_clipboardAction.triggered.connect(self.import_clipboard)
          
-         new_from_downloadAction = QAction(QIcon('./icons/download_file.svg'),u"Télécharger les points à partir de Google Drive", self)
+         new_from_downloadAction = QAction(QIcon('./icons/download_file.svg'),"Télécharger les points à partir de Google Drive", self)
          new_from_downloadAction.setShortcut('Ctrl+D')
-         new_from_downloadAction.setStatusTip(u"Télécharger les points à partir de Google Drive")
+         new_from_downloadAction.setStatusTip("Télécharger les points à partir de Google Drive")
          new_from_downloadAction.triggered.connect(self.dialog_import_download)
          
-         StartAction = QAction(QIcon('./icons/ok_apply.svg'),u"Démarrer l'analyse", self)
+         StartAction = QAction(QIcon('./icons/ok_apply.svg'),"Démarrer l'analyse", self)
          StartAction.setShortcut('Ctrl+D')
-         StartAction.setStatusTip(u"Démarrer")
+         StartAction.setStatusTip("Démarrer")
          StartAction.triggered.connect(self.verif_avant_analyse)
          
          QuitAction = QAction(QIcon('./icons/quit.svg'),"Quitter", self)
          QuitAction.setShortcut('Ctrl+Q')
-         QuitAction.setStatusTip(u"Quitter")
+         QuitAction.setStatusTip("Quitter")
          QuitAction.triggered.connect(self.appExit)
          
-         HelpAction = QAction(QIcon('./icons/help.svg'),u"Obtenir de l'aide", self)
-         HelpAction.setStatusTip(u"Obtenir de l'aide concernant l'utilisation de ce logiciel")
+         HelpAction = QAction(QIcon('./icons/help.svg'),"Obtenir de l'aide", self)
+         HelpAction.setStatusTip("Obtenir de l'aide concernant l'utilisation de ce logiciel")
          HelpAction.triggered.connect(self.aide)
          
-         AboutAction = QAction(QIcon('./icons/odego.svg'),u"À propos", self)
-         AboutAction.setStatusTip(u"A propos de ce logiciel")
+         AboutAction = QAction(QIcon('./icons/odego.svg'),"À propos", self)
+         AboutAction.setStatusTip("A propos de ce logiciel")
          AboutAction.triggered.connect(self.about)
          
          menubar = self.menuBar()
          
-         fileMenu = menubar.addMenu(u'&Application')
+         fileMenu = menubar.addMenu("&Application")
          fileMenu.addAction(StartAction)
          fileMenu.addAction(QuitAction)
          
-         fileMenu = menubar.addMenu(u'&Importer')
+         fileMenu = menubar.addMenu("&Importer")
          fileMenu.addAction(new_from_fileAction)
          fileMenu.addAction(new_from_clipboardAction)
          fileMenu.addAction(new_from_downloadAction)
          
-         fileMenu = menubar.addMenu('&Aide')
+         fileMenu = menubar.addMenu("&Aide")
          fileMenu.addAction(HelpAction)
          fileMenu.addAction(AboutAction)
          
@@ -99,7 +99,7 @@ class Gui(QMainWindow):
          niveau=['','1', '2', '3', '4', '5', '6']
          classes=['','_','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
          sections=['','GT','TQ']
-         delibe=[u'Noel',u'Mars',u'Juin',u'Sept.']
+         delibe=['Noel','Mars','Juin','Sept.']
          now=date.today()
          annees=[str(now.year-2),str(now.year-1),str(now.year),str(now.year+1),str(now.year+2)]
          #
@@ -119,10 +119,10 @@ class Gui(QMainWindow):
          self.combo_annees=QComboBox()
          self.combo_annees.addItems(annees)
          #
-         grid.addWidget(QLabel( u"Niveau :" ),1,0)
-         grid.addWidget(QLabel( u"Classe :" ),2,0)
-         grid.addWidget(QLabel( u"Section :" ),3,0)
-         grid.addWidget(QLabel( u"Période :" ),4,0)
+         grid.addWidget(QLabel( "Niveau :" ),1,0)
+         grid.addWidget(QLabel( "Classe :" ),2,0)
+         grid.addWidget(QLabel( "Section :" ),3,0)
+         grid.addWidget(QLabel( "Période :" ),4,0)
          #
          grid.addWidget(self.combo_niveau,1,1)
          grid.addWidget(self.combo_classes,2,1)
@@ -141,12 +141,12 @@ class Gui(QMainWindow):
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          #
-         self.radio_tab_recap=QCheckBox(u"Tableau récapitulatif")
-         self.radio_tab_recap.setToolTip (u'<p>Produire un tableau récapitulatif "classique" avec la sitation globale, la moyenne pondérée et le nombre d\' heures d\'échec.</p>')
-         self.radio_ana_det=QCheckBox(u"Analyse detaillée")
-         self.radio_ana_det.setToolTip ((u'<p>Produire un fichier présentant pour chaque élève les détails de ses résultats et les raisons d\' un éventuel échec.</p>'))
+         self.radio_tab_recap=QCheckBox("Tableau récapitulatif")
+         self.radio_tab_recap.setToolTip ('<p>Produire un tableau récapitulatif "classique" avec la sitation globale, la moyenne pondérée et le nombre d\' heures d\'échec.</p>')
+         self.radio_ana_det=QCheckBox("Analyse detaillée")
+         self.radio_ana_det.setToolTip (('<p>Produire un fichier présentant pour chaque élève les détails de ses résultats et les raisons d\' un éventuel échec.</p>'))
          self.radio_classmt=QCheckBox("Classement")
-         self.radio_classmt.setToolTip ((u'<p>Produire un tableau avec le classement des élèves en fonction de leur moyenne pondérée.</p>'))
+         self.radio_classmt.setToolTip (('<p>Produire un tableau avec le classement des élèves en fonction de leur moyenne pondérée.</p>'))
          #
          v_layout=QVBoxLayout()
          v_layout.addWidget(self.radio_tab_recap)
@@ -166,7 +166,7 @@ class Gui(QMainWindow):
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          #
-         self.boutton_ok=QPushButton(QIcon('./icons/ok_apply.svg'),u'Démarrer')
+         self.boutton_ok=QPushButton(QIcon('./icons/ok_apply.svg'),'Démarrer')
          self.boutton_ok.setMinimumHeight(40)
          self.connect(self.boutton_ok, SIGNAL("clicked()"),self.verif_avant_analyse)
          
@@ -177,7 +177,7 @@ class Gui(QMainWindow):
          logDockWidget.setMaximumWidth(200)
          self.addDockWidget(Qt.LeftDockWidgetArea,logDockWidget)
          
-         self.setWindowTitle(u'Odego : un guide pour les délibérations')
+         self.setWindowTitle('Odego : un guide pour les délibérations')
          self.combo_annees.setCurrentIndex(2)
          if now.month in [10,11,12,1]:
              self.combo_delib.setCurrentIndex(0)
@@ -286,37 +286,24 @@ class Gui(QMainWindow):
          print ('Hello World')
      #
      def aide(self):
-         message=u''
-         message+=u"<div><p>Pour obtenir de l'aide conçernant l'emploi de ce logiciel "
-         message+=u"vous pouvez contacter J.N. Gautier par téléphone à n'importe quelle heure "
-         message+=u"décente.</p>"
-         message+=u"<p>J.N. Gautier : <b>0494/84.14.59</b></p></div>"
-         message+=u"<p>Ce service vous coûtera généralement un café.</p>"
-         message+=u"<p>En cas d'utilisation du service d'aide en dehors des heures prévues, vous me serez redevable d'un bon sandiwch pendant les délibés.</p>"
-         message+=u"</div>"
+         message=''
+         message+="<div><p>Pour obtenir de l'aide conçernant l'emploi de ce logiciel "
+         message+="vous pouvez contacter J.N. Gautier par téléphone à n'importe quelle heure "
+         message+="décente.</p>"
+         message+="<p>J.N. Gautier : <b>0494/84.14.59</b></p></div>"
+         message+="<p>Ce service vous coûtera généralement un café.</p>"
+         message+="<p>En cas d'utilisation du service d'aide en dehors des heures prévues, vous me serez redevable d'un bon sandiwch pendant les délibés.</p>"
+         message+="</div>"
          QMessageBox.information(self,'Aide',message)
      #
      def about(self):
-         message=u'<div><p><b>Odego</b>, inspiré du grec <i>οδηγω : "je guide"</i>, est un outil '
-         message+=u"d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p>Les fichiers sont produits aux formats tex et pdf.</p><p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
-         message+=u'href="mailto:gautier.sciences@gmail.com">gautier.sciences@gmail.com</a></p></div>'
+         message='<div><p><b>Odego</b>, inspiré du grec <i>οδηγω : "je guide"</i>, est un outil '
+         message+="d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p>Les fichiers sont produits aux formats tex et pdf.</p><p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
+         message+='href="mailto:gautier.sciences@gmail.com">gautier.sciences@gmail.com</a></p></div>'
          QMessageBox.about(self,"A propos d'odego",message)
          #self.dial_about=QTextBrowser()
          #self.dial_about.append(message)
          #self.dial_about.show()
-     #
-     def progress(self):
-         self.prog=QProgressDialog()
-         #prog.setTitle('Hello')
-         #prog.setGeometry(30, 40, 200, 25)
-         self.prog.setWindowFlags(Qt.SplashScreen)
-         self.prog.setCancelButtonText (())
-         self.prog.setLabelText (())
-         for i in range (101):
-             prog.setValue(i)
-             prog.show()
-             QApplication.processEvents()
-             sleep(0.02)
      #
      def appExit(self):
          print ("Au revoir!")
@@ -328,79 +315,26 @@ class Gui(QMainWindow):
          self.get_file_ext()
          classe.__init__()
          # je réinitialise la classe au cas ou l'utilisateur tente d'importer un fichier de points alors que cela a déjà été fait
-         if self.ext=='ods':
-             self.import_ods()
-         elif self.ext=='xls':
-             self.import_xls()
-         elif self.ext=='xlsx':
-             self.import_xls()
-         elif self.ext=='txt':
+         #if self.ext=='ods':
+             #self.import_ods()
+         #elif self.ext=='xls':
+             #self.import_xls()
+         #elif self.ext=='xlsx':
+             #self.import_xls()
+         if self.ext=='txt':
              self.import_txt()
          elif self.ext=='tsv':
              self.import_txt()
          else:
-             QMessageBox.warning(self,'Erreur',u"Veuillez renseigner un fichier avec l'extension 'ods', 'xls', 'xlsx', 'txt' ou 'tsv'.")
+             QMessageBox.warning(self,'Erreur',"Veuillez renseigner un fichier avec l'extension 'txt' ou 'tsv'.")
      #
      def get_file_ext(self):
          ext=self.file_name.split('.')
          self.ext=ext[len(ext)-1]
      #
-     def import_ods(self):
-         try:
-             doc = odf_get_document(str(self.file_name))
-             body=doc.get_body()
-             table=body.get_tables()[0]
-             table.rstrip()
-             self.tableau_points=[]
-             #
-             for ligne in table.get_rows():
-                 liste_ligne_points=ligne.get_values()
-                 ligne_points=[]
-                 for elem in liste_ligne_points:
-                     if (elem==None) or (elem=='') or (elem=='None'):
-                         elem=False
-                     #if (type (elem) is not unicode) & (elem!=False):
-                         #elem=unicode(str(elem),'utf-8')
-                     
-                     ligne_points.append(elem)
-                 if ligne_points[0]!=False: #on encode la ligne uniquement si la première cellule contient quelque chose
-                     self.tableau_points.append(ligne_points)
-             self.fct_carnet_cote(self.tableau_points)
-         except Exception as e:
-             message=message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
-             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
-             QMessageBox.critical(self,'Echec',message)
-             print ('Erreur : %s' % e)
-             print ('Message : ', traceback.format_exc())
-     #
-     def import_xls(self):
-         import xlrd
-         try:
-             workbook = xlrd.open_workbook(str(self.file_name))
-             worksheet = workbook.sheet_by_index(0)
-             #
-             self.tableau_points=[]
-             #
-             for rownum in range(worksheet.nrows):
-                 liste_ligne_points=worksheet.row_values(rownum)
-                 ligne_points=[]
-                 for elem in liste_ligne_points:
-                     if (elem==None) or (elem=='') or (elem=='None'):
-                         elem=False
-                     #if (type (elem) is not unicode) & (elem!=False):
-                         #elem=unicode(str(elem),'utf-8')
-                         
-                     ligne_points.append(elem)
-                 self.tableau_points.append(ligne_points)
-             self.fct_carnet_cote(self.tableau_points)
-         except Exception as e:
-             message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
-             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
-             QMessageBox.critical(self,'Echec',message)
-     #
      def import_txt(self):
          try:
-             QMessageBox.information(self,'Information',u"<p>L'importation depuis un fichier txt ou tsv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
+             QMessageBox.information(self,'Information',"<p>L'importation depuis un fichier txt ou tsv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
              myfile= open(self.file_name, "r")
              self.tableau_points=[]
              for ligne in myfile:
@@ -415,8 +349,8 @@ class Gui(QMainWindow):
                  self.tableau_points.append(ligne_points)
              self.fct_carnet_cote(self.tableau_points)
          except Exception as e:
-             message=u"<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
-             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             message="<p>Un problème majeur a été rencontré lors de l'importation du fichier.</p>"
+             message+='<p>Veuillez signaler cette erreur au développeur.</p></div>'
              QMessageBox.critical(self,'Echec',message)
              print ('Erreur : %s' % e)
              print ('Message : ', traceback.format_exc())
@@ -484,9 +418,9 @@ class Gui(QMainWindow):
              #os.makedirs(directory)
          if classe in ('4A','4B','4C','5A','5B','5C','6A','6B','6C'):
              
-             email,ok = QInputDialog.getText(self,u"Adresse courielle", u'Indiquez votre adresse mail')
+             email,ok = QInputDialog.getText(self,"Adresse courielle", 'Indiquez votre adresse mail')
              email=str(email)
-             password,ok = QInputDialog.getText(self, u"Mot de passe", u'Indiquez votre login',QLineEdit.Password)
+             password,ok = QInputDialog.getText(self, "Mot de passe", 'Indiquez votre login',QLineEdit.Password)
              password=str(password)
              spreadsheet_id =spread_id# (spreadsheet id here)
              worksheet_id=0
@@ -514,9 +448,6 @@ class Gui(QMainWindow):
              print (ligne_points)
              self.tableau_points.append(ligne_points)
          self.fct_carnet_cote(self.tableau_points)
-
-
-     
      #
      def fct_carnet_cote(self,tableau_points):
          try:
@@ -533,7 +464,7 @@ class Gui(QMainWindow):
              if ligne_cours==False:
                  raise ExceptionPasCours
          except ExceptionPasCours :
-             QMessageBox.critical(self,'Echec',u"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
+             QMessageBox.critical(self,'Echec',"<p>Il n'y a pas de ligne avec les cours dans votre fichier</p> <p>ou celle-ci n'est pas indiquée par le mot 'Cours'</p>")
          ##
          try:
              for ligne_points in tableau_points:
@@ -572,8 +503,8 @@ class Gui(QMainWindow):
                          print (eleve.nom , cours, points_eleve)
                      classe.carnet_cotes[eleve.nom]=eleve
          except Exception as e:
-             message=u"<p>Un problème majeur a été rencontré lors de la création du modèle de tableau.</p>"
-             message+=u'<p>Veuillez signaler cette erreur au développeur.</p></div>'
+             message="<p>Un problème majeur a été rencontré lors de la création du modèle de tableau.</p>"
+             message+='<p>Veuillez signaler cette erreur au développeur.</p></div>'
              QMessageBox.critical(self,'Echec',message)
              print ('Erreur : %s' % e)
              print ('Message : ', traceback.format_exc())
@@ -619,12 +550,9 @@ class Gui(QMainWindow):
                      if nom_cours in classe.carnet_cotes[eleve].grille_horaire.keys():
                          points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].points
                          appreciation=classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation
-                         #item= unicode(str(classe.carnet_cotes[eleve].grille_horaire[nom_cours].points),'utf-8'))
                          if points!=False:
-                             #item= unicode(str(points),'utf-8')
                              item= str(points)
                          elif appreciation!=False:
-                             #item= unicode(str(appreciation),'utf-8')
                              item= str(appreciation)
                          else:
                              item= ''
@@ -637,44 +565,43 @@ class Gui(QMainWindow):
          labels=classe.liste_cours
          self.table.setHorizontalHeaderLabels(labels)
          labels=sorted(classe.liste_eleves,key=cmp_to_key(compfr))
-         #labels=labels
          self.table.setVerticalHeaderLabels(labels)
          self.setCentralWidget(self.table)
          self.showMaximized()
      
      def verif_avant_analyse(self):
          verif_param=True
-         alert=u"<div><p> Veuillez renseigner :</p> <ul>"
+         alert="<div><p> Veuillez renseigner :</p> <ul>"
          if self.combo_niveau.currentText()=='':
              verif_param=False
-             alert+=u'<li>Le <b> niveau </b> de la classe.</li>'
+             alert+='<li>Le <b> niveau </b> de la classe.</li>'
          
          if self.combo_section.currentText()=='':
              verif_param=False
-             alert+=u'<li>La <b> section </b> de la classe.</li>'
+             alert+='<li>La <b> section </b> de la classe.</li>'
          if self.combo_classes.currentText()=='':
              verif_param=False
-             alert+=u'<li>Le <b> nom </b> de la classe.</li>'
+             alert+='<li>Le <b> nom </b> de la classe.</li>'
          
          if verif_param==False:
-             alert+=u'</ul> </div>'
+             alert+='</ul> </div>'
              QMessageBox.warning(self,'Informations manquantes',alert)
          
          if (self.radio_tab_recap.isChecked()==False) & (self.radio_ana_det.isChecked()==False) & (self.radio_classmt.isChecked()==False):
-             message=u"<div><p>Aucune analyse n'a été demandée pour cette classe.</p>"
-             message+=u"<p>N'oubliez pas de cocher les analyses souhaitées <b>avant de pousser sur démarrage</b>.</p> </div>"
-             QMessageBox.information(self,u"Aucune analyse demandée",message)
+             message="<div><p>Aucune analyse n'a été demandée pour cette classe.</p>"
+             message+="<p>N'oubliez pas de cocher les analyses souhaitées <b>avant de pousser sur démarrage</b>.</p> </div>"
+             QMessageBox.information(self,"Aucune analyse demandée",message)
          
          if self.tableau_valide==False:
-             alert=u"<div><p>Aucun point n'a encore été importé.</p>"
-             alert+=u"<p> Veuillez importer des points <b>avant de pousser sur démarrage</b>.</p> </div>"
+             alert="<div><p>Aucun point n'a encore été importé.</p>"
+             alert+="<p> Veuillez importer des points <b>avant de pousser sur démarrage</b>.</p> </div>"
              QMessageBox.warning(self,'Points manquants',alert)
          if (self.tableau_valide==True) & (verif_param==True):
              self.pre_traitement()
          
      #
      def pre_traitement(self):
-         print (u"Pré-traitement des données")
+         print ("Pré-traitement des données")
          #self.fichier_a_traiter=self.fname
          self.creer_tableau_recap=self.radio_tab_recap.isChecked()
          self.creer_analyse_eleve=self.radio_ana_det.isChecked()
@@ -692,7 +619,7 @@ class Gui(QMainWindow):
              classe.set_param(self.niveau,self.section,self.delibe)
              classe.update_liste_cours()
          except Exception as e:
-             QMessageBox.warning(self,'Erreur',u"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
+             QMessageBox.warning(self,'Erreur',"<div><p> Un problème a été rencontré lors du traitement de votre fichier</p>\
              <ul><li>Vérifiez que le fichier sélectionné contienne bien des <b>points</b>.</li>\
              <li>Vérifiez que le fichier sélectionné contienne bien le <b>nom des cours</b>.</li>\
              <li>Vérifiez que vous avez sélectionné la bonne <b>classe </b>et la bonne <b>section </b>dans le menu d'acceuil.</li></ul>\
@@ -704,7 +631,7 @@ class Gui(QMainWindow):
              classe.prod_situation_globale()
              #classe.prod_liste_eleves()
          except Exception as e:
-             QMessageBox.critical(self,u'Echec',u"Une erreur a été rencontrée dans l'analyse des points")
+             QMessageBox.critical(self,'Echec',"Une erreur a été rencontrée dans l'analyse des points")
              print ('Erreur : %s' % e)
              print ('Message : ', traceback.format_exc() )
          try:
@@ -716,15 +643,11 @@ class Gui(QMainWindow):
                  tableau=Latex_file(doc_type="tableau_recap",titre=self.titre,file_name=self.file2save)
                  del tableau
              if self.creer_classement==True:
-                 tableau=Odf_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
-                 tableau.classement()
+                 tableau=Latex_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
                  del tableau
-                 #tableau=Latex_file(doc_type="classement",titre=self.titre,file_name=self.file2save)
-                 #tableau.classement()
-                 #del tableau
-             QMessageBox.information(self,u'Terminé',u"Les données ont été traitées avec succès!")
+             QMessageBox.information(self,'Terminé',"Les données ont été traitées avec succès!")
          except Exception as e:
-             QMessageBox.warning(self,u'Erreur',u"Un ou plusieurs documents demandés n'ont pas été produits")
+             QMessageBox.warning(self,'Erreur',"Un ou plusieurs documents demandés n'ont pas été produits")
              print ('Erreur : %s' % e)
              print ('Message : ', traceback.format_exc() )
      #
@@ -745,14 +668,9 @@ class Compfr(object):
      # Solution prise sur : http://python.jpvweb.com/mesrecettespython/doku.php?id=tris_dictionnaire_francais
      def __init__(self):
          locale.setlocale(locale.LC_ALL, '')
-         self.espinsec = u'\xA0' # espace insécable
+         self.espinsec = '\xA0' # espace insécable
      #
      def __call__(self, v1, v2):
-         # on convertit en unicode si nécessaire
-         #if isinstance(v1, str):
-             #v1 = v1.decode(self.decod)
-         #if isinstance(v2, str):
-             #v2 = v2.decode(self.decod)
          # on retire les tirets, les blancs insécables et les apostrophes
          v1 = v1.replace('-','')
          v1 = v1.replace(self.espinsec,'')
@@ -805,8 +723,6 @@ class Classe(object):
                      setattr(cours, carac, int(node_cours.find(carac).text))
                  for carac in liste_carac_str:
                      valeure=node_cours.find(carac).text
-                     #if type(valeure) is not unicode:
-                         #valeure=unicode(valeure,'utf-8')
                      setattr(cours, carac, valeure)
                  # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
                  for eleve in self.carnet_cotes.values():
@@ -820,9 +736,9 @@ class Classe(object):
                      else:
                          eleve.grille_horaire[cours.abr.lower()]=cours
                      
-             print (u"Création d'une classe de", self.niv_sec)
+             print ("Création d'une classe de", self.niv_sec)
          except Exception as e:
-             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des cours.")
+             QMessageBox.critical(gui,'Echec',"Erreur dans la lecture du fichier de description des cours.")
              print ('Erreur dans la lecture du fichier de description des cours')
              print ('Erreur : %s' % e)
              print (traceback.format_exc())
@@ -836,7 +752,7 @@ class Classe(object):
              for node_critere in tree_niveau:
                  setattr(self.criteres, node_critere.tag,int(node_critere.text))
          except Exception as e:
-             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier de description des critères.")
+             QMessageBox.critical(gui,'Echec',"Erreur dans la lecture du fichier de description des critères.")
              print ('Erreur dans la lecture du fichier de description des critères.')
              print ('Erreur : %s' % e)
              print (traceback.format_exc())
@@ -853,7 +769,7 @@ class Classe(object):
                  self.analyses[analyse.tag]=bool(int(analyse.text))
                  
          except Exception as e:
-             QMessageBox.critical(gui,u'Echec',u"Erreur dans la lecture du fichier des analyses à effectuer.")
+             QMessageBox.critical(gui,'Echec',"Erreur dans la lecture du fichier des analyses à effectuer.")
              print ('Erreur dans la lecture du fichier des analyses à effectuer.')
              print ('Erreur : %s' % e)
              print (traceback.format_exc())
@@ -974,9 +890,9 @@ class Classe(object):
                  #ils se retrouvent sous le nom de 'chim', 'phys', ... afin de les placer dans la même colonne du tableau récapitulatif
                  
                  if (cours not in self.liste_cours) & (eleve.grille_horaire[cours].points!=False):
-                     if (cours=='chim_1') or (cours=='chim_2'): cours=u'chim'
-                     if (cours=='phys_1') or (cours=='phys_2'): cours=u'phys'
-                     if (cours=='bio_1') or (cours=='bio_2'): cours=u'bio'
+                     if (cours=='chim_1') or (cours=='chim_2'): cours='chim'
+                     if (cours=='phys_1') or (cours=='phys_2'): cours='phys'
+                     if (cours=='bio_1') or (cours=='bio_2'): cours='bio'
                      if cours not in self.liste_cours:
                          self.liste_cours.append(cours)
          self.liste_cours=sorted(self.liste_cours, key=lambda cours : liste_cours_annee.index(cours))
@@ -1023,7 +939,7 @@ class Eleve(Classe):
          for cours in self.grille_horaire.values():
              if cours.points!=False:
                  if cours.points>100:
-                     QMessageBox.warning(gui,u'Erreur',u"<div><p>L'élève %s a une cote supérieure à 100.</p> <p> %s : %s</p></div>"%(self.nom,cours.intitule,cours.points) )
+                     QMessageBox.warning(gui,'Erreur',"<div><p>L'élève %s a une cote supérieure à 100.</p> <p> %s : %s</p></div>"%(self.nom,cours.intitule,cours.points) )
      #
      def fct_dispense(self):
          for cours in self.grille_horaire.values():
@@ -1262,7 +1178,6 @@ class Eleve(Classe):
              self.age=age.days/365.2425
      #    
      def fct_sciences6 (self):
-         #en retirant sc_3 et sc_6 du tableau des points, les objets curs ne sont plus créés dans la grille horoire des élèves, je devrais donc créer les cours de sc_3 et sc_6 dans la fct_sciences6 et les initialiser correctement.
          sc_3=False
          sc_6=False
          if self.grille_horaire['phys_2'].points!=False:
@@ -1278,9 +1193,9 @@ class Eleve(Classe):
          if self.grille_horaire['bio_1'].points!=False:
              sc_3=True
          if (sc_6==True) & (sc_3==True):
-             QMessageBox.warning(gui,u'Erreur',u"L'élève %s a des points en sciences 6 et en sciences 3."%self.nom) 
+             QMessageBox.warning(gui,'Erreur',"L'élève %s a des points en sciences 6 et en sciences 3."%self.nom) 
          if (sc_6==False) & (sc_3==False):
-             QMessageBox.warning(gui,u'Erreur',u"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
+             QMessageBox.warning(gui,'Erreur',"L'élève %s n'a de points ni en sciences 6 ni en sciences 3."%self.nom) 
          if (sc_6==True) & (sc_3==False):
              nb_echecs=0
              nb_echecs_inf45=0
@@ -1437,8 +1352,6 @@ class Cours(Eleve):
              points=points.replace(',','.')
              points=NettoiePoints(points).points# rappel: la fonction nettoie_point converti également les points en float
              self.points=points
-             #if points>100:
-                 #QMessageBox.warning(gui,'Erreur',u"<div><p> Il y a une valeur su.</p></div>")
              if points<50:
                  self.evaluation=1
              elif (points>=50) & (points<60) & (self.echec_force==False):
@@ -1446,95 +1359,6 @@ class Cours(Eleve):
              elif (points>=60) & (self.echec_force==False):
                  self.evaluation=3
              else:
-                 pass
-#
-#
-class Odf_file():
-     """Cet objet permet de gérer tout ce qui concerne la production des documents odf : analyse détaillée, tableau récapitulatif et classement des élèves."""
-     
-     #
-     def analyse_eleve(self):
-        
-             #
-             
-             #
-             if (eleve.liste_echec_contrat )!="":
-                 table=self.creer_ligne_3cell(table,"Echec sur contrat",eleve.liste_echec_contrat )
-             #
-             if (eleve.pia )!=False:
-                 table=self.creer_ligne_3cell(table,"Remarque","L'élève dispose d'un PIA" )
-             if (eleve.ctg )!=False:
-                 table=self.creer_ligne_3cell(table,"Remarque","L'élève dispose d'un contrat de travail global" )
-             #
-             if (eleve.liste_echec_travail )!="":
-                 table=self.creer_ligne_3cell(table,"Envisager contrat",eleve.liste_echec_travail )
-             #
-             if eleve.liste_certif_med != '':
-                 table=self.creer_ligne_3cell(table,"Certificat médical", eleve.liste_certif_med)
-             #
-             if (eleve.liste_oubli_cours )!="":
-                 table=self.creer_ligne_3cell(table,"Remarque", 'Pas de points en '+eleve.liste_oubli_cours )
-             #
-             #if (eleve.credit_pond_inf_50 )!="":
-                 #table=creer_ligne_3cell(table,"Echec pondéré", str(eleve.credit_pond_inf_50 ))
-             #
-             self.body.append(odf_create_paragraph())
-             self.body.append(table)
-         #
-         
-     #
-     #
-     def classement(self): #travailler avec des tuples, créer les tuples puis imprimer en fonction d'un classement selon la moy_pond; les tuples doivent être rangé dans une liste 
-         classement_moy_pond=[]
-         for eleve in classe.carnet_cotes.values():
-             tuple_moy_nom=(eleve.moy_pond_ccnc,eleve.nom)
-             classement_moy_pond.append(tuple_moy_nom)
-         classement_moy_pond=sorted(classement_moy_pond)
-         table=odf_create_table(name='classement',style="ma_table_portrait")
-         
-         ligne=odf_create_row(style='style_ligne')
-         cell=odf_create_cell(u'Nom',style='noms')
-         ligne.append(cell)
-         cell=odf_create_cell(u'Moyenne pondérée',style='noms')
-         ligne.append(cell)
-         table.append(ligne)
-         
-         for eleve in classement_moy_pond:
-             ligne=odf_create_row(style='style_ligne')
-             cell=odf_create_cell(eleve[1],style='noms')
-             ligne.append(cell)
-             cell=odf_create_cell(unicode(str(eleve[0]),'utf-8'),style='noms')
-             ligne.append(cell)
-             table.append(ligne)
-         
-         #mise en forme de la table
-         col_style = odf_create_style('table-column', width='4cm')
-         name = self.document.insert_style(style=col_style, automatic=True)
-         for column in table.get_columns():
-             column.set_style(col_style)
-             table.set_column(column.x, column)
-         #fin mise en forme de la table
-         
-         self.body.append(table)
-         doc_name=self.file_name+'_classement.ods'
-         doc_name=unicode(QFileDialog.getSaveFileName(gui,'Sauver tableau classement',doc_name,"Classeur OpenDocument (*.ods)"))
-         self.document.save(target=doc_name, pretty=True)
-         gui.current_dir=os.path.dirname(doc_name)
-         if platform.system()=='Linux':
-             try:
-                 QApplication.processEvents()
-                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
-                 proc.wait()
-                 proc=subprocess.Popen(['libreoffice','--headless','--convert-to','xlsx',doc_name,'--outdir',gui.current_dir])
-                 proc.wait()
-             except:
-                 pass
-         if platform.system()=='Windows':
-             try:
-                 QApplication.processEvents()
-                 proc=subprocess.Popen(['C:\Program Files\LibreOffice 4\program\soffice.exe','--invisible','--convert-to','pdf',doc_name,'--outdir',gui.current_dir])
-                 proc.wait()
-             except:
                  pass
 #
 #
@@ -1555,6 +1379,7 @@ class Latex_file():
          #
          if self.doc_type=='classement':
              print ("Création du tableau de classement.")
+             self.classement()
      #
      def ligne_3cell (self, titre, valeur, couleur):
          if (couleur=='vert') or (couleur=='orange'):
@@ -1589,7 +1414,6 @@ class Latex_file():
          list_file.append("\\sffamily")
          list_file.append("\\setlength{\\tabcolsep}{0pt}")
          list_file.append("\\begin{center} \huge "+ self.titre +" \\end {center}") 
-         #list_file.append(u"\\tiny ") #pour diminuer la taille des caractères dans le tableau
          for nom_eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
              eleve=classe.carnet_cotes[nom_eleve]
              list_tab_elv=[]
@@ -1692,70 +1516,135 @@ class Latex_file():
                  list_file.append("\\hline")
              list_file.append("\\end {tabular}")
              list_file.append("\\vspace{0.5cm}")
-         
          list_file.append("\\end{document}")
-         f = open('essai.tex','w')
+         doc_name=self.file_name+'_analyse.tex'
+         doc_name=QFileDialog.getSaveFileName(gui,"Sauver document d'analyse",doc_name,"Document TEX (*.tex)")
+         #self.document.save(target=doc_name, pretty=True)
+         gui.current_dir=os.path.dirname(doc_name)
+         f = open(doc_name,'w')
          for elem in list_file:
              ligne=elem.replace('_','~')
              ligne=ligne.replace('=>','$ \\Rightarrow $')
              f.write(ligne+' \n')
          f.close()
+         if platform.system()=='Linux':
+             try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (str())
+                 prog.setLabelText ('Analyse => pdf')
+                 for i in range(50):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
+                     #time.sleep(0.1)
+                 proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
+                 proc.wait()
+                 for i in range(51):
+                     prog.setValue(50+i)
+                     prog.show()
+                     QApplication.processEvents()
+                     #time.sleep(0.1)
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.aux')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.log')
+             except Exception as e:
+                 QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
+                 print ('Erreur : %s' % e)
+                 print (traceback.format_exc())
+         if platform.system()=='Windows':
+             try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (str())
+                 prog.setLabelText ('Analyse => pdf')
+                 for i in range(50):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
+                     #time.sleep(0.1)
+                 proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
+                 proc.wait()
+                 for i in range(51):
+                     prog.setValue(50+i)
+                     prog.show()
+                     QApplication.processEvents()
+                     #time.sleep(0.1)
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.aux')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.log')
+             except Exception as e:
+                 QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
+                 print ('Erreur : %s' % e)
+                 print (traceback.format_exc())
+         
      #
      def classement (self):
-         pass
+         classement_moy_pond=[]
+         for eleve in classe.carnet_cotes.values():
+             tuple_moy_nom=(eleve.moy_pond_ccnc,eleve.nom)
+             classement_moy_pond.append(tuple_moy_nom)
+         classement_moy_pond=sorted(classement_moy_pond)
+         doc_name=self.file_name+'_classement.tsv'
+         doc_name=QFileDialog.getSaveFileName(gui,"Sauver classement",doc_name,"Document TSV (*.tsv)")
+         gui.current_dir=os.path.dirname(doc_name)
+         f = open(doc_name,'w')
+         f.write('Nom \t Moyenne')
+         for eleve in classement_moy_pond:
+             f.write(eleve[1]+'\t'+str(eleve[0]))
+             f.write('\n')
+         f.close()
      #
      def tableau_recap (self):
          list_file=[]
-         list_file.append(u'\documentclass[12pt]{article}')
-         list_file.append(u"\\usepackage[utf8]{inputenc}") #active la gestion des carac en utf-8
-         list_file.append(u"\\usepackage[a4paper,margin=1cm,landscape]{geometry} ")
-         list_file.append(u"\\usepackage{array}") #améliore le rendu des tableaux
-         list_file.append(u"\\usepackage[frenchb]{babel}")
-         #list_file.append(u"\\usepackage[T1]{fontenc}")
-         list_file.append(u"\\usepackage[table]{xcolor}") #gestion des couleurs dans le tableau
-         list_file.append(u"\\definecolor{gris}{rgb}{0.82,0.82,0.82}") #définition des couleurs utilisées dans le document
-         list_file.append(u"\\definecolor{gris_fonce}{rgb}{0.57,0.57,0.57}")
-         list_file.append(u"\\definecolor{vert}{rgb}{0.03,0.5,0.1}")
-         list_file.append(u"\\definecolor{orange}{rgb}{1,0.43,0}")
-         list_file.append(u"\\definecolor{rouge}{rgb}{0.9,0,0}")
-         list_file.append(u"\\begin{document}")
-         list_file.append(u"\\sffamily")
-         list_file.append(u"\\thispagestyle{empty} ") #pour éviter le numéro en bas de page
-         list_file.append(u"\\begin{center} \large "+ self.titre +" \\end {center}") 
-         list_file.append(u"\\tiny ") #pour diminuer la taille des caractères dans le tableau
-         list_file.append(u"\\rowcolors{1}{}{gris}") #pour mettre une ligne sur deux en gris dans le tableau
-         list_file.append(u"\\setlength{\\tabcolsep}{0pt}")
+         list_file.append("\documentclass[12pt]{article}")
+         list_file.append("\\usepackage[utf8]{inputenc}") #active la gestion des carac en utf-8
+         list_file.append("\\usepackage[a4paper,margin=1cm,landscape]{geometry} ")
+         list_file.append("\\usepackage{array}") #améliore le rendu des tableaux
+         list_file.append("\\usepackage[frenchb]{babel}")
+         #list_file.append("\\usepackage[T1]{fontenc}")
+         list_file.append("\\usepackage[table]{xcolor}") #gestion des couleurs dans le tableau
+         list_file.append("\\definecolor{gris}{rgb}{0.82,0.82,0.82}") #définition des couleurs utilisées dans le document
+         list_file.append("\\definecolor{gris_fonce}{rgb}{0.57,0.57,0.57}")
+         list_file.append("\\definecolor{vert}{rgb}{0.03,0.5,0.1}")
+         list_file.append("\\definecolor{orange}{rgb}{1,0.43,0}")
+         list_file.append("\\definecolor{rouge}{rgb}{0.9,0,0}")
+         list_file.append("\\begin{document}")
+         list_file.append("\\sffamily")
+         list_file.append("\\thispagestyle{empty} ") #pour éviter le numéro en bas de page
+         list_file.append("\\begin{center} \large "+ self.titre +" \\end {center}") 
+         list_file.append("\\tiny ") #pour diminuer la taille des caractères dans le tableau
+         list_file.append("\\rowcolors{1}{}{gris}") #pour mettre une ligne sur deux en gris dans le tableau
+         list_file.append("\\setlength{\\tabcolsep}{0pt}")
          #
          en_tete=["COURS"]
          for nom_cours in classe.liste_cours:
              en_tete.append(nom_cours.replace('_','~').upper())#les carac "_" posent problème lors de la compilation des fichiers tex, je les remplace par un espace insecable en latex 
          if classe.noel==True:
-             en_tete.append(u"Noël")
+             en_tete.append("Noël")
          if classe.mars==True:
-             en_tete.append(u"Mars")
-         en_tete.append(u"Échecs")
-         en_tete.append(u"Moy.")
-         en_tete.append(u"Global")
+             en_tete.append("Mars")
+         en_tete.append("Échecs")
+         en_tete.append("Moy.")
+         en_tete.append("Global")
          
          larg_colonne=round((25.0/(len(en_tete)-1)),5)
          
-         declaration_tab=u"\\begin{tabular}{|m{2.5cm}|"
+         declaration_tab="\\begin{tabular}{|m{2.5cm}|"
          
          i=False
          for nom in en_tete:
              if i!=False: #puisqu'il y a ue colonne crée avec m{2.5cm}, je dois créer une colonne de moins, j'ignore donc le premier élément de la liste en_tete
-                 declaration_tab+=u"m{%scm}|"% larg_colonne
+                 declaration_tab+="m{%scm}|"% larg_colonne
              i=True
-         declaration_tab+=u"}"
+         declaration_tab+="}"
          #
          list_file.append(declaration_tab)
-         list_file.append(u"\\hline")
+         list_file.append("\\hline")
          list_file.append((' & '.join(en_tete))+"\\\\[1.5em]")
-         list_file.append(u"\\hline")
+         list_file.append("\\hline")
          
          for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
              ligne=[]
-             ligne.append(u'\\tiny '+eleve[0:30])
+             ligne.append('\\tiny '+eleve[0:30])
              for nom_cours in classe.liste_cours:
                  #ce passage sert à afficher les pts de chim_1 et chim_2 sous le nom commun de chim
                  # et de faire de même pour phys et bio, ceci n'est nécessaire qu'en 5° et 6°
@@ -1772,7 +1661,7 @@ class Latex_file():
                          if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
                              nom_cours='chim_2'
                          if nom_cours=='chim':
-                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en chimie 1 ni en chimie 2.</p></div>"%eleve)
+                             QMessageBox.warning(gui,'Erreur',"<div><p> L'élève %s n'a de points ni en chimie 1 ni en chimie 2.</p></div>"%eleve)
                      except KeyError :
                          pass
                  if nom_cours=='bio' :
@@ -1788,7 +1677,7 @@ class Latex_file():
                          if classe.carnet_cotes[eleve].grille_horaire['bio_2'].points!=False:
                              nom_cours='bio_2'
                          if nom_cours=='bio':
-                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en bio 1 ni en bio 2.</p></div>"%eleve)
+                             QMessageBox.warning(gui,'Erreur',"<div><p> L'élève %s n'a de points ni en bio 1 ni en bio 2.</p></div>"%eleve)
                      except KeyError :
                          pass
                  if nom_cours=='phys' :
@@ -1804,7 +1693,7 @@ class Latex_file():
                          if classe.carnet_cotes[eleve].grille_horaire['phys_2'].points!=False:
                              nom_cours='phys_2'
                          if nom_cours=='phys':
-                             QMessageBox.warning(gui,'Erreur',u"<div><p> L'élève %s n'a de points ni en phys 1 ni en phys 2.</p></div>"%eleve)
+                             QMessageBox.warning(gui,'Erreur',"<div><p> L'élève %s n'a de points ni en phys 1 ni en phys 2.</p></div>"%eleve)
                      except KeyError :
                          pass
                  if classe.carnet_cotes[eleve].grille_horaire[nom_cours].points!=False:
@@ -1812,21 +1701,21 @@ class Latex_file():
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation!=False:
                      points=classe.carnet_cotes[eleve].grille_horaire[nom_cours].appreciation
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].certif_med==True:
-                     points=u'cm'
+                     points='cm'
                  else:
                      points=''
                      #print points, type(points)
                  if classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==0:
-                     couleur=u'{{'
+                     couleur='{{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==1:
-                     couleur=u'\\scriptsize \\centering \\textcolor{rouge} {\\underline{'
+                     couleur='\\scriptsize \\centering \\textcolor{rouge} {\\underline{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==2:
-                     couleur=u'\\scriptsize \\centering \\textcolor{orange} {{'
+                     couleur='\\scriptsize \\centering \\textcolor{orange} {{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==3:
-                     couleur=u'\\scriptsize \\centering \\textcolor{vert} {{'
+                     couleur='\\scriptsize \\centering \\textcolor{vert} {{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==4:
-                     couleur=u'\\scriptsize \\centering{{'
-                 ligne.append(couleur+points+u'}}')
+                     couleur='\\scriptsize \\centering{{'
+                 ligne.append(couleur+points+'}}')
              if classe.noel==True:
                  txt_noel=str(classe.carnet_cotes[eleve].noel)
                  ligne.append(txt_noel)
@@ -1837,31 +1726,31 @@ class Latex_file():
              #
              txt_heures_echec=str(classe.carnet_cotes[eleve].heures_echec_tot)+' / '\
                  +str(classe.carnet_cotes[eleve].vol_horaire_ccnc)
-             ligne.append(u'\\tiny '+txt_heures_echec)
+             ligne.append('\\tiny '+txt_heures_echec)
                  #
              txt=str(classe.carnet_cotes[eleve].moy_pond_ccnc )
              if classe.carnet_cotes[eleve].moy_pond_ccnc <50:
-                 cell=(u'\\scriptsize \\textcolor{rouge}{'+txt+'}')
+                 cell=('\\scriptsize \\textcolor{rouge}{'+txt+'}')
              elif classe.carnet_cotes[eleve].moy_pond_ccnc <60:
-                 cell=(u'\\scriptsize \\textcolor{orange}{'+txt+'}')
+                 cell=('\\scriptsize \\textcolor{orange}{'+txt+'}')
              else:
-                 cell=(u'\\scriptsize \\textcolor{vert}{'+txt+'}')
+                 cell=('\\scriptsize \\textcolor{vert}{'+txt+'}')
              ligne.append(cell)
                  #
              if classe.carnet_cotes[eleve].situation_globale ==3:
-                 cell_situation_globale=u'\\cellcolor{vert}{}'
+                 cell_situation_globale='\\cellcolor{vert}{}'
              elif classe.carnet_cotes[eleve].situation_globale ==1:
-                 cell_situation_globale=u'\\cellcolor{rouge}{}'
+                 cell_situation_globale='\\cellcolor{rouge}{}'
              elif classe.carnet_cotes[eleve].situation_globale ==2:
-                 cell_situation_globale=u'\\cellcolor{orange}{}'
+                 cell_situation_globale='\\cellcolor{orange}{}'
              elif classe.carnet_cotes[eleve].situation_globale ==4:
-                 cell_situation_globale=u'\\cellcolor{gris_fonce}{}'
+                 cell_situation_globale='\\cellcolor{gris_fonce}{}'
              ligne.append(cell_situation_globale)    
              list_file.append((' & '.join(ligne))+"\\\\ [1.5em]")
-             list_file.append(u"\\hline")
+             list_file.append("\\hline")
          
-         list_file.append(u"\\end{tabular}")
-         list_file.append(u"\\end{document}")
+         list_file.append("\\end{tabular}")
+         list_file.append("\\end{document}")
          
          doc_name=self.file_name+'_tableau.tex'
          doc_name=QFileDialog.getSaveFileName(gui,'Sauver tableau récapitulatif',doc_name,"Document TEX (*.tex)")
@@ -1871,11 +1760,50 @@ class Latex_file():
          for ligne in list_file:
              f.write(ligne+' \n')
          f.close()
-         proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
-         proc.wait()
-         os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.aux')
-         os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.log')
-         #os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.out')
+         if platform.system()=='Linux':
+             try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (str() )
+                 prog.setLabelText ('Tableau => pdf')
+                 for i in range(50):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
+                 proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
+                 proc.wait()
+                 for i in range(51):
+                     prog.setValue(50+i)
+                     prog.show()
+                     QApplication.processEvents()
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.aux')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.log')
+             except Exception as e:
+                 QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
+                 print ('Erreur : %s' % e)
+                 print (traceback.format_exc())
+         if platform.system()=='Windows':
+             try:
+                 prog=QProgressDialog()
+                 prog.setWindowFlags(Qt.SplashScreen)
+                 prog.setCancelButtonText (str() )
+                 prog.setLabelText ('Tableau => pdf')
+                 for i in range(50):
+                     prog.setValue(i)
+                     prog.show()
+                     QApplication.processEvents()
+                 proc=subprocess.Popen(['pdflatex','-output-directory',os.path.dirname(doc_name),doc_name])
+                 proc.wait()
+                 for i in range(51):
+                     prog.setValue(50+i)
+                     prog.show()
+                     QApplication.processEvents()
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.aux')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.log')
+             except Exception as e:
+                 QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
+                 print ('Erreur : %s' % e)
+                 print (traceback.format_exc())
 #
 class Criteres(Classe):
      #
@@ -1904,7 +1832,6 @@ class NettoiePoints(object):
 #
 #
 if __name__=="__main__":
-     #subprocess.Popen(['libreoffice','--quickstart'])
      #saveout = sys.stdout
      #fsock = open('out.log', 'w')
      #sys.stdout = fsock

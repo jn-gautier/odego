@@ -10,11 +10,6 @@
 # vérifier le code
 #commenter les classes et les fonctions
 
-#introduire tous les cours dans cours.xml
-
-#supprimer l'import depuis le presse papier, laisser la fct mais supprimer dans le menu et supprimer l'icone
-#réécrire les documents en latex??? avantages : une production plus simple que les docs odf, le projet lpod semble mort, passage en python3 (+++++)
-#inconvénients : docs pas facilement éditables, demande d'installer pdflate sur les pC où tourne odego
 
 #trouver une méthode pour mettre en évidence les élèves d'immersion
 #internaliser le calcul der daca et ed_plas en TQ et vérifier la répartion entre grav et info en 3 et4
