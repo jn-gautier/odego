@@ -24,7 +24,8 @@ from math import radians, sin, cos,floor
 import urllib
 import csv
 import getpass
-import re, urllib
+#import re, urllib
+import urllib.request
 
 class Gui(QMainWindow):
     
@@ -356,24 +357,9 @@ class Gui(QMainWindow):
              print ('Message : ', traceback.format_exc())
      #
      def import_clipboard(self):
-         text_clip = QApplication.clipboard().text()
-         text_clip=text_clip.split('\n')#crée une QStringList avec une ligne du clip par élément de la liste
-         self.tableau_points=[]
-         for ligne in text_clip:
-             liste_ligne_points=ligne.split('\t') #crée une QStringList avec une cote ou un nom par élément de la liste
-             ligne_points=[]
-             for elem in liste_ligne_points: #je converti chaque elem en unicode
-                 elem=str(elem)
-                 #if type (elem) is not unicode:
-                     #elem=unicode(elem,'utf-8')
-                     #print elem
-                 if elem==(None or '' or 'None'):
-                     elem=False
-                 ligne_points.append(elem)
-             if '\n\r' in ligne_points:
-                 ligne_points=ligne_points.remove('\n\r')
-             self.tableau_points.append(ligne_points)
-         self.fct_carnet_cote(self.tableau_points)
+         self.__init__()
+         classe.__init__()
+         
      #
      def dialog_import_download(self):
          
@@ -391,24 +377,11 @@ class Gui(QMainWindow):
              infos.id_tab=liste_infos[2]
              #print infos.classe,infos.prof,infos.id_tab
              liste_liens[infos.classe]= infos
-         if classe=='ALL':
-             for infos in liste_liens.values():
-                 self.download(infos.id_tab,infos.classe)
-         else:
-             infos=liste_liens[classe]
-             self.download(infos.id_tab,infos.classe)
+         
+         infos=liste_liens[classe]
+         self.download(infos.id_tab,infos.classe)
              
-     def get_auth_token(self,email, password):
-         url = "https://www.google.com/accounts/ClientLogin"
-         params = {"Email": email, "Passwd": password,"service": 'wise',"accountType": "HOSTED_OR_GOOGLE","source": 'Client'}
-         req = urllib2.Request(url, urllib.urlencode(params))
-         return re.findall(r"Auth=(.*)", urllib2.urlopen(req).read())[0]
-
-     def download_old(self,spreadsheet, worksheet, email, password, format="tsv"):
-         url_format = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key=%s&exportFormat=%s&gid=%i'
-         headers = {"Authorization": "GoogleLogin auth=" + self.get_auth_token(email, password),"GData-Version": "3.0"}
-         req = urllib2.Request(url_format % (spreadsheet, format, worksheet), headers=headers)
-         return urllib2.urlopen(req)
+     
      
      def download(self,spread_id,classe):
          #url_format = "https://docs.google.com/spreadsheets/export?id=%s&exportFormat=tsv " %(spread_id)
@@ -416,28 +389,15 @@ class Gui(QMainWindow):
          #directory='./decembre_2014/%s'%classe
          #if not os.path.exists(directory):
              #os.makedirs(directory)
-         if classe in ('4A','4B','4C','5A','5B','5C','6A','6B','6C'):
-             
-             email,ok = QInputDialog.getText(self,"Adresse courielle", 'Indiquez votre adresse mail')
-             email=str(email)
-             password,ok = QInputDialog.getText(self, "Mot de passe", 'Indiquez votre login',QLineEdit.Password)
-             password=str(password)
-             spreadsheet_id =spread_id# (spreadsheet id here)
-             worksheet_id=0
-             # Create client and spreadsheet objects
-             tsv= self.download_old(spreadsheet_id, worksheet_id, email, password)
-     
-         else:
-             link='https://docs.google.com/spreadsheets/export?id=%s&exportFormat=tsv'%spread_id
-             req = urllib2.Request(link) 
-             tsv=urllib2.urlopen(req)
-        
-     
-         tsv=csv.reader(tsv,delimiter='\t')
+         link='https://docs.google.com/spreadsheets/export?id=%s&exportFormat=tsv'%spread_id
+         tsv=urllib.request.urlopen(link)
+         reader=tsv.read().decode('utf-8')
+         tableau=reader.split('\n')
          
          self.tableau_points=[]
-         for liste_ligne_points in tsv:
+         for ligne in tableau:
              #liste_ligne_points=ligne.split('\t') #crée une QStringList avec une cote ou un nom par élément de la liste
+             liste_ligne_points=ligne.split('\t')
              ligne_points=[]
              for elem in liste_ligne_points:
                  #if type (elem) is not unicode:
@@ -450,6 +410,8 @@ class Gui(QMainWindow):
          self.fct_carnet_cote(self.tableau_points)
      #
      def fct_carnet_cote(self,tableau_points):
+         classe.carnet_cotes={}
+         classe.liste_cours=[]
          try:
              ligne_cours=False
              for ligne_points in tableau_points:
@@ -882,14 +844,14 @@ class Classe(object):
          if self.niv_sec=='4TQ':liste_cours_annee=liste_cours_4tq
          if self.niv_sec=='5TQ':liste_cours_annee=liste_cours_5tq
          if self.niv_sec=='6TQ':liste_cours_annee=liste_cours_6tq
-         
          self.liste_cours=[]
          for eleve in self.carnet_cotes.values():
              for cours in eleve.grille_horaire.keys():
+                 
                  #les cours de chim_1,chim_2, ... n'apparaissent pas tels quels dans la liste des cours
                  #ils se retrouvent sous le nom de 'chim', 'phys', ... afin de les placer dans la même colonne du tableau récapitulatif
                  
-                 if (cours not in self.liste_cours) & (eleve.grille_horaire[cours].points!=False):
+                 if (cours not in self.liste_cours) & ((eleve.grille_horaire[cours].points!=False)or(eleve.grille_horaire[cours].appreciation!=False)):
                      if (cours=='chim_1') or (cours=='chim_2'): cours='chim'
                      if (cours=='phys_1') or (cours=='phys_2'): cours='phys'
                      if (cours=='bio_1') or (cours=='bio_2'): cours='bio'
@@ -1279,6 +1241,101 @@ class Eleve(Classe):
                  self.grille_horaire['chim_1'].evaluation=1
                  self.grille_horaire['phys_1'].evaluation=1
      #
+     def fct_sciences6_mars (self):
+         sc_3=False
+         sc_6=False
+         if self.grille_horaire['phys_2'].appreciation!=False:
+             sc_6=True
+         if self.grille_horaire['chim_2'].appreciation!=False:
+             sc_6=True
+         if self.grille_horaire['bio_2'].appreciation!=False:
+             sc_6=True
+         if self.grille_horaire['phys_1'].appreciation!=False:
+             sc_3=True
+         if self.grille_horaire['chim_1'].appreciation!=False:
+             sc_3=True
+         if self.grille_horaire['bio_1'].appreciation!=False:
+             sc_3=True
+         if (sc_6==True) & (sc_3==True):
+             QMessageBox.warning(gui,'Erreur',"L'élève %s a une appréciation en sciences 6 et en sciences 3."%self.nom) 
+         if (sc_6==False) & (sc_3==False):
+             QMessageBox.warning(gui,'Erreur',"L'élève %s n'a d'appréciation ni en sciences 6 ni en sciences 3."%self.nom) 
+         if (sc_6==True) & (sc_3==False):
+             nb_echecs=0
+             nb_faible=0
+             self.grille_horaire['sc_3'].appreciation=False
+             self.grille_horaire['sc_3'].evaluation=0
+             
+             if self.grille_horaire['bio_2'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['chim_2'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['phys_2'].appreciation=='e' : nb_echecs+=1
+             
+             if self.grille_horaire['bio_2'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['chim_2'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['phys_2'].appreciation=='f' : nb_faible+=1
+             
+             if 'sc_6' not in classe.liste_cours:
+                 classe.liste_cours.append('sc_6')
+               
+             
+             if nb_echecs>1 :
+                 self.grille_horaire['bio_2'].echec_force=True
+                 self.grille_horaire['chim_2'].echec_force=True
+                 self.grille_horaire['phys_2'].echec_force=True
+                 self.grille_horaire['sc_6'].echec_force=True
+                 self.grille_horaire['sc_6'].evaluation=1
+                 self.grille_horaire['sc_6'].appreciation='e'
+                 self.grille_horaire['bio_2'].evaluation=1
+                 self.grille_horaire['chim_2'].evaluation=1
+                 self.grille_horaire['phys_2'].evaluation=1
+             elif (nb_echecs==1) & (nb_faible==0):
+                 self.grille_horaire['sc_6'].evaluation=2
+                 self.grille_horaire['sc_6'].appreciation='f'
+             elif (nb_echecs==1) & (nb_faible==1) :
+                 self.grille_horaire['sc_6'].evaluation=2
+                 self.grille_horaire['sc_6'].appreciation='f'
+             elif nb_faible>1:
+                 self.grille_horaire['sc_6'].evaluation=2
+                 self.grille_horaire['sc_6'].appreciation='f'
+             else :
+                 self.grille_horaire['sc_6'].evaluation=3
+                 self.grille_horaire['sc_6'].appreciation='r'
+                 
+             
+         if (sc_6==False) & (sc_3==True):
+             nb_cours_evalues=0
+             self.grille_horaire['sc_3'].points=0
+             if self.grille_horaire['bio_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['bio_1'].points)
+                 nb_cours_evalues+=1
+             if self.grille_horaire['phys_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['phys_1'].points)
+                 nb_cours_evalues+=1
+             if self.grille_horaire['chim_1'].points!=False:
+                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['chim_1'].points)
+                 nb_cours_evalues+=1
+             self.grille_horaire['sc_3'].points=(self.grille_horaire['sc_3'].points)/nb_cours_evalues
+             self.grille_horaire['sc_3'].points=round(self.grille_horaire['sc_3'].points,1)
+             if 'sc_3' not in classe.liste_cours:
+                 classe.liste_cours.append('sc_3')
+             
+             if self.grille_horaire['sc_3'].points<50:
+                 self.grille_horaire['sc_3'].evaluation=1
+             if (self.grille_horaire['sc_3'].points>=50) & (self.grille_horaire['sc_3'].points<60):
+                 self.grille_horaire['sc_3'].evaluation=2
+             if self.grille_horaire['sc_3'].points>=60:
+                 self.grille_horaire['sc_3'].evaluation=3   
+             
+             self.grille_horaire['sc_6'].points=False
+             self.grille_horaire['sc_6'].evaluation=0
+             if self.grille_horaire['sc_3'].points<50:
+                 self.grille_horaire['bio_1'].echec_force=True
+                 self.grille_horaire['chim_1'].echec_force=True
+                 self.grille_horaire['phys_1'].echec_force=True
+                 self.grille_horaire['bio_1'].evaluation=1
+                 self.grille_horaire['chim_1'].evaluation=1
+                 self.grille_horaire['phys_1'].evaluation=1
+     #
      def fct_prop_echec(self):
          self.prop_echec=(self.heures_echec_nc+self.heures_echec_cc)/float(self.vol_horaire_ccnc)
          self.prop_echec=round(self.prop_echec*100,2)
@@ -1428,11 +1485,14 @@ class Latex_file():
                  liste_categorie = list(eleve.classement_cours.keys())
                  liste_categorie.sort(reverse=True)
                  if len(liste_categorie)==3: #gestion des RFE
-                     list_tab_elv.append('\\multicolumn {2} {|c|} & '.join(liste_categorie)+"\\\\")
                      ligne=[]
                      for categorie in liste_categorie:
-                         ligne.append('\\footnotesize '+eleve.classement_cours[categorie])
-                     list_tab_elv.append('\\multicolumn {2} {|c|} & '.join(ligne)+" \\\\")
+                         ligne.append('\\multicolumn {2} {|m{0.33 \\textwidth}|} {'+categorie+'}')
+                     list_tab_elv.append(' & '.join(ligne)+" \\\\")
+                     ligne=[]
+                     for categorie in liste_categorie:
+                         ligne.append('\\multicolumn {2} {|m{0.33 \\textwidth}|} {\\footnotesize  '+eleve.classement_cours[categorie]+'}')
+                     list_tab_elv.append(' & '.join(ligne)+" \\\\")
                  else: #gestion normale du classement
                      list_tab_elv.append(' & '.join(liste_categorie)+"\\\\")
                      ligne=[]
@@ -1440,7 +1500,7 @@ class Latex_file():
                          ligne.append('\\footnotesize '+eleve.classement_cours[categorie])
                      list_tab_elv.append(' & '.join(ligne)+" \\\\")
              #affichage moyenne
-             if eleve.moy_pond_ccnc<50:
+             if (eleve.moy_pond_ccnc<50) & (classe.analyses['fct_moyenne_ponderee']==True):
                  list_tab_elv.append(self.ligne_3cell('Moyenne pondérée',eleve.moy_pond_ccnc,'rouge'))
              elif (eleve.moy_pond_ccnc>=50) & (eleve.moy_pond_ccnc<60):
                  list_tab_elv.append(self.ligne_3cell('Moyenne pondérée',eleve.moy_pond_ccnc,'orange'))
@@ -1623,7 +1683,8 @@ class Latex_file():
          if classe.mars==True:
              en_tete.append("Mars")
          en_tete.append("Échecs")
-         en_tete.append("Moy.")
+         if classe.analyses['fct_moyenne_ponderee']==True: #n'existe pas en mars
+             en_tete.append("Moy.")
          en_tete.append("Global")
          
          larg_colonne=round((25.0/(len(en_tete)-1)),5)
@@ -1641,7 +1702,6 @@ class Latex_file():
          list_file.append("\\hline")
          list_file.append((' & '.join(en_tete))+"\\\\[1.5em]")
          list_file.append("\\hline")
-         
          for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
              ligne=[]
              ligne.append('\\tiny '+eleve[0:30])
@@ -1735,7 +1795,8 @@ class Latex_file():
                  cell=('\\scriptsize \\textcolor{orange}{'+txt+'}')
              else:
                  cell=('\\scriptsize \\textcolor{vert}{'+txt+'}')
-             ligne.append(cell)
+             if classe.analyses['fct_moyenne_ponderee']==True: #n'existe pas en mars
+                 ligne.append(cell)
                  #
              if classe.carnet_cotes[eleve].situation_globale ==3:
                  cell_situation_globale='\\cellcolor{vert}{}'
