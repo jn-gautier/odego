@@ -26,6 +26,7 @@ import csv
 import getpass
 #import re, urllib
 import urllib.request
+import random
 
 class Gui(QMainWindow):
     
@@ -195,7 +196,6 @@ class Gui(QMainWindow):
          for i in range(101):
              blanc=str(int(255-float(i)/100*255))
              gris=str(int(181-float(i)/100*181))
-             #print blanc, gris
              svg_txt='<svg width="550px" height="290px">'
              svg_txt+='<defs>'
              svg_txt+='<linearGradient id="grad1" x1="0" y1="0" x2="0" y2="100%">'
@@ -251,7 +251,6 @@ class Gui(QMainWindow):
              if i>75:
                  alpha=(float(i)-75)/25*90
                  alpha_rad=radians(alpha)
-                 #print alpha
                  l3_x1=str(112-88*sin(alpha_rad))
                  l3_x2=str(112+44*sin(alpha_rad))
                  l3_y1=str(232-88*cos(alpha_rad))
@@ -335,15 +334,13 @@ class Gui(QMainWindow):
      #
      def import_txt(self):
          try:
-             QMessageBox.information(self,'Information',"<p>L'importation depuis un fichier txt ou tsv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
+             #QMessageBox.information(self,'Information',"<p>L'importation depuis un fichier txt ou tsv nécessite </p><p>que les valeurs soient séparées par des tabulations.</p>")
              myfile= open(self.file_name, "r")
              self.tableau_points=[]
              for ligne in myfile:
                  liste_ligne_points=ligne.rstrip('\n\r').split('\t')
                  ligne_points=[]
                  for elem in liste_ligne_points:
-                     #if type (elem) is not unicode:
-                         #elem=unicode(elem,'utf-8')
                      if (elem==('' or 'None')) or (len(elem)==0):
                          elem=False
                      ligne_points.append(elem)
@@ -357,8 +354,7 @@ class Gui(QMainWindow):
              print ('Message : ', traceback.format_exc())
      #
      def import_clipboard(self):
-         self.__init__()
-         classe.__init__()
+         pass
          
      #
      def dialog_import_download(self):
@@ -375,7 +371,6 @@ class Gui(QMainWindow):
              infos.classe=liste_infos[0]
              infos.prof=liste_infos[1]
              infos.id_tab=liste_infos[2]
-             #print infos.classe,infos.prof,infos.id_tab
              liste_liens[infos.classe]= infos
          
          infos=liste_liens[classe]
@@ -405,7 +400,6 @@ class Gui(QMainWindow):
                  if (elem==('' or 'None')) or (len(elem)==0):
                      elem=False
                  ligne_points.append(elem)
-             print (ligne_points)
              self.tableau_points.append(ligne_points)
          self.fct_carnet_cote(self.tableau_points)
      #
@@ -416,7 +410,6 @@ class Gui(QMainWindow):
              ligne_cours=False
              for ligne_points in tableau_points:
                  prem_cell=ligne_points[0]
-                 print (ligne_points)
                  if (prem_cell.lower()=='cours'):
                      ligne_cours=True
                      for cell in ligne_points:
@@ -487,8 +480,6 @@ class Gui(QMainWindow):
              classe.liste_cours.remove('mars')
              classe.mars=True
          classe.prod_liste_eleves()
-         #classe.update_liste_cours()
-         #print classe.liste_cours
          self.tableau_valide=True
          
          if self.tableau_valide==True:
@@ -591,7 +582,6 @@ class Gui(QMainWindow):
          try:
              classe.stats_elv()
              classe.prod_situation_globale()
-             #classe.prod_liste_eleves()
          except Exception as e:
              QMessageBox.critical(self,'Echec',"Une erreur a été rencontrée dans l'analyse des points")
              print ('Erreur : %s' % e)
@@ -688,15 +678,16 @@ class Classe(object):
                      setattr(cours, carac, valeure)
                  # fusion de cours venant d'être créé avec celui présent dans la grille horaire de chaque élève de la classe
                  for eleve in self.carnet_cotes.values():
-                     if cours.abr.lower() in eleve.grille_horaire.keys():
-                         for carac in liste_carac_bool:
-                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
-                         for carac in liste_carac_int:
-                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
-                         for carac in liste_carac_str:
-                             setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
-                     else:
-                         eleve.grille_horaire[cours.abr.lower()]=cours
+                     if cours.abr.lower() not in eleve.grille_horaire.keys():
+                         eleve.grille_horaire[cours.abr.lower()]=Cours()
+                     for carac in liste_carac_bool:
+                         setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
+                     for carac in liste_carac_int:
+                         setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
+                     for carac in liste_carac_str:
+                         setattr(eleve.grille_horaire[cours.abr.lower()],carac,getattr(cours,carac))
+                     #else:
+                         #eleve.grille_horaire[cours.abr.lower()]=cours
                      
              print ("Création d'une classe de", self.niv_sec)
          except Exception as e:
@@ -743,6 +734,8 @@ class Classe(object):
              #
              if classe.analyses['fct_sciences6']==True:
                  eleve.fct_sciences6()
+             if classe.analyses['fct_sciences6_mars']==True:
+                 eleve.fct_sciences6_mars()
              if classe.analyses['fct_points_sup_100']==True:
                  eleve.fct_points_sup_100()
              if classe.analyses['fct_moyenne_ponderee']==True:
@@ -783,6 +776,7 @@ class Classe(object):
      #
      def prod_situation_globale(self):
          for eleve in self.carnet_cotes.values():
+             
              situation_globale=False
              if eleve.heures_echec_cc==0 :
                  eleve.situation_globale=3 #aucun probleme
@@ -937,7 +931,6 @@ class Eleve(Classe):
              if (cours.points!=False) & (cours.pseudo==False):
                  self.moy_pond_ccnc+=cours.heures*cours.points
                  total_heures_ccnc+=cours.heures
-         #print self.moy_pond_cc, total_heures_cc
          self.moy_pond_cc=round((self.moy_pond_cc/total_heures_cc),1)
          self.moy_pond_ccnc=round((self.moy_pond_ccnc/total_heures_ccnc),1)
      #
@@ -1260,10 +1253,16 @@ class Eleve(Classe):
              QMessageBox.warning(gui,'Erreur',"L'élève %s a une appréciation en sciences 6 et en sciences 3."%self.nom) 
          if (sc_6==False) & (sc_3==False):
              QMessageBox.warning(gui,'Erreur',"L'élève %s n'a d'appréciation ni en sciences 6 ni en sciences 3."%self.nom) 
+         
+         
          if (sc_6==True) & (sc_3==False):
+             if 'sc_6' not in classe.liste_cours:
+                 classe.liste_cours.append('sc_6')
+             
              nb_echecs=0
              nb_faible=0
              self.grille_horaire['sc_3'].appreciation=False
+             self.grille_horaire['sc_3'].points=False
              self.grille_horaire['sc_3'].evaluation=0
              
              if self.grille_horaire['bio_2'].appreciation=='e' : nb_echecs+=1
@@ -1273,10 +1272,6 @@ class Eleve(Classe):
              if self.grille_horaire['bio_2'].appreciation=='f' : nb_faible+=1
              if self.grille_horaire['chim_2'].appreciation=='f' : nb_faible+=1
              if self.grille_horaire['phys_2'].appreciation=='f' : nb_faible+=1
-             
-             if 'sc_6' not in classe.liste_cours:
-                 classe.liste_cours.append('sc_6')
-               
              
              if nb_echecs>1 :
                  self.grille_horaire['bio_2'].echec_force=True
@@ -1300,41 +1295,43 @@ class Eleve(Classe):
              else :
                  self.grille_horaire['sc_6'].evaluation=3
                  self.grille_horaire['sc_6'].appreciation='r'
-                 
              
          if (sc_6==False) & (sc_3==True):
-             nb_cours_evalues=0
-             self.grille_horaire['sc_3'].points=0
-             if self.grille_horaire['bio_1'].points!=False:
-                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['bio_1'].points)
-                 nb_cours_evalues+=1
-             if self.grille_horaire['phys_1'].points!=False:
-                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['phys_1'].points)
-                 nb_cours_evalues+=1
-             if self.grille_horaire['chim_1'].points!=False:
-                 self.grille_horaire['sc_3'].points+=float(self.grille_horaire['chim_1'].points)
-                 nb_cours_evalues+=1
-             self.grille_horaire['sc_3'].points=(self.grille_horaire['sc_3'].points)/nb_cours_evalues
-             self.grille_horaire['sc_3'].points=round(self.grille_horaire['sc_3'].points,1)
              if 'sc_3' not in classe.liste_cours:
                  classe.liste_cours.append('sc_3')
              
-             if self.grille_horaire['sc_3'].points<50:
-                 self.grille_horaire['sc_3'].evaluation=1
-             if (self.grille_horaire['sc_3'].points>=50) & (self.grille_horaire['sc_3'].points<60):
-                 self.grille_horaire['sc_3'].evaluation=2
-             if self.grille_horaire['sc_3'].points>=60:
-                 self.grille_horaire['sc_3'].evaluation=3   
-             
+             nb_echecs=0
+             nb_faible=0
+             self.grille_horaire['sc_6'].appreciation=False
              self.grille_horaire['sc_6'].points=False
              self.grille_horaire['sc_6'].evaluation=0
-             if self.grille_horaire['sc_3'].points<50:
+             
+             
+             
+             if self.grille_horaire['bio_1'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['chim_1'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['phys_1'].appreciation=='e' : nb_echecs+=1
+             
+             if self.grille_horaire['bio_1'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['chim_1'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['phys_1'].appreciation=='f' : nb_faible+=1
+             
+             if nb_echecs==3 :
                  self.grille_horaire['bio_1'].echec_force=True
                  self.grille_horaire['chim_1'].echec_force=True
                  self.grille_horaire['phys_1'].echec_force=True
+                 self.grille_horaire['sc_3'].echec_force=True
+                 self.grille_horaire['sc_3'].evaluation=1
+                 self.grille_horaire['sc_3'].appreciation='e'
                  self.grille_horaire['bio_1'].evaluation=1
                  self.grille_horaire['chim_1'].evaluation=1
                  self.grille_horaire['phys_1'].evaluation=1
+             elif ((nb_echecs==2) or (nb_echecs==1)or (nb_faible>1)):
+                 self.grille_horaire['sc_3'].evaluation=2
+                 self.grille_horaire['sc_3'].appreciation='f'
+             else :
+                 self.grille_horaire['sc_3'].evaluation=3
+                 self.grille_horaire['sc_3'].appreciation='r'
      #
      def fct_prop_echec(self):
          self.prop_echec=(self.heures_echec_nc+self.heures_echec_cc)/float(self.vol_horaire_ccnc)
@@ -1712,13 +1709,19 @@ class Latex_file():
                      try: 
                          classe.carnet_cotes[eleve].grille_horaire['chim_1'].points
                          classe.carnet_cotes[eleve].grille_horaire['chim_2'].points
+                         classe.carnet_cotes[eleve].grille_horaire['chim_1'].appreciation
+                         classe.carnet_cotes[eleve].grille_horaire['chim_2'].appreciation
                          if classe.carnet_cotes[eleve].grille_horaire['chim_1'].points!=False:
+                             nom_cours='chim_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_1'].appreciation!=False:
                              nom_cours='chim_1'
                          if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==4:
                              nom_cours='chim_1'
                          if classe.carnet_cotes[eleve].grille_horaire['chim_1'].evaluation==1:#je rajoute cette ligne car en cas d'échec forcé via la fct_sciences6 l'évaluation passe à 1
                              nom_cours='chim_1'
                          if classe.carnet_cotes[eleve].grille_horaire['chim_2'].points!=False:
+                             nom_cours='chim_2'
+                         if classe.carnet_cotes[eleve].grille_horaire['chim_2'].appreciation!=False:
                              nom_cours='chim_2'
                          if nom_cours=='chim':
                              QMessageBox.warning(gui,'Erreur',"<div><p> L'élève %s n'a de points ni en chimie 1 ni en chimie 2.</p></div>"%eleve)
@@ -1728,6 +1731,12 @@ class Latex_file():
                      try: 
                          classe.carnet_cotes[eleve].grille_horaire['bio_1'].points
                          classe.carnet_cotes[eleve].grille_horaire['bio_2'].points
+                         classe.carnet_cotes[eleve].grille_horaire['bio_1'].appreciation
+                         classe.carnet_cotes[eleve].grille_horaire['bio_2'].appreciation
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_1'].appreciation!=False:
+                             nom_cours='bio_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['bio_2'].appreciation!=False:
+                             nom_cours='bio_2'
                          if classe.carnet_cotes[eleve].grille_horaire['bio_1'].points!=False:
                              nom_cours='bio_1'
                          if classe.carnet_cotes[eleve].grille_horaire['bio_1'].evaluation==4:
@@ -1744,6 +1753,12 @@ class Latex_file():
                      try: 
                          classe.carnet_cotes[eleve].grille_horaire['phys_1'].points
                          classe.carnet_cotes[eleve].grille_horaire['phys_2'].points
+                         classe.carnet_cotes[eleve].grille_horaire['phys_1'].appreciation
+                         classe.carnet_cotes[eleve].grille_horaire['phys_2'].appreciation
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_1'].appreciation!=False:
+                             nom_cours='phys_1'
+                         if classe.carnet_cotes[eleve].grille_horaire['phys_2'].appreciation!=False:
+                             nom_cours='phys_2'
                          if classe.carnet_cotes[eleve].grille_horaire['phys_1'].points!=False:
                              nom_cours='phys_1'
                          if classe.carnet_cotes[eleve].grille_horaire['phys_1'].evaluation==4:
@@ -1764,7 +1779,6 @@ class Latex_file():
                      points='cm'
                  else:
                      points=''
-                     #print points, type(points)
                  if classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==0:
                      couleur='{{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==1:
@@ -1806,6 +1820,8 @@ class Latex_file():
                  cell_situation_globale='\\cellcolor{orange}{}'
              elif classe.carnet_cotes[eleve].situation_globale ==4:
                  cell_situation_globale='\\cellcolor{gris_fonce}{}'
+             else:
+                 cell_situation_globale='\\{}'
              ligne.append(cell_situation_globale)    
              list_file.append((' & '.join(ligne))+"\\\\ [1.5em]")
              list_file.append("\\hline")
@@ -1907,3 +1923,5 @@ if __name__=="__main__":
      app.exec_()
      #fsock.close()
      
+#attention, lorsqu'un cours n'est pas évalué, l'ensemble des élèves chez qui ce cours n'est évalué possèdent le même objet cours. Cela pose problème lorsqu'il faut modifier le cours à posteriori comme en sc3 et sc6. => voir la fct set_param à la ligne 689, il faudrait copier l'objet cours.
+#lorsque le cours de sciences est renseigné par * et non par un rfe ou des points, les cours de sciences se placent en fin de tableau.=> cela devrait être réglé par un update liste cours après la fct sc6
