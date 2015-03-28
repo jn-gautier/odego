@@ -14,7 +14,7 @@ from PyQt4.QtWebKit import QGraphicsWebView
 import sys
 import traceback
 from datetime import date , datetime
-from datetime import *
+#from datetime import *
 #import types
 from functools import cmp_to_key 
 import xml.etree.ElementTree as ET
@@ -99,7 +99,7 @@ class Gui(QMainWindow):
          self.setWindowIcon(QIcon('./icons/odego.svg')) 
          
          niveau=['','1', '2', '3', '4', '5', '6']
-         classes=['','_','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
+         classes=['','-','a','b','c','d','e','f','g','h','i','j','k','l','m','z !?!?']
          sections=['','GT','TQ']
          delibe=['Noel','Mars','Juin','Sept.']
          now=date.today()
@@ -145,8 +145,10 @@ class Gui(QMainWindow):
          #
          self.radio_tab_recap=QCheckBox("Tableau récapitulatif")
          self.radio_tab_recap.setToolTip ('<p>Produire un tableau récapitulatif "classique" avec la sitation globale, la moyenne pondérée et le nombre d\' heures d\'échec.</p>')
+         self.radio_tab_recap.setCheckState(2)
          self.radio_ana_det=QCheckBox("Analyse detaillée")
          self.radio_ana_det.setToolTip (('<p>Produire un fichier présentant pour chaque élève les détails de ses résultats et les raisons d\' un éventuel échec.</p>'))
+         self.radio_ana_det.setCheckState(2)
          self.radio_classmt=QCheckBox("Classement")
          self.radio_classmt.setToolTip (('<p>Produire un tableau avec le classement des élèves en fonction de leur moyenne pondérée.</p>'))
          #
@@ -272,8 +274,8 @@ class Gui(QMainWindow):
              svg_rend.load(array)
              svg_rend.show()
              QApplication.processEvents()
-             sleep(0.07)
-         sleep(0.5)
+             time.sleep(0.07)
+         time.sleep(0.5)
          svg_rend.close()
      #
      def center(self):
@@ -292,13 +294,13 @@ class Gui(QMainWindow):
          message+="décente.</p>"
          message+="<p>J.N. Gautier : <b>0494/84.14.59</b></p></div>"
          message+="<p>Ce service vous coûtera généralement un café.</p>"
-         message+="<p>En cas d'utilisation du service d'aide en dehors des heures prévues, vous me serez redevable d'un bon sandiwch pendant les délibés.</p>"
+         message+="<p>En cas d'utilisation du service d'aide en dehors des heures prévues, vous me serez redevable d'un bon sandwich pendant les délibés.</p>"
          message+="</div>"
          QMessageBox.information(self,'Aide',message)
      #
      def about(self):
          message='<div><p><b>Odego</b>, inspiré du grec <i>οδηγω : "je guide"</i>, est un outil '
-         message+="d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p>Les fichiers sont produits aux formats tex et pdf.</p><p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permi d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
+         message+="d'aide à la décision pour les délibés. <br/>  Il permet de produire des tableaux récapitulatifs, des tableaux de classement et de situer chaque élève par rapport aux critères de réussite.</p> <p>Les fichiers sont produits aux formats tex et pdf.</p><p> <b>Auteur : </b> J.N. Gautier</p>  <p> <b>Language : </b> Python %s</p>  <p> <b>Interface : </b> Qt %s</p> <p> Merci à Noëlle qui a baptisé ce logiciel ainsi qu'à tous ceux dont les conseils ont permis d'en améliorer la qualité.</p> <p> Pour signaler un bug ou proposer une amélioration : <br/><a" %(platform.python_version(),QT_VERSION_STR)
          message+='href="mailto:gautier.sciences@gmail.com">gautier.sciences@gmail.com</a></p></div>'
          QMessageBox.about(self,"A propos d'odego",message)
          #self.dial_about=QTextBrowser()
@@ -359,9 +361,21 @@ class Gui(QMainWindow):
      #
      def dialog_import_download(self):
          
-         classe,ok = QInputDialog.getItem(self,('Télécharger les points depuis Google Drive'),("Choisissez une classe"),['1A','1B','1C','1D','1E','1F','2A','2B','2C','2D','2E','3A','3B','3C','3D','3E','3TQ','4A','4B','4C','4TQ','5A','5B','5C','5TQ','6A','6B','6C','6TQ'],editable = False)
+         classe,ok = QInputDialog.getItem(self,('Télécharger les points depuis Google Drive'),("Choisissez une classe"),['1 C a','1 C b','1 C c','1 C d','1 C e','1 C f','2 C a','2 C b','2 C c','2 C d','2 C e','3 GT a','3 GT b','3 GT c','3 GT d','3 GT e','3 TQ','4 GT a','4 GT b','4 GT c','4 TQ','5 GT a','5 GT b','5 GT c','5 TQ','6 GT a','6 GT b','6 GT c','6 TQ'],editable = False)
          classe=str(classe)
+         niveau_classe=classe.split(' ')
+         if niveau_classe[1]=='TQ':
+             self.combo_section.setCurrentIndex(2)
+             self.combo_classes.setCurrentIndex(1)
+             self.combo_niveau.setCurrentIndex(int(niveau_classe[0]))
+         else:
+             self.combo_section.setCurrentIndex(1)
+             self.combo_niveau.setCurrentIndex(int(niveau_classe[0]))
+             liste=['a','b','c','d','e','f']
+             pos=liste.index(niveau_classe[2])+2
+             self.combo_classes.setCurrentIndex(pos)
          #
+         #classe=niveau_classe[0]+niveau_classe[1]
          liste_liens={}
          myfile=open('./liens_tableaux_delibes.tsv', "r")
          #
@@ -374,6 +388,7 @@ class Gui(QMainWindow):
              liste_liens[infos.classe]= infos
          
          infos=liste_liens[classe]
+         
          self.download(infos.id_tab,infos.classe)
              
      
@@ -391,12 +406,9 @@ class Gui(QMainWindow):
          
          self.tableau_points=[]
          for ligne in tableau:
-             #liste_ligne_points=ligne.split('\t') #crée une QStringList avec une cote ou un nom par élément de la liste
              liste_ligne_points=ligne.split('\t')
              ligne_points=[]
              for elem in liste_ligne_points:
-                 #if type (elem) is not unicode:
-                     #elem=unicode(elem,'utf-8')
                  if (elem==('' or 'None')) or (len(elem)==0):
                      elem=False
                  ligne_points.append(elem)
@@ -627,10 +639,12 @@ class Compfr(object):
          v1 = v1.replace('-','')
          v1 = v1.replace(self.espinsec,'')
          v1 = v1.replace("'",'')
+         v1 = v1.replace(" ",'')
          #
          v2 = v2.replace('-','')
          v2 = v2.replace(self.espinsec,'')
          v2 = v2.replace("'",'')
+         v2 = v2.replace(" ",'')
          # on retourne le résultat de la comparaison
          return locale.strcoll(v1, v2)
 #
@@ -645,7 +659,28 @@ class Classe(object):
          self.liste_cours=[]
          self.grille_horaire={}
          self.fichier_a_traiter=''
-         self.analyses={}
+         self.analyse={}
+         self.analyse['fct_points_sup_100']=0
+         self.analyse['fct_moyenne_ponderee']=0
+         self.analyse['fct_echec_inf35']=0
+         self.analyse['fct_nb_heures_horaire']=0
+         self.analyse['fct_total_heures_echec']=0
+         self.analyse['fct_cours_verrou_echec']=0
+         self.analyse['fct_nb_cours_echec']=0
+         self.analyse['fct_echec_contrat']=0
+         self.analyse['fct_certif_med']=0
+         self.analyse['fct_oubli_cours']=0
+         self.analyse['fct_credits_inf_50']=0
+         self.analyse['fct_echec_travail']=0
+         self.analyse['fct_classement_cours']=0
+         self.analyse['fct_classement_cours_app']=0
+         self.analyse['fct_age']=0
+         self.analyse['fct_sciences6']=0
+         self.analyse['fct_sciences6_mars']=0
+         self.analyse['fct_prop_echec']=0
+         self.analyse['fct_daca']=0
+         self.analyse['fct_daca_mars']=0
+         self.analyse['fct_moyenne_ponderee_cg']=0
          self.ctg=False
          self.ddn=False
          self.pia=False
@@ -719,7 +754,7 @@ class Classe(object):
                  if delibe.get('name')==self.delibe:
                      tree_delibe=delibe
              for analyse in tree_delibe:
-                 self.analyses[analyse.tag]=bool(int(analyse.text))
+                 self.analyse[analyse.tag]=bool(int(analyse.text))
                  
          except Exception as e:
              QMessageBox.critical(gui,'Echec',"Erreur dans la lecture du fichier des analyses à effectuer.")
@@ -732,45 +767,48 @@ class Classe(object):
          for eleve in self.carnet_cotes.values():
              eleve.fct_dispense()
              #
-             if classe.analyses['fct_sciences6']==True:
+             if classe.analyse['fct_sciences6']==True:
                  eleve.fct_sciences6()
-             if classe.analyses['fct_sciences6_mars']==True:
+             if classe.analyse['fct_sciences6_mars']==True:
                  eleve.fct_sciences6_mars()
-             if classe.analyses['fct_points_sup_100']==True:
-                 eleve.fct_points_sup_100()
-             if classe.analyses['fct_moyenne_ponderee']==True:
-                 eleve.fct_moyenne_ponderee()
-             if classe.analyses['fct_echec_inf35']==True:
-                 eleve.fct_echec_inf35()
-             if classe.analyses['fct_nb_heures_horaire']==True:
-                 eleve.fct_nb_heures_horaire()
-             if classe.analyses['fct_total_heures_echec']==True:
-                 eleve.fct_total_heures_echec()
-             if classe.analyses['fct_cours_verrou_echec']==True:
-                 eleve.fct_cours_verrou_echec()
-             if classe.analyses['fct_nb_cours_echec']==True:
-                 eleve.fct_nb_cours_echec()
-             if classe.analyses['fct_echec_contrat']==True:
-                 eleve.fct_echec_contrat()
-             if classe.analyses['fct_certif_med']==True:
-                 eleve.fct_certif_med()
-             if classe.analyses['fct_oubli_cours']==True:
-                 eleve.fct_oubli_cours()
-             if classe.analyses['fct_credits_inf_50']==True:
-                 eleve.fct_credits_inf_50()
-             if classe.analyses['fct_echec_travail']==True:
-                 eleve.fct_echec_travail()
-             if classe.analyses['fct_classement_cours']==True:
-                 eleve.fct_classement_cours()
-             if classe.analyses['fct_classement_cours_app']==True:
-                 eleve.fct_classement_cours_app()
-             if classe.analyses['fct_age']==True:
-                 eleve.fct_age()
-             if classe.analyses['fct_prop_echec']==True:
-                 eleve.fct_prop_echec()
-             if classe.analyses['fct_daca']==True:
+             if classe.analyse['fct_daca']==True:
                  eleve.fct_daca()
-             if classe.analyses['fct_moyenne_ponderee_cg']==True:
+             if classe.analyse['fct_daca_mars']==True:
+                 eleve.fct_daca_mars()
+             if classe.analyse['fct_points_sup_100']==True:
+                 eleve.fct_points_sup_100()
+             if classe.analyse['fct_moyenne_ponderee']==True:
+                 eleve.fct_moyenne_ponderee()
+             if classe.analyse['fct_echec_inf35']==True:
+                 eleve.fct_echec_inf35()
+             if classe.analyse['fct_nb_heures_horaire']==True:
+                 eleve.fct_nb_heures_horaire()
+             if classe.analyse['fct_total_heures_echec']==True:
+                 eleve.fct_total_heures_echec()
+             if classe.analyse['fct_cours_verrou_echec']==True:
+                 eleve.fct_cours_verrou_echec()
+             if classe.analyse['fct_nb_cours_echec']==True:
+                 eleve.fct_nb_cours_echec()
+             if classe.analyse['fct_echec_contrat']==True:
+                 eleve.fct_echec_contrat()
+             if classe.analyse['fct_certif_med']==True:
+                 eleve.fct_certif_med()
+             if classe.analyse['fct_oubli_cours']==True:
+                 eleve.fct_oubli_cours()
+             if classe.analyse['fct_credits_inf_50']==True:
+                 eleve.fct_credits_inf_50()
+             if classe.analyse['fct_echec_travail']==True:
+                 eleve.fct_echec_travail()
+             if classe.analyse['fct_classement_cours']==True:
+                 eleve.fct_classement_cours()
+             if classe.analyse['fct_classement_cours_app']==True:
+                 eleve.fct_classement_cours_app()
+             if classe.analyse['fct_age']==True:
+                 eleve.fct_age()
+             if classe.analyse['fct_prop_echec']==True:
+                 eleve.fct_prop_echec()
+             
+             if classe.analyse['fct_moyenne_ponderee_cg']==True:
                  eleve.fct_moyenne_ponderee_cg()
              
      #
@@ -827,7 +865,7 @@ class Classe(object):
          liste_cours_3tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','meth']
          liste_cours_4tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','ed_plas','daca+ep','ha','exco','grav','info']
          liste_cours_5tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','info','daca+ep','mus','ha','ds','ac_n']
-         liste_cours_6tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','daca+ep','audio','anim','ha','ds','angl']
+         liste_cours_6tq=['rel','fran','sh','sc_tech','ndls','math','ed_phys','cr','fc','3d','audio','daca+ep','anim','ha','ds','angl']
          if self.niv_sec=='1GT':liste_cours_annee=liste_cours_1gt
          if self.niv_sec=='2GT':liste_cours_annee=liste_cours_2gt
          if self.niv_sec=='3GT':liste_cours_annee=liste_cours_3gt
@@ -860,7 +898,7 @@ class Eleve(Classe):
      def __init__(self):
          self.pia=False
          self.ctg=False
-         self.ddn=False
+         self.ddn='01/01/1901'
          self.eval_certif=False
          self.vol_horaire_cc=0
          self.vol_horaire_ccnc=0
@@ -914,6 +952,8 @@ class Eleve(Classe):
                  self.vol_horaire_ccnc+=cours.heures
              if (cours.evaluation!=0) & (cours.ccnc==True):
                  self.vol_horaire_cc+=cours.heures
+         if self.vol_horaire_ccnc < 30:
+             QMessageBox.warning(gui,'Erreur',"<p>L'élève %s a un volume horaire inférieur à 30p./sem.</p> <p>Vérifiez s'il ne manque pas de points</p>"%self.nom) 
      #
      #
      def fct_moyenne_ponderee(self):
@@ -1258,12 +1298,10 @@ class Eleve(Classe):
          if (sc_6==True) & (sc_3==False):
              if 'sc_6' not in classe.liste_cours:
                  classe.liste_cours.append('sc_6')
-             
+                 classe.update_liste_cours()
              nb_echecs=0
              nb_faible=0
-             self.grille_horaire['sc_3'].appreciation=False
-             self.grille_horaire['sc_3'].points=False
-             self.grille_horaire['sc_3'].evaluation=0
+             nb_reussi=0
              
              if self.grille_horaire['bio_2'].appreciation=='e' : nb_echecs+=1
              if self.grille_horaire['chim_2'].appreciation=='e' : nb_echecs+=1
@@ -1273,7 +1311,11 @@ class Eleve(Classe):
              if self.grille_horaire['chim_2'].appreciation=='f' : nb_faible+=1
              if self.grille_horaire['phys_2'].appreciation=='f' : nb_faible+=1
              
-             if nb_echecs>1 :
+             if self.grille_horaire['bio_2'].appreciation=='r' : nb_reussi+=1
+             if self.grille_horaire['chim_2'].appreciation=='r' : nb_reussi+=1
+             if self.grille_horaire['phys_2'].appreciation=='r' : nb_reussi+=1
+             
+             if nb_echecs>=1 :
                  self.grille_horaire['bio_2'].echec_force=True
                  self.grille_horaire['chim_2'].echec_force=True
                  self.grille_horaire['phys_2'].echec_force=True
@@ -1283,30 +1325,23 @@ class Eleve(Classe):
                  self.grille_horaire['bio_2'].evaluation=1
                  self.grille_horaire['chim_2'].evaluation=1
                  self.grille_horaire['phys_2'].evaluation=1
-             elif (nb_echecs==1) & (nb_faible==0):
+             elif (nb_faible>=2) & (nb_echecs==0):
                  self.grille_horaire['sc_6'].evaluation=2
                  self.grille_horaire['sc_6'].appreciation='f'
-             elif (nb_echecs==1) & (nb_faible==1) :
-                 self.grille_horaire['sc_6'].evaluation=2
-                 self.grille_horaire['sc_6'].appreciation='f'
-             elif nb_faible>1:
-                 self.grille_horaire['sc_6'].evaluation=2
-                 self.grille_horaire['sc_6'].appreciation='f'
-             else :
+             elif (nb_reussi>=2) & (nb_echecs==0) :
                  self.grille_horaire['sc_6'].evaluation=3
                  self.grille_horaire['sc_6'].appreciation='r'
+             
              
          if (sc_6==False) & (sc_3==True):
              if 'sc_3' not in classe.liste_cours:
                  classe.liste_cours.append('sc_3')
-             
+                 classe.update_liste_cours()
+             self.grille_horaire['sc_3'].appreciation='x'
+             self.grille_horaire['sc_3'].evaluation=4
              nb_echecs=0
              nb_faible=0
-             self.grille_horaire['sc_6'].appreciation=False
-             self.grille_horaire['sc_6'].points=False
-             self.grille_horaire['sc_6'].evaluation=0
-             
-             
+             nb_reussi=0
              
              if self.grille_horaire['bio_1'].appreciation=='e' : nb_echecs+=1
              if self.grille_horaire['chim_1'].appreciation=='e' : nb_echecs+=1
@@ -1316,7 +1351,11 @@ class Eleve(Classe):
              if self.grille_horaire['chim_1'].appreciation=='f' : nb_faible+=1
              if self.grille_horaire['phys_1'].appreciation=='f' : nb_faible+=1
              
-             if nb_echecs==3 :
+             if self.grille_horaire['bio_1'].appreciation=='r' : nb_reussi+=1
+             if self.grille_horaire['chim_1'].appreciation=='r' : nb_reussi+=1
+             if self.grille_horaire['phys_1'].appreciation=='r' : nb_reussi+=1
+             
+             if nb_echecs>=2 :
                  self.grille_horaire['bio_1'].echec_force=True
                  self.grille_horaire['chim_1'].echec_force=True
                  self.grille_horaire['phys_1'].echec_force=True
@@ -1326,10 +1365,16 @@ class Eleve(Classe):
                  self.grille_horaire['bio_1'].evaluation=1
                  self.grille_horaire['chim_1'].evaluation=1
                  self.grille_horaire['phys_1'].evaluation=1
-             elif ((nb_echecs==2) or (nb_echecs==1)or (nb_faible>1)):
+             elif nb_faible>=2:
                  self.grille_horaire['sc_3'].evaluation=2
                  self.grille_horaire['sc_3'].appreciation='f'
-             else :
+             elif nb_reussi==2 & nb_echecs==1 :
+                 self.grille_horaire['sc_3'].evaluation=2
+                 self.grille_horaire['sc_3'].appreciation='f'
+             elif nb_reussi==1 & nb_echecs==1 & nb_faible==1:
+                 self.grille_horaire['sc_3'].evaluation=2
+                 self.grille_horaire['sc_3'].appreciation='f'
+             elif nb_reussi>=2 & (nb_echecs==1 or nb_faible==1):
                  self.grille_horaire['sc_3'].evaluation=3
                  self.grille_horaire['sc_3'].appreciation='r'
      #
@@ -1337,7 +1382,119 @@ class Eleve(Classe):
          self.prop_echec=(self.heures_echec_nc+self.heures_echec_cc)/float(self.vol_horaire_ccnc)
          self.prop_echec=round(self.prop_echec*100,2)
      #
+     def fct_daca_mars(self):
+         """Cette fonction calcule la moyenne pondérée des cours DACA, la moyenne pondérée des cours ED_PLAS et la moyenne pondérée de DACA et ED_PLAS ensemble"""
+         
+         if 'daca+ep' not in classe.liste_cours:
+             classe.liste_cours.append('daca+ep')
+             classe.update_liste_cours()
+         
+         nb_echecs=0
+         nb_faible=0
+         nb_reussi=0
+             
+         if self.grille_horaire['cr'].appreciation=='e' : nb_echecs+=1
+         if self.grille_horaire['fc'].appreciation=='e' : nb_echecs+=1
+         if self.grille_horaire['3d'].appreciation=='e' : nb_echecs+=1
+             
+         if self.grille_horaire['cr'].appreciation=='f' : nb_faible+=1
+         if self.grille_horaire['fc'].appreciation=='f' : nb_faible+=1
+         if self.grille_horaire['3d'].appreciation=='f' : nb_faible+=1
+             
+         if self.grille_horaire['cr'].appreciation=='r' : nb_reussi+=1
+         if self.grille_horaire['fc'].appreciation=='r' : nb_reussi+=1
+         if self.grille_horaire['3d'].appreciation=='r' : nb_reussi+=1
+         
+         if classe.niv_sec=='3TQ' :
+             #en 3TQ, ed_plas existe tel quel et daca correspond à CR+FC+3D
+             if self.grille_horaire['ed_plas'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['ed_plas'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['ed_plas'].appreciation=='r' : nb_reussi+=1
+         #
+         if classe.niv_sec=='4TQ':
+             #en 4TQ, ed_plas=INFO+GRAV  ; DACA=CR+FC+3D
+             nb_reussi_ed_plas=0
+             nb_faible_ed_plas=0
+             nb_echec_ed_plas=0
+             if self.grille_horaire['grav'].appreciation=='r' : nb_reussi_ed_plas+=1
+             if self.grille_horaire['info'].appreciation=='r' : nb_reussi_ed_plas+=1
+             if self.grille_horaire['grav'].appreciation=='f' : nb_faible_ed_plas+=1
+             if self.grille_horaire['info'].appreciation=='f' : nb_faible_ed_plas+=1
+             if self.grille_horaire['grav'].appreciation=='e' : nb_echec_ed_plas+=1
+             if self.grille_horaire['info'].appreciation=='e' : nb_echec_ed_plas+=1
+             
+             #ee=>e,ef=>e,er=>f,ff=>f,fr=>f,rr=>r
+             if nb_echec_ed_plas==2 : 
+                 self.grille_horaire['ed_plas'].appreciation='e'
+                 nb_echecs+=1
+             elif (nb_echec_ed_plas==1) & (nb_faible_ed_plas==1) :  
+                 self.grille_horaire['ed_plas'].appreciation='e'
+                 nb_echecs+=1
+                 self.grille_horaire['ed_plas'].evaluation=1
+             elif nb_reussi_ed_plas==2 : 
+                 self.grille_horaire['ed_plas'].appreciation='r'
+                 nb_reussi+=1
+                 self.grille_horaire['ed_plas'].evaluation=3
+             else: 
+                 self.grille_horaire['ed_plas'].appreciation='f'
+                 self.grille_horaire['ed_plas'].evaluation=2
+                 nb_faible+=1
+                 
+         
+         if classe.niv_sec=='5TQ':
+             if self.grille_horaire['info'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['info'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['info'].appreciation=='r' : nb_reussi+=1
+             
+         if classe.niv_sec=='6TQ':
+             if self.grille_horaire['audio'].appreciation=='e' : nb_echecs+=1
+             if self.grille_horaire['audio'].appreciation=='f' : nb_faible+=1
+             if self.grille_horaire['audio'].appreciation=='r' : nb_reussi+=1
+             #self.grille_horaire['ed_plas'].appreciation=self.grille_horaire['audio'].appreciation
+         
+         #if self.grille_horaire['ed_plas'].appreciation=='r' : nb_reussi+=1
+         #if self.grille_horaire['ed_plas'].appreciation=='f' : nb_faible+=1
+         #if self.grille_horaire['ed_plas'].appreciation=='e' : nb_echecs+=1
+         
+         if nb_echecs>=2 : 
+             self.grille_horaire['daca+ep'].appreciation='e'
+             self.grille_horaire['daca+ep'].evaluation=1
+             self.echec_daca=True
+         elif (nb_echecs>=1) & (nb_faible>=1) : 
+             self.grille_horaire['daca+ep'].appreciation='e'
+             self.grille_horaire['daca+ep'].evaluation=1
+             self.echec_daca=True
+         elif nb_reussi==4 : 
+             self.grille_horaire['daca+ep'].appreciation='r'
+             self.grille_horaire['daca+ep'].evaluation=3
+         elif (nb_reussi==3) & (nb_faible==1) : 
+             self.grille_horaire['daca+ep'].appreciation='r'
+             self.grille_horaire['daca+ep'].evaluation=3
+         else : 
+             self.grille_horaire['daca+ep'].appreciation='f'
+             self.grille_horaire['daca+ep'].evaluation=2
+             
      def fct_daca(self):
+         """Cette fonction calcule la moyenne pondérée des cours DACA et ED_PLAS ensemble"""
+         if 'daca+ep' not in classe.liste_cours:
+             classe.liste_cours.append('daca+ep')
+             classe.update_liste_cours()
+         if classe.niv_sec=='3TQ_':
+             self.grille_horaire['daca+ep']=(self.grille_horaire['ed_plas']*4+self.grille_horaire['cr']*4+self.grille_horaire['fc']*3+self.grille_horaire['3d']*3)/14
+         if classe.niv_sec=='4TQ_':
+             #en 4TQ, ed_plas=INFO+GRAV  ; DACA=CR+FC+3D
+             if 'ed_plas' not in classe.liste_cours:
+                 classe.liste_cours.append('ed_plas')
+                 classe.update_liste_cours()
+             self.grille_horaire['ed_plas']=(self.grille_horaire['info']+self.grille_horaire['grav'])/2
+             self.grille_horaire['daca+ep']=(self.grille_horaire['ed_plas']*4+self.grille_horaire['cr']*4+self.grille_horaire['fc']*3+self.grille_horaire['3d']*3)/14
+         if classe.niv_sec=='5TQ_':
+             #en 5TQ ed_plas=Info
+             self.grille_horaire['daca+ep']=(self.grille_horaire['info']*2+self.grille_horaire['cr']*4+self.grille_horaire['fc']*2+self.grille_horaire['3d']*2)/10
+         if classe.niv_sec=='6TQ_':
+             #en 6TQ ed_plas=audio
+             self.grille_horaire['daca+ep']=(self.grille_horaire['audio']*2+self.grille_horaire['cr']*3+self.grille_horaire['fc']*3+self.grille_horaire['3d']*2)/10
+         
          if self.grille_horaire['daca+ep'].points<50:
              self.echec_daca=True
      #
@@ -1418,7 +1575,11 @@ class Cours(Eleve):
 #
 class Latex_file():
      #
+     
      def __init__(self, doc_type="",titre="",file_name=""):
+         self.encoding=sys.stdout.encoding
+         if self.encoding=='cp850':self.encoding='cp1252'
+         if self.encoding=='UTF-8':self.encoding='utf8'
          self.doc_type=doc_type
          self.titre=titre
          self.file_name=file_name
@@ -1454,7 +1615,7 @@ class Latex_file():
      def analyse (self):
          list_file=[]
          list_file.append('\documentclass[12pt]{article}')
-         list_file.append("\\usepackage[utf8]{inputenc}") #active la gestion des carac en utf-8
+         list_file.append("\\usepackage[%s]{inputenc}" %self.encoding) #active la gestion des carac en utf-8
          list_file.append("\\usepackage[a4paper,margin=1.5cm]{geometry} ")
          list_file.append("\\usepackage{array}") #améliore le rendu des tableaux
          list_file.append("\\usepackage[frenchb]{babel}")
@@ -1497,7 +1658,7 @@ class Latex_file():
                          ligne.append('\\footnotesize '+eleve.classement_cours[categorie])
                      list_tab_elv.append(' & '.join(ligne)+" \\\\")
              #affichage moyenne
-             if (eleve.moy_pond_ccnc<50) & (classe.analyses['fct_moyenne_ponderee']==True):
+             if (eleve.moy_pond_ccnc<50) & (classe.analyse['fct_moyenne_ponderee']==True):
                  list_tab_elv.append(self.ligne_3cell('Moyenne pondérée',eleve.moy_pond_ccnc,'rouge'))
              elif (eleve.moy_pond_ccnc>=50) & (eleve.moy_pond_ccnc<60):
                  list_tab_elv.append(self.ligne_3cell('Moyenne pondérée',eleve.moy_pond_ccnc,'orange'))
@@ -1525,7 +1686,8 @@ class Latex_file():
              #affichage de la proportion des échecs pour les rhétos
              if (eleve.prop_echec>0) & (eleve.prop_echec<=33.33):
                  list_tab_elv.append(self.ligne_3cell('Prop. échecs',eleve.prop_echec,'orange'))
-                 table=self.creer_ligne(table,"Prop. échecs", 1,(str(eleve.prop_echec)+'%'),None)
+                 #list_tab_elv.append(self.ligne_3cell('Prop. échecs',eleve.prop_echec,'orange'))
+                 #table=self.creer_ligne(table,"Prop. échecs", 1,(str(eleve.prop_echec)+'%'),None)
              elif eleve.prop_echec>33.33:
                  list_tab_elv.append(self.ligne_3cell('Prop. échecs',eleve.prop_echec,'rouge'))
              #affichage des points de DACA et ed_plas en TQ
@@ -1588,7 +1750,7 @@ class Latex_file():
              try:
                  prog=QProgressDialog()
                  prog.setWindowFlags(Qt.SplashScreen)
-                 prog.setCancelButtonText (str())
+                 prog.setCancelButton(None)
                  prog.setLabelText ('Analyse => pdf')
                  for i in range(50):
                      prog.setValue(i)
@@ -1604,6 +1766,7 @@ class Latex_file():
                      #time.sleep(0.1)
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.aux')
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.log')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.tex')
              except Exception as e:
                  QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
                  print ('Erreur : %s' % e)
@@ -1612,7 +1775,7 @@ class Latex_file():
              try:
                  prog=QProgressDialog()
                  prog.setWindowFlags(Qt.SplashScreen)
-                 prog.setCancelButtonText (str())
+                 prog.setCancelButton(None)
                  prog.setLabelText ('Analyse => pdf')
                  for i in range(50):
                      prog.setValue(i)
@@ -1628,6 +1791,7 @@ class Latex_file():
                      #time.sleep(0.1)
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.aux')
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.log')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_analyse.tex')
              except Exception as e:
                  QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
                  print ('Erreur : %s' % e)
@@ -1640,11 +1804,11 @@ class Latex_file():
              tuple_moy_nom=(eleve.moy_pond_ccnc,eleve.nom)
              classement_moy_pond.append(tuple_moy_nom)
          classement_moy_pond=sorted(classement_moy_pond)
-         doc_name=self.file_name+'_classement.tsv'
-         doc_name=QFileDialog.getSaveFileName(gui,"Sauver classement",doc_name,"Document TSV (*.tsv)")
+         doc_name=self.file_name+'_classement.txt'
+         doc_name=QFileDialog.getSaveFileName(gui,"Sauver classement",doc_name,"Document TXT (*.txt)")
          gui.current_dir=os.path.dirname(doc_name)
          f = open(doc_name,'w')
-         f.write('Nom \t Moyenne')
+         f.write('Nom \t Moyenne \n')
          for eleve in classement_moy_pond:
              f.write(eleve[1]+'\t'+str(eleve[0]))
              f.write('\n')
@@ -1653,7 +1817,8 @@ class Latex_file():
      def tableau_recap (self):
          list_file=[]
          list_file.append("\documentclass[12pt]{article}")
-         list_file.append("\\usepackage[utf8]{inputenc}") #active la gestion des carac en utf-8
+         
+         list_file.append("\\usepackage[%s]{inputenc}"%self.encoding) #active la gestion des carac en utf-8
          list_file.append("\\usepackage[a4paper,margin=1cm,landscape]{geometry} ")
          list_file.append("\\usepackage{array}") #améliore le rendu des tableaux
          list_file.append("\\usepackage[frenchb]{babel}")
@@ -1680,7 +1845,7 @@ class Latex_file():
          if classe.mars==True:
              en_tete.append("Mars")
          en_tete.append("Échecs")
-         if classe.analyses['fct_moyenne_ponderee']==True: #n'existe pas en mars
+         if classe.analyse['fct_moyenne_ponderee']==True: #n'existe pas en mars
              en_tete.append("Moy.")
          en_tete.append("Global")
          
@@ -1782,11 +1947,11 @@ class Latex_file():
                  if classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==0:
                      couleur='{{'
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==1:
-                     couleur='\\scriptsize \\centering \\textcolor{rouge} {\\underline{'
+                     couleur='\\scriptsize \\centering \\textcolor{rouge} {\\underline{\\scshape '
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==2:
-                     couleur='\\scriptsize \\centering \\textcolor{orange} {{'
+                     couleur='\\scriptsize \\centering \\textcolor{orange} { { \\scshape '
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==3:
-                     couleur='\\scriptsize \\centering \\textcolor{vert} {{'
+                     couleur='\\scriptsize \\centering \\textcolor{vert} { { \\scshape '
                  elif classe.carnet_cotes[eleve].grille_horaire[nom_cours].evaluation==4:
                      couleur='\\scriptsize \\centering{{'
                  ligne.append(couleur+points+'}}')
@@ -1809,7 +1974,7 @@ class Latex_file():
                  cell=('\\scriptsize \\textcolor{orange}{'+txt+'}')
              else:
                  cell=('\\scriptsize \\textcolor{vert}{'+txt+'}')
-             if classe.analyses['fct_moyenne_ponderee']==True: #n'existe pas en mars
+             if classe.analyse['fct_moyenne_ponderee']==True: #n'existe pas en mars
                  ligne.append(cell)
                  #
              if classe.carnet_cotes[eleve].situation_globale ==3:
@@ -1841,7 +2006,7 @@ class Latex_file():
              try:
                  prog=QProgressDialog()
                  prog.setWindowFlags(Qt.SplashScreen)
-                 prog.setCancelButtonText (str() )
+                 prog.setCancelButton(None)
                  prog.setLabelText ('Tableau => pdf')
                  for i in range(50):
                      prog.setValue(i)
@@ -1855,6 +2020,7 @@ class Latex_file():
                      QApplication.processEvents()
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.aux')
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.log')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.tex')
              except Exception as e:
                  QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
                  print ('Erreur : %s' % e)
@@ -1863,7 +2029,7 @@ class Latex_file():
              try:
                  prog=QProgressDialog()
                  prog.setWindowFlags(Qt.SplashScreen)
-                 prog.setCancelButtonText (str() )
+                 prog.setCancelButton(None)
                  prog.setLabelText ('Tableau => pdf')
                  for i in range(50):
                      prog.setValue(i)
@@ -1877,6 +2043,7 @@ class Latex_file():
                      QApplication.processEvents()
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.aux')
                  os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.log')
+                 os.remove(os.path.dirname(doc_name)+'/'+self.file_name+'_tableau.tex')
              except Exception as e:
                  QMessageBox.critical(gui,'Echec',"La création du document pdf a échoué, vérifiez que pdflatex est bien installé sur cet ordinateur.")
                  print ('Erreur : %s' % e)
@@ -1923,5 +2090,3 @@ if __name__=="__main__":
      app.exec_()
      #fsock.close()
      
-#attention, lorsqu'un cours n'est pas évalué, l'ensemble des élèves chez qui ce cours n'est évalué possèdent le même objet cours. Cela pose problème lorsqu'il faut modifier le cours à posteriori comme en sc3 et sc6. => voir la fct set_param à la ligne 689, il faudrait copier l'objet cours.
-#lorsque le cours de sciences est renseigné par * et non par un rfe ou des points, les cours de sciences se placent en fin de tableau.=> cela devrait être réglé par un update liste cours après la fct sc6

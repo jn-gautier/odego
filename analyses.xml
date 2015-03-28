@@ -4,7 +4,6 @@
          <delibe name="Noel">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -15,18 +14,9 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -34,21 +24,12 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -59,13 +40,7 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>    
      <niveau name="2GT">
@@ -83,18 +58,9 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -102,16 +68,8 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
@@ -127,13 +85,7 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>  
      <niveau name="3GT">
@@ -151,18 +103,9 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -170,16 +113,8 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
@@ -195,13 +130,7 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="4GT">
@@ -219,18 +148,9 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -238,16 +158,8 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
@@ -263,13 +175,7 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
      </niveau>
      <niveau name="5GT">
@@ -287,18 +193,10 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
              <fct_age>1</fct_age>
              <fct_sciences6>1</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -306,16 +204,9 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
              <fct_sciences6_mars>1</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
@@ -331,13 +222,13 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
              <fct_sciences6>1</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             
+             
+             
+             
          </delibe>
      </niveau>
      <niveau name="6GT">
@@ -355,18 +246,18 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
              <fct_sciences6>1</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             <fct_prop_echec>1</fct_prop_echec>
+             
+             
+             
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
+             
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -374,16 +265,16 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
+             
+             
+             
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
+             
              <fct_sciences6_mars>1</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             <fct_prop_echec>1</fct_prop_echec>
+             
+             
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
@@ -399,20 +290,20 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
              <fct_sciences6>1</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
+             
              <fct_prop_echec>1</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             
+             
          </delibe>
      </niveau>
      <niveau name="3TQ">
          <delibe name="Noel">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -420,21 +311,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
+             
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
+             
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -442,21 +333,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
+             
+             
+             
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             <fct_daca_mars>1</fct_daca_mars>
+             
+             
+             
+             
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -467,11 +358,11 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
@@ -480,7 +371,7 @@
          <delibe name="Noel">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -488,21 +379,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
+             
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
+             
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -510,21 +401,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
+             
+             
+             
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             <fct_daca_mars>1</fct_daca_mars>
+             
+             
+             
+             
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -535,11 +426,11 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
@@ -548,7 +439,7 @@
          <delibe name="Noel">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -556,21 +447,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
+             
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
+             
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -578,21 +469,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
+             
+             
+             
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             
+             <fct_daca_mars>1</fct_daca_mars>
+             
+             
+             
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -603,11 +494,11 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
@@ -616,7 +507,7 @@
          <delibe name="Noel">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -624,21 +515,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
+             
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>
          <delibe name="Mars">
-             <fct_points_sup_100>0</fct_points_sup_100>
-             <fct_moyenne_ponderee>0</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
+             
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -646,21 +537,21 @@
              <fct_echec_contrat>1</fct_echec_contrat>
              <fct_certif_med>1</fct_certif_med>
              <fct_oubli_cours>1</fct_oubli_cours>
-             <fct_credits_inf_50>0</fct_credits_inf_50>
-             <fct_echec_travail>0</fct_echec_travail>
-             <fct_classement_cours>0</fct_classement_cours>
+             
+             
+             
              <fct_classement_cours_app>1</fct_classement_cours_app>
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
-             <fct_daca>0</fct_daca>
-             <fct_moyenne_ponderee_cg>0</fct_moyenne_ponderee_cg>
+             
+             
+             <fct_daca_mars>1</fct_daca_mars>
+             
+             
          </delibe>
          <delibe name="Juin">
              <fct_points_sup_100>1</fct_points_sup_100>
              <fct_moyenne_ponderee>1</fct_moyenne_ponderee>
-             <fct_echec_inf35>0</fct_echec_inf35>
+             
              <fct_nb_heures_horaire>1</fct_nb_heures_horaire>
              <fct_total_heures_echec>1</fct_total_heures_echec>
              <fct_cours_verrou_echec>1</fct_cours_verrou_echec>
@@ -671,11 +562,11 @@
              <fct_credits_inf_50>1</fct_credits_inf_50>
              <fct_echec_travail>1</fct_echec_travail>
              <fct_classement_cours>1</fct_classement_cours>
-             <fct_classement_cours_app>0</fct_classement_cours_app>
+             
              <fct_age>1</fct_age>
-             <fct_sciences6>0</fct_sciences6>
-             <fct_sciences6_mars>0</fct_sciences6_mars>
-             <fct_prop_echec>0</fct_prop_echec>
+             
+             
+             
              <fct_daca>1</fct_daca>
              <fct_moyenne_ponderee_cg>1</fct_moyenne_ponderee_cg>
          </delibe>

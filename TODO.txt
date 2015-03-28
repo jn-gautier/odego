@@ -1,5 +1,5 @@
 #poru toutes les classes de 1°, ajouter tehcno, voir le cours prof_f et ac_f
-#introduire une fct de calcul de daca, daca+EP et peut-être "arts" en TQ
+
 #dvp un fichier de config qui permet de stocker le lien vers un ou plusieurs fichiers pour pouvoir télécharger les tableaux correspondants, il faut aussi pouvoir les effacer, l'idée serait de faire une table_view avec 1°colonne nom du fichier (1A_dec_2014) et 2°colonne le lien. Les deux colonnes doivent être éditables, les lignes doivent pouvoir être supprimées.
 
 
@@ -13,3 +13,19 @@
 
 #trouver une méthode pour mettre en évidence les élèves d'immersion
 #internaliser le calcul der daca et ed_plas en TQ et vérifier la répartion entre grav et info en 3 et4
+
+réutiliser partiellement le code de fusion! pour créer un fichier de configuration comprenant le nom des classes et le lien de téléchargement. De cette manière, les titu pourront adapter les téléchargements possibles
+
+#prévoir une checkbox de configuration qui lorsqu'elle est cochée envoie directement les documents produits au titulaire
+
+#trouver une solution pour enregistrer qq part (de pref en ligne) les résultats de noel et mars (nb_heures_echec) ; trouver une solution pour héberger une DB_sqlite, par exemple : la mettre sur drive et la télécharger à chaque fois => cela dépend du poids du fichier ou créer un simple fichier texte (TSV) mais voir comment le uploader sur drive après modification
+
+
+
+#prévoir que les élèves puissent ne pas avoir de points dans une des disciplines de sciences en mars
+#effacer les documents tex
+
+prévoir un menu de config dans lequel je peux choisir de ne pas effacer les documents tex, dans lequel je peux choisir d'envoyer directement les documents au titulaire
+#à plus long terme, prévoir un menu de config dans lequel je peux cocher ou décocher les analyses à effectuer
+
+#voir pq le path vers le dossier de souvegarde n'est pas conservé dans windows, réutiliser le code fusion pour mettre le path vers T:/ si possible
