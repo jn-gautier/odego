@@ -1,0 +1,37 @@
+\documentclass{scrartcl}
+%\documentclass{article}
+\usepackage[a4paper,margin=1cm,landscape]{geometry}
+\usepackage[french]{babel}
+\usepackage{tabularray}
+\usepackage[T1]{fontenc}
+\usepackage{kpfonts}
+\usepackage{fontawesome5}
+\usepackage{xcolor}%gestion des couleurs dans le tableau
+\definecolor{gris}{rgb}{0.95,0.95,0.95}%définition des couleurs utilisées dans le document
+\definecolor{gris_fonce}{rgb}{0.57,0.57,0.57}
+\definecolor{vert}{rgb}{0.03,0.5,0.1}
+\definecolor{orange}{rgb}{0.93,0.4,0}
+\definecolor{rouge}{rgb}{0.9,0,0}
+\renewcommand{\familydefault}{\sfdefault}
+\newcommand{\echec}[1]{\textcolor{rouge}{\underline{#1}}}
+\newcommand{\faible}[1]{\textcolor{orange}{#1}}
+\newcommand{\reussite}[1]{\textcolor{vert}{#1}}
+
+\setlength{\parindent}{0pt}%ajout Titi pour supprimer l'alinéa
+
+\begin{document}
+\centering
+\thispagestyle{empty} %pour éviter le numéro en bas de page
+\begin{center} \large \VAR{titre} \end{center}
+\SetTblrInner{rowsep=0pt,colsep=0pt,hlines,vlines}
+%\vfil %ajout Titi pour centrer verticalement
+\tiny
+\begin{tblr}{colspec={Q[l,m,2.5cm] *{\VAR{nb_colonnes}}{Q[c,m,\VAR{larg_colonne} cm]}},row{even} = {gris},rows={ht=6mm,font=\tiny}}
+\BLOCK{for cours in en_tete[1:]:} & \VAR{cours} \BLOCK{endfor} \\
+\BLOCK{for eleve in classe}\VAR{eleve[0]}\BLOCK{for point in eleve[1:]} & \VAR{point} \BLOCK{endfor} \\
+\BLOCK{endfor}
+
+\end{tblr}
+\end{document}
+
+%#voir https://stackoverflow.com/questions/46652984/python-jinja2-latex-table
