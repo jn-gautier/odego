@@ -5,18 +5,12 @@ from UI.set_classe import set_classe
 
 def select_file(self):
     current_dir = os.path.expanduser("~/dossier_ivf/odego/app")
-    file_name = QFileDialog.getOpenFileName(self,'Tableau avec les points de la classe.',current_dir)
-    file_name=file_name[0]
-    #self.current_dir=os.path.dirname(file_name)
-    import_txt(self,file_name)
-    #get_file_ext()
-    #if self.ext=='txt':
-    #    self.import_txt()
-    #elif self.ext=='tsv':
-    #    self.import_txt()
-    #else:
-    #    QMessageBox.warning(self,'Erreur',"Veuillez renseigner un fichier avec l'extension 'txt' ou 'tsv'.")
-     #
+    file_name, _ = QFileDialog.getOpenFileName(self,'Tableau avec les points de la classe.',current_dir)
+    
+    if file_name :
+        file_name=file_name[0]
+        import_txt(self,file_name)
+    
 def get_file_ext(self):
          ext=self.file_name.split('.')
          self.ext=ext[len(ext)-1]

@@ -64,7 +64,7 @@ class Compile_tableau_task(QObject):
         
         
         try:
-            commande = ['latexmk', '-pdflatex', nom_base]
+            commande = ['latexmk', '-lualatex', nom_base]
             self.progress.emit(50)
             proc = subprocess.Popen(commande, cwd=dossier_sortie)
             proc.wait() # Assure que le processus est terminé

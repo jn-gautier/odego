@@ -3,8 +3,14 @@
 \usepackage[a4paper,margin=1cm,landscape]{geometry}
 \usepackage[french]{babel}
 \usepackage{tabularray}
-\usepackage[T1]{fontenc}
-\usepackage{kpfonts}
+%\usepackage[T1]{fontenc}
+\usepackage[no-math]{fontspec}
+\usepackage{kpfonts-otf}
+\setsansfont{KpSans}[
+    Numbers = {Monospaced, Proportional},
+    Ligatures = TeX
+]
+
 \usepackage{fontawesome5}
 \usepackage{xcolor}%gestion des couleurs dans le tableau
 \definecolor{gris}{rgb}{0.95,0.95,0.95}%définition des couleurs utilisées dans le document
@@ -26,7 +32,7 @@
 \SetTblrInner{rowsep=0pt,colsep=0pt,hlines,vlines}
 %\vfil %ajout Titi pour centrer verticalement
 \tiny
-\begin{tblr}{colspec={Q[l,m,2.5cm] *{\VAR{nb_colonnes}}{Q[c,m,\VAR{larg_colonne} cm]}},row{even} = {gris},rows={ht=6mm,font=\tiny}}
+\begin{tblr}{colspec={Q[l,m,2.5cm] *{\VAR{nb_colonnes-1}}{Q[c,m,\VAR{larg_colonne} cm]} X[c,m]},row{even} = {gris},rows={ht=6mm,font=\tiny}}
 \BLOCK{for cours in en_tete[1:]:} & \VAR{cours} \BLOCK{endfor} \\
 \BLOCK{for eleve in classe}\VAR{eleve[0]}\BLOCK{for point in eleve[1:]} & \VAR{point} \BLOCK{endfor} \\
 \BLOCK{endfor}
