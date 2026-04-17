@@ -3,14 +3,17 @@
 \usepackage[a4paper,margin=1cm,landscape]{geometry}
 \usepackage[french]{babel}
 \usepackage{tabularray}
-%\usepackage[T1]{fontenc}
 \usepackage[no-math]{fontspec}
-\usepackage{kpfonts-otf}
-\setsansfont{KpSans}[
-    Numbers = {Monospaced, Proportional},
+\usepackage[notext, nomath]{kpfonts-otf}
+\setsansfont{KpSans-Regular}[
+    UprightFont = *,
+    BoldFont = *,       % On utilise la même fonte pour le gras (pas de chargement de fichier Bold)
+    ItalicFont = *,     % Idem pour l'italique
+    BoldItalicFont = *,
+    Numbers = {Monospaced},
     Ligatures = TeX
 ]
-
+\renewcommand{\familydefault}{\sfdefault}
 \usepackage{fontawesome5}
 \usepackage{xcolor}%gestion des couleurs dans le tableau
 \definecolor{gris}{rgb}{0.95,0.95,0.95}%définition des couleurs utilisées dans le document
@@ -18,7 +21,6 @@
 \definecolor{vert}{rgb}{0.03,0.5,0.1}
 \definecolor{orange}{rgb}{0.93,0.4,0}
 \definecolor{rouge}{rgb}{0.9,0,0}
-\renewcommand{\familydefault}{\sfdefault}
 \newcommand{\echec}[1]{\textcolor{rouge}{\underline{#1}}}
 \newcommand{\faible}[1]{\textcolor{orange}{#1}}
 \newcommand{\reussite}[1]{\textcolor{vert}{#1}}
@@ -33,10 +35,9 @@
 %\vfil %ajout Titi pour centrer verticalement
 \tiny
 \begin{tblr}{colspec={Q[l,m,2.5cm] *{\VAR{nb_colonnes-1}}{Q[c,m,\VAR{larg_colonne} cm]} X[c,m]},row{even} = {gris},rows={ht=6mm,font=\tiny}}
-\BLOCK{for cours in en_tete[1:]:} & \VAR{cours} \BLOCK{endfor} \\
-\BLOCK{for eleve in classe}\VAR{eleve[0]}\BLOCK{for point in eleve[1:]} & \VAR{point} \BLOCK{endfor} \\
-\BLOCK{endfor}
-
+    \BLOCK{for cours in en_tete[1:]:}                                       & \VAR{cours} \BLOCK{endfor} \\
+    \BLOCK{for eleve in classe}\VAR{eleve[0]}\BLOCK{for point in eleve[1:]} & \VAR{point} \BLOCK{endfor} \\
+    \BLOCK{endfor}
 \end{tblr}
 \end{document}
 
