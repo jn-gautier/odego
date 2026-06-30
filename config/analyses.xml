@@ -334,7 +334,7 @@
              <fct_classement_cours>1</fct_classement_cours>
              <fct_age>1</fct_age>
              <fct_sciences6>1</fct_sciences6>
-             <fct_prop_echec>1</fct_prop_echec>
+             <fct_prop_echec>0</fct_prop_echec>
          </delibe>
      </niveau>
      <niveau name="3TQ">

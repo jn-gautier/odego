@@ -60,7 +60,6 @@ class Compile_tableau_task(QObject):
         dossier_sortie = os.path.dirname(self.chemin_fichier_tex)
         nom_base = os.path.basename(self.chemin_fichier_tex)
         
-        # --- Affichage d'une barre de progression (optionnel mais fortement recommandé) ---
         
         
         try:

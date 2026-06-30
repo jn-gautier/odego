@@ -1,4 +1,5 @@
 from models.latex.tableau import Tableau_jinja
+from models.classement.classement import Classement_jinja
 import traceback
 from PyQt6.QtWidgets import QProgressDialog
 from PyQt6.QtCore import Qt
@@ -41,7 +42,9 @@ def process_classe(self):
                     
                     #Latex_file(doc_type="tableau_recap",titre=titre,file_name=file_name)
                 if creer_classement:
-                    Latex_file(doc_type="classement",titre=titre,file_name=file_name)
+                    self.classement_jinja=Classement_jinja(parent=self)
+                    self.classement_jinja.signal_request_save.connect(self.my_slots.enregistrer_document_latex)
+                    self.classement_jinja.set_data(self.titre,self.classe)
                 #self.my_slots.show_messagebox('Terminé', "Les données ont été traitées avec succès!", "information")
             except Exception as e:
                 self.my_slots.show_messagebox('Erreur', "Un ou plusieurs documents demandés n'ont pas été produits", "warning")

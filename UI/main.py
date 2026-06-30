@@ -22,6 +22,7 @@ class Gui(QMainWindow):
         set_dock_start(self)
         #self.center()
         self.sheets_id=None
+        self.threads_actifs = []
     
     def center(self):
         screen = QApplication.primaryScreen()

@@ -139,12 +139,13 @@ class Eleve(QObject):
      #
      def fct_echec_inf35(self):
          """Cette fonction calcule, pour un eleve:
-           => le nom des cours dont la cote est inférieure à 35,
-           => le nombre de cours dont la cote est inférieure à 35."""
+           => le nom des cours dont la cote est inférieure à 30,
+           => le nombre de cours dont la cote est inférieure à 3.
+           =>en 2026, la limte est passée à 30%, mais je ne modifie pas le nom de la fonction"""
          liste_cours_inf35=[]
          for cours in self.grille_horaire.values():
              if cours.points!=False:
-                 if (cours.points<35) & (cours.ccnc==True):
+                 if (cours.points<30) & (cours.ccnc==True):
                      liste_cours_inf35.append(cours.intitule)
          self.liste_cours_inf35=", ".join(liste_cours_inf35)
          self.nb_cours_inf35=len(liste_cours_inf35)
@@ -387,11 +388,13 @@ class Eleve(QObject):
          
      def fct_daca_5tq(self):
          """Cette fonction calcule la moyenne pondérée des cours DACA et ED_PLAS ensemble"""
-         ed_plas=self.grille_horaire['info'].points*self.grille_horaire['info'].heures
+         ed_plas_1=self.grille_horaire['info'].points*self.grille_horaire['info'].heures
+         ed_plas_2=self.grille_horaire['info'].points*self.grille_horaire['info'].heures
+         ed_plas=ed_plas_1+ed_plas_2
          cr=self.grille_horaire['cr'].points*self.grille_horaire['cr'].heures
          fc=self.grille_horaire['fc'].points*self.grille_horaire['fc'].heures
          d3=self.grille_horaire['3d'].points*self.grille_horaire['3d'].heures
-         total_heures=self.grille_horaire['ed_plas'].heures+self.grille_horaire['cr'].heures+self.grille_horaire['fc'].heures+self.grille_horaire['3d'].heures
+         total_heures=self.grille_horaire['info'].heures+self.grille_horaire['info'].heures+self.grille_horaire['cr'].heures+self.grille_horaire['fc'].heures+self.grille_horaire['3d'].heures
          
          self.grille_horaire['daca+ep'].points=(ed_plas+cr+fc+d3)/total_heures
          self.synthese_daca_ep() 
