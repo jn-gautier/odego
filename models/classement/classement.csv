@@ -1,0 +1,3 @@
+\BLOCK{for eleve in classe}\VAR{eleve[0]},\VAR{eleve[1]},\VAR{eleve[2]}
+\BLOCK{endfor}
+    
