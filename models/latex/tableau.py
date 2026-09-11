@@ -8,7 +8,7 @@ compfr=Compfr()
 from PyQt6.QtCore import QObject, pyqtSignal as Signal
 
 
-class Tableau_jinja(QObject):
+class Tableau_jinja_latex(QObject):
     signal_request_save = Signal(str,str,str,str)
     def __init__(self,parent=None):
         super().__init__(parent)
@@ -56,7 +56,7 @@ class Tableau_jinja(QObject):
         for eleve in sorted(classe.liste_eleves,key=cmp_to_key(compfr)):
             eleve=classe.carnet_cotes[eleve]
             ligne_eleve=[]
-            if len(eleve.nom)>40:
+            if len(eleve.nom)>40:#le code spécial Ruffo
                 ligne_eleve.append(eleve.nom[0:20]+" \\dots "+eleve.nom[-20:])
 
             else:

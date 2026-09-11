@@ -1,9 +1,10 @@
-from models.latex.tableau import Tableau_jinja
+from models.latex.tableau import Tableau_jinja_latex 
+from models.typst.tableau import Tableau_jinja_typst 
 from models.classement.classement import Classement_jinja
 import traceback
 from PyQt6.QtWidgets import QProgressDialog
 from PyQt6.QtCore import Qt
-from UI.set_thread_compile import set_thread_compile
+from UI.set_thread_compile import set_thread_compile_latex, set_thread_compile_typst
 
 
 def process_classe(self):
@@ -12,6 +13,16 @@ def process_classe(self):
     creer_tableau_recap=self.radio_tab_recap.isChecked()
     creer_analyse_eleve=self.radio_ana_det.isChecked()
     creer_classement=self.radio_classmt.isChecked()
+    
+    try:
+        tableau_latex=self.compile_latex.isChecked()
+    except NameError:
+        tableau_latex=True
+    try :
+        tableau_typst=self.compile_typst.isChecked()
+    except NameError:
+        tableau_typst=False
+
     #
     niveau=self.combo_niveau.currentText()
     section=self.combo_section.currentText()
@@ -35,11 +46,16 @@ def process_classe(self):
                     pass
                     #Latex_file(doc_type="analyse",titre=titre,file_name=file_name,self.classe)
                 if creer_tableau_recap:
-                    self.tableau_jinja=Tableau_jinja(parent=self)
-                    self.my_slots.signal_doc_saved.connect(lambda : set_thread_compile(self))
-                    self.tableau_jinja.signal_request_save.connect(self.my_slots.enregistrer_document_latex)
-                    self.tableau_jinja.set_data(self.titre,self.classe)
-                    
+                    if tableau_latex : 
+                        self.tableau_jinja=Tableau_jinja_latex(parent=self)
+                        self.my_slots.signal_doc_saved.connect(lambda : set_thread_compile_latex(self))
+                        self.tableau_jinja.signal_request_save.connect(self.my_slots.enregistrer_document_latex)#je dois changer le nom du slot en enregistrer_document
+                        self.tableau_jinja.set_data(self.titre,self.classe)
+                    if tableau_typst:
+                        self.tableau_jinja=Tableau_jinja_typst(parent=self)
+                        self.my_slots.signal_doc_saved.connect(lambda : set_thread_compile_typst(self))
+                        self.tableau_jinja.signal_request_save.connect(self.my_slots.enregistrer_document_latex)
+                        self.tableau_jinja.set_data(self.titre,self.classe)
                     #Latex_file(doc_type="tableau_recap",titre=titre,file_name=file_name)
                 if creer_classement:
                     self.classement_jinja=Classement_jinja(parent=self)

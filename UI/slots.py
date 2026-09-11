@@ -4,7 +4,7 @@ from PyQt6.QtCore import QThread, Qt, pyqtSignal as Signal
 import os
 import subprocess
 from UI.set_classe import set_classe
-from UI.threads import Compile_tableau_task
+from UI.threads import Compile_tableau_latex_task, Compile_tableau_typst_task
 import traceback # Utile pour le débogage
 
 class Slots(QObject):
@@ -66,7 +66,7 @@ class Slots(QObject):
         """
         self.main_window.prog.show()
         self.thread=QThread()
-        self.worker=Compile_tableau_task()
+        self.worker=Compile_tableau_latex_task()
         self.worker.messagebox.connect(self.show_messagebox)
         self.worker.chemin_fichier_tex=chemin_fichier_tex
         self.worker.moveToThread(self.thread)
@@ -79,7 +79,6 @@ class Slots(QObject):
         self.worker.failed.connect(self.thread.quit)
         self.worker.failed.connect(self.worker.deleteLater)
         self.worker.failed.connect(self.thread.deleteLater)
-        #print(f"Téléchargement du document contenant les id des classes...")
         self.thread.start()
 
 

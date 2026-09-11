@@ -5,6 +5,7 @@ from urllib.error import URLError, HTTPError
 import urllib.request
 import os
 import subprocess
+import typst
 
 
 class Download_task(QObject):
@@ -46,7 +47,7 @@ class Download_task(QObject):
             self.messagebox.emit("Erreur Inconnue", f"Une erreur inattendue s'est produite lors de la récupération de l'ID : {e}","critical")
             self.failed.emit()
 
-class Compile_tableau_task(QObject):
+class Compile_tableau_latex_task(QObject):
     messagebox = Signal(str, str, str)
     finished = Signal()
     progress=Signal(int)
@@ -98,6 +99,65 @@ class Compile_tableau_task(QObject):
         """Supprime les fichiers générés par LaTeX (.aux, .log, .fls, etc.)."""
         commande=["latexmk","-c"]
         proc = subprocess.Popen(commande, cwd=dossier)
+        self.finished.emit()
+        self.progress.emit(100)
+        self.messagebox.emit("Succès" , f"Le document a été compilé avec succès","information")
+
+class Compile_tableau_typst_task(QObject):
+    messagebox = Signal(str, str, str)
+    finished = Signal()
+    progress=Signal(int)
+    failed=Signal()
+
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.chemin_fichier_tex=""
+    
+    def run(self):
+        dossier_sortie = os.path.dirname(self.chemin_fichier_tex)
+        nom_base = os.path.basename(self.chemin_fichier_tex)
+        
+        
+        
+        try:
+            commande = ['typst', 'compile', nom_base]
+            print("Nom base : ",nom_base)
+            self.progress.emit(50)
+            #typst.compile(nom_base,format="pdf")
+            proc = subprocess.Popen(commande, cwd=dossier_sortie)
+            print(proc.args)
+            proc.wait() # Assure que le processus est terminé
+            
+
+
+            # --- Vérification du succès (simple) ---
+            if proc.returncode != 0:
+                raise Exception("La commande 'latexmk' a échoué. Vérifiez votre installation LaTeX.")
+                self.failed.emit()
+            
+            
+            # --- ÉTAPE 3: Nettoyage des fichiers temporaires (.aux, .log, etc.) ---
+            # C'est une bonne pratique de nettoyer après la compilation réussie
+            self.progress.emit(75)
+            self.nettoyer_fichiers_temporaires(dossier_sortie)
+        
+        except FileNotFoundError:
+            self.messagebox.emit("Programme Introuvable" , "La commande 'latexmk' n'a pas été trouvée" , "critical")
+            self.failed.emit()
+            raise # Relaisser l'exception pour la gestion globale
+            
+        except Exception as e:
+            self.messagebox.emit("Erreur de Compilation" , f"La compilation LaTeX a échoué.\nDétails: {e}","critical")
+            self.failed.emit()
+            raise # Relaisser l'exception pour la gestion globale
+        finally:
+            pass
+            #prog.close()
+    
+    def nettoyer_fichiers_temporaires(self, dossier: str):
+        """Supprime les fichiers générés par LaTeX (.aux, .log, .fls, etc.)."""
+        #commande=["latexmk","-c"]
+        #proc = subprocess.Popen(commande, cwd=dossier)
         self.finished.emit()
         self.progress.emit(100)
         self.messagebox.emit("Succès" , f"Le document a été compilé avec succès","information")

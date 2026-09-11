@@ -5,7 +5,7 @@ from UI.dock_infos import set_dock_infos
 from UI.dock_analyses import set_dock_analyses
 from UI.dock_start import set_dock_start
 from UI.slots import Slots
-
+from PyQt6.QtWidgets import QCheckBox
 
 
 class Gui(QMainWindow):
@@ -23,7 +23,7 @@ class Gui(QMainWindow):
         #self.center()
         self.sheets_id=None
         self.threads_actifs = []
-    
+
     def center(self):
         screen = QApplication.primaryScreen()
         center_point = screen.availableGeometry().center()
