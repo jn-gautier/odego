@@ -74,7 +74,7 @@ class Compile_tableau_latex_task(QObject):
             # --- Vérification du succès (simple) ---
             if proc.returncode != 0:
                  raise Exception("La commande 'latexmk' a échoué. Vérifiez votre installation LaTeX.")
-                 self.failed.emit()
+                 
             
             
             # --- ÉTAPE 3: Nettoyage des fichiers temporaires (.aux, .log, etc.) ---

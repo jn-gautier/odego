@@ -43,5 +43,5 @@ def get_sheet_classe(self,classe):
             set_download_thread(self,"classe_sheet",sheet_id,classe)
             
         else:
-            self.my_slots.show_messagebox("ID non trouvé", f"Aucun ID de feuille n'a été trouvé pour la classe : {classe_formattee}","warning")
+            self.my_slots.show_messagebox("ID non trouvé", f"Aucun ID de feuille n'a été trouvé pour la classe : {classe}","warning")
                 
