@@ -16,11 +16,11 @@ def process_classe(self):
     
     try:
         tableau_latex=self.compile_latex.isChecked()
-    except NameError:
+    except AttributeError:
         tableau_latex=True
     try :
         tableau_typst=self.compile_typst.isChecked()
-    except NameError:
+    except AttributeError:
         tableau_typst=False
 
     #

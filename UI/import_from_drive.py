@@ -32,6 +32,7 @@ def dialog_import_download(self):
 
 
 def get_sheet_classe(self,classe):
+    sheet_id=None
     if self.sheets_id :
         for ligne in self.sheets_id :
            infos = ligne.split('\t')

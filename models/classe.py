@@ -110,14 +110,14 @@ class Classe(QObject):
          #
          try:
              tree = ET.parse('./config/analyses.xml')
-             for niveau in tree.iter('niveau'):
-                 if niveau.get('name')==self.niv_sec:
-                     tree_niveau=niveau
+             for node_niveau in tree.iter('niveau'):
+                 if node_niveau.get('name')==self.niv_sec:
+                     tree_niveau=node_niveau
                      break
-             for delibe in tree_niveau.iter('delibe'):
-                 print(delibe.get('name'))
-                 if delibe.get('name')==self.delibe:
-                    tree_delibe=delibe
+             for node_delibe in tree_niveau.iter('delibe'):
+                 print(node_delibe.get('name'))
+                 if node_delibe.get('name')==self.delibe:
+                    tree_delibe=node_delibe
                     break
              for analyse in tree_delibe:
                  self.analyse[analyse.tag]=bool(int(analyse.text))
@@ -167,7 +167,7 @@ class Classe(QObject):
                 eleve.fct_credits_inf_50()
             if self.analyse['fct_echec_travail']==True:
                 eleve.fct_echec_travail()
-            if self.analyse['fct_selfment_cours']==True:
+            if self.analyse['fct_classement_cours']==True:
                 eleve.fct_classement_cours()
             if self.analyse['fct_age']==True:
                 eleve.fct_age()
