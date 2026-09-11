@@ -33,8 +33,8 @@ class Classe(QObject):
         self.analyse['fct_oubli_cours']=0
         self.analyse['fct_credits_inf_50']=0
         self.analyse['fct_echec_travail']=0
-        self.analyse['fct_selfment_cours']=0
-        self.analyse['fct_selfment_cours_app']=0
+        self.analyse['fct_classement_cours']=0
+        self.analyse['fct_classement_cours_app']=0
         self.analyse['fct_age']=0
         self.analyse['fct_sciences6']=0
         self.analyse['fct_sciences6_mars']=0
